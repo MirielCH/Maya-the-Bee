@@ -19,7 +19,7 @@ class RemindersListsCog(commands.Cog):
         "Reminder commands",
     )
 
-    @cmd_reminders.command()
+    @cmd_reminders.command(name='add')
     async def reminders_add(
         self,
         ctx: discord.ApplicationContext,
@@ -29,7 +29,7 @@ class RemindersListsCog(commands.Cog):
         """Adds a custom reminder"""
         await reminders_custom.command_custom_reminder(ctx, timestring, text)
 
-    @cmd_reminders.command()
+    @cmd_reminders.command(name='list')
     async def reminders_list(
         self,
         ctx: discord.ApplicationContext,
