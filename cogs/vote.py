@@ -80,7 +80,7 @@ class VoteCog(commands.Cog):
                     return
                 time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
                 if time_left < timedelta(0): return
-                reminder_message = user_settings.reminder_quests.message.replace('{command}', user_command)
+                reminder_message = user_settings.reminder_vote.message.replace('{command}', user_command)
                 reminder: reminders.Reminder = (
                     await reminders.insert_reminder(user.id, 'vote', time_left,
                                                     message.channel.id, reminder_message)
