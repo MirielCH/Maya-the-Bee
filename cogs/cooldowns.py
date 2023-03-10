@@ -214,18 +214,20 @@ class CooldownsCog(commands.Cog):
             ]
             if any(search_string in embed_title.lower() for search_string in search_strings):
                 user = await functions.get_interaction_user(message)
+                user_command = ''
+                interaction = await functions.get_interaction(message)
+                if user is not None:
+                    user_command = interaction.name
                 if user is None:
                     user_id_match = re.search(regex.USER_ID_FROM_ICON_URL, icon_url)
                     if user_id_match:
                         user = message.guild.get_member(int(user_id_match.group(1)))
-                user_command_message = (
-                    await messages.find_message(message.channel.id, user_name=embed_author)
-                )
-                if user_command_message is None:
-                    await functions.add_warning_reaction(message)
-                    await errors.log_error('User command message not found for command cooldown message.', message)
-                    return
-                if user is None: user = user_command_message.author
+                    user_command_message = (
+                        await messages.find_message(message.channel.id, user_name=embed_author)
+                    )
+                    if user_command_message is None: return
+                    user = user_command_message.author
+                    user_command = user_command_message.content
                 try:
                     user_settings: users.User = await users.get_user(user.id)
                 except exceptions.FirstTimeUserError:
@@ -236,17 +238,17 @@ class CooldownsCog(commands.Cog):
                     await functions.add_warning_reaction(message)
                     await errors.log_error('Timestring not found in command cooldown message.', message)
                     return
-                if (re.search(regex.COMMAND_CLEAN, user_command_message.content.lower())
+                if (re.search(regex.COMMAND_CLEAN, user_command.lower() or user_command == 'clean')
                     and user_settings.reminder_clean.enabled):
                     activity = 'clean'
                     user_command = await functions.get_game_command(user_settings, activity)
                     reminder_message = user_settings.reminder_clean.message.replace('{command}', user_command)
-                elif (re.search(regex.COMMAND_DAILY, user_command_message.content.lower())
+                elif (re.search(regex.COMMAND_DAILY, user_command.lower() or user_command == 'daily')
                     and user_settings.reminder_daily.enabled):
                     activity = 'daily'
                     user_command = await functions.get_game_command(user_settings, activity)
                     reminder_message = user_settings.reminder_daily.message.replace('{command}', user_command)
-                elif (re.search(regex.COMMAND_PRUNE, user_command_message.content.lower())
+                elif (re.search(regex.COMMAND_PRUNE, user_command.lower() or user_command == 'prune')
                     and user_settings.reminder_prune.enabled):
                     activity = 'prune'
                     user_command = await functions.get_game_command(user_settings, activity)
@@ -257,7 +259,7 @@ class CooldownsCog(commands.Cog):
                         .replace('{pruner_emoji}', pruner_emoji)
                         .replace('  ', ' ')
                     )
-                elif (re.search(regex.COMMAND_HIVE_CLAIM_ENERGY, user_command_message.content.lower())
+                elif (re.search(regex.COMMAND_HIVE_CLAIM_ENERGY, user_command.lower() or user_command == 'hive')
                     and user_settings.reminder_hive_energy.enabled):
                     activity = 'hive-energy'
                     user_command = await functions.get_game_command(user_settings, 'hive claim energy')
