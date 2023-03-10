@@ -81,7 +81,7 @@ EXTENSIONS = [
         'cogs.clean',
         'cogs.cooldowns',
         'cogs.daily',
-        #'cogs.dev',
+        'cogs.dev',
         'cogs.fusion',
         'cogs.hive',
         'cogs.laboratory',

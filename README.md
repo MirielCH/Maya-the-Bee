@@ -40,3 +40,40 @@ Reminder for the Discord bot Tree.
 Maya uses slash commands but also supports some legacy commands.
 Default prefix for legacy commands is `maya ` and is changeable in `/settings server`.
 Use `/help` for an overview.
+
+# Dev commands
+These commands are only available if you host yourself and provide bot admin level functionality.
+They are restricted as follows:
+• They can only be used by users set in DEV_IDS.
+• They are not registered globally and only show up in the servers set in DEV_GUILDS.
+• They are not listed in `/help`.
+
+The following commands are available:
+### `/dev cache`
+Shows the size of the local message cache. All user messages containing a mention of Tree or starting with "tree " are cached for 1 minute to speed up command detection and reduce API requests.
+
+### `/dev consolidate`
+Manually triggers the tracking consolidation. This runs daily at 00:00 UTC, so you probably won't need this.
+
+### `/dev event-reductions`
+Manages global event reductions. If there ever will be reduced cooldowns in an event, this is the command to use.
+
+### `/dev post-message`
+Allows you to send a custom message via Maya to a channel.
+
+### `/dev reload`
+Allows reloading of cogs and modules on the fly.
+Note that you should always restart the bot when there is a breaking change, no matter what.
+
+It's not possible to reload the following files:
+• Cogs with slash command definitions. Due to Discord restrictions, you need to restart the whole thing if you change slash commands.
+• The file `bot.py` as this is the main file that is running.
+• The file `tasks.py`. I had mixed results with this, just restart instead.
+
+To reload files in subfolders, use `folder.file` (e.g. `resources.settings`). Cogs don't need that, the filename is enough (e.g. `prune`).
+
+### `/dev server-list`
+Lists all servers Maya is in by name.
+
+### `/dev shutdown`
+Shuts down the bot. Note that if the bot is registered as a systemctl or systemd service, it will automatically restart.
