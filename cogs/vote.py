@@ -72,6 +72,7 @@ class VoteCog(commands.Cog):
                         return
                     except exceptions.NoDataFoundError:
                         pass
+                    return
                 user_command = await functions.get_game_command(user_settings, 'vote')
                 timestring_match = re.search(r'\*\*`(.+?)`\*\*', embed_title, re.IGNORECASE)
                 if not timestring_match:

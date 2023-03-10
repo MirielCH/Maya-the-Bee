@@ -98,7 +98,7 @@ class ChestsCog(commands.Cog):
                         .replace('{chest_emoji}', chest_emoji)
                         .replace('{chest_type}', chest_type)
                     )
-                    time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
+                    time_left = await functions.parse_timestring_to_timedelta(timestring_match.group(1).lower())
                     reminder: reminders.Reminder = (
                         await reminders.insert_reminder(user.id, activity, time_left,
                                                         message.channel.id, reminder_message)
