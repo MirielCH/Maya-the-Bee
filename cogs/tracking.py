@@ -70,10 +70,14 @@ class TrackingCog(commands.Cog):
                 embed_title = embed.title if embed.title else ''
 
                 # Captcha
-                search_strings = [
+                search_strings_title = [
                     'verification required!', #English
                 ]
-                if any(search_string in embed_title.lower() for search_string in search_strings):
+                search_strings_content = [
+                    'captcha solved successfully', #English
+                ]
+                if (any(search_string in embed_title.lower() for search_string in search_strings_title)
+                    and any(search_string in embed_title.lower() for search_string in search_strings_content)):
                     user = await functions.get_interaction_user(message)
                     if user is None:
                         if message.mentions:

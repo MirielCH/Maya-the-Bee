@@ -1,9 +1,10 @@
 # laboratory.py
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 import re
 
 import discord
+from discord import utils
 from discord.ext import commands
 
 from cache import messages
@@ -33,13 +34,14 @@ class LaboratoryCog(commands.Cog):
 
         if message.embeds:
             embed = message.embeds[0]
-            embed_author = icon_url = embed_field_0 = ''
+            embed_author = icon_url = embed_field_0_value = embed_field_0_name = ''
             if embed.author:
                 embed_author = embed.author.name
                 icon_url = embed.author.icon_url
             embed_description = embed.description if embed.description else ''
             if embed.fields:
-                embed_field_0 = embed.fields[0].value
+                embed_field_0_name = embed.fields[0].name
+                embed_field_0_value = embed.fields[0].value
 
             # Store research time from Laboratory overview
             if re.search(r'level \d+ laboratory', embed_description, re.IGNORECASE):
@@ -69,7 +71,7 @@ class LaboratoryCog(commands.Cog):
                     return
                 if not user_settings.bot_enabled: return
                 timestring_found = False
-                for line in embed_field_0.split('\n'):
+                for line in embed_field_0_value.split('\n'):
                     if not 'time needed' in line.lower(): continue
                     timestring_match = re.search('\)\*\* (.+?)$', line)
                     if not timestring_match:
@@ -117,6 +119,53 @@ class LaboratoryCog(commands.Cog):
                 reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
                 reminder: reminders.Reminder = (
                     await reminders.insert_reminder(user.id, 'research', time_left,
+                                                    message.channel.id, reminder_message)
+                )
+                await functions.add_reminder_reaction(message, reminder, user_settings)
+
+            # Research in progress
+            search_strings = [
+                'researching: tier', #English
+            ]
+            if any(search_string in embed_field_0_name.lower() for search_string in search_strings):
+                interaction_user = await functions.get_interaction_user(message)
+                embed_users = []
+                if interaction_user is None:
+                    user_command_message = (
+                        await messages.find_message(message.channel.id, regex.COMMAND_LABORATORY)
+                    )
+                    if user_command_message is None:
+                        await functions.add_warning_reaction(message)
+                        return
+                    interaction_user = user_command_message.author
+                user_id_match = re.search(regex.USER_ID_FROM_ICON_URL, icon_url)
+                if user_id_match:
+                    user_id = int(user_id_match.group(1))
+                    embed_users.append(message.guild.get_member(user_id))
+                else:
+                    embed_users = await functions.get_guild_member_by_name(message.guild, embed_author)
+                    if not embed_users:
+                        await functions.add_warning_reaction(message)
+                        return
+                if interaction_user not in embed_users: return
+                try:
+                    user_settings: users.User = await users.get_user(interaction_user.id)
+                except exceptions.FirstTimeUserError:
+                    return
+                if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return
+                user_command = await functions.get_game_command(user_settings, 'laboratory')
+                research_end_match = re.search(r'<t:(\d+?):f>', embed_field_0_value.lower())
+                if not research_end_match:
+                    await functions.add_warning_reaction(message)
+                    await errors.log_error('Research end time not found in research progress message.', message)
+                    return
+                end_time = datetime.fromtimestamp(int(research_end_match.group(1)), timezone.utc).replace(microsecond=0)
+                current_time = utils.utcnow().replace(microsecond=0)
+                time_left = end_time - current_time
+                if time_left < timedelta(0): return
+                reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
+                reminder: reminders.Reminder = (
+                    await reminders.insert_reminder(interaction_user.id, 'research', time_left,
                                                     message.channel.id, reminder_message)
                 )
                 await functions.add_reminder_reaction(message, reminder, user_settings)

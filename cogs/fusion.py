@@ -104,6 +104,8 @@ class FusionCog(commands.Cog):
 
                 if add_reaction:
                     await message.add_reaction(emojis.LOGO)
+                if 'got a level' in embed_field_0_value.lower():
+                    await message.add_reaction(emojis.PAN_HAPPY)
 
 
 # Initialization
