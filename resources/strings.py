@@ -81,9 +81,9 @@ INTERNAL_ERROR_DICT_TO_OBJECT = 'Error converting record into object\nFunction: 
 
 
 # Links
-LINK_GITHUB = 'https://github.com/Miriel-py/Navi'
+LINK_GITHUB = 'https://github.com/Miriel-py/Maya-the-Bee'
 LINK_INVITE = 'https://discord.com/api/oauth2/authorize?client_id=1082304094842146897&permissions=378944&scope=bot'
-LINK_PRIVACY_POLICY = 'https://github.com/Miriel-py/Navi/blob/master/PRIVACY.md'
+LINK_PRIVACY_POLICY = 'https://github.com/Miriel-py/Maya-the-Bee/blob/master/PRIVACY.md'
 
 # --- Default messages ---
 DEFAULT_MESSAGE_CUSTOM_REMINDER = 'Bzzt! This is your reminder for **{message}**!'
