@@ -99,13 +99,16 @@ async def embed_about(bot: commands.Bot, api_latency: datetime) -> discord.Embed
         f'{emojis.BP} {round(api_latency.total_seconds() * 1000):,} ms API latency\n'
         f'{emojis.BP} Online for {format_timespan(uptime)}'
     )
-    creator = f'{emojis.BP} Miriel#0001 (yeah sorry, me again)'
+    creator = f'{emojis.BP} Miriel#0001'
     dev_stuff = (
         f'{emojis.BP} Version: {settings.VERSION}\n'
         f'{emojis.BP} Language: Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}\n'
         f'{emojis.BP} Library: Pycord {discord.__version__}\n'
         f'{emojis.BP} System CPU usage: {psutil.cpu_percent()}%\n'
         f'{emojis.BP} System RAM usage: {psutil.virtual_memory()[2]}%\n'
+    )
+    thanks_to = (
+        f'{emojis.BP} [Karel Gott](https://www.youtube.com/watch?v=96tOPyuhuJs)'
     )
     img_logo = discord.File(settings.IMG_LOGO, filename='logo.png')
     image_url = 'attachment://logo.png'
@@ -117,5 +120,6 @@ async def embed_about(bot: commands.Bot, api_latency: datetime) -> discord.Embed
     embed.add_field(name='Bot stats', value=general, inline=False)
     embed.add_field(name='Creator', value=creator, inline=False)
     embed.add_field(name='Dev stuff', value=dev_stuff, inline=False)
+    embed.add_field(name='Special thanks to', value=thanks_to, inline=False)
     embed.set_thumbnail(url=image_url)
     return (img_logo, embed)
