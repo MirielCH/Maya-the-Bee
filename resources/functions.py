@@ -57,10 +57,20 @@ async def get_discord_channel(bot: discord.Bot, channel_id: int) -> discord.User
 
 
 # --- Reactions
+async def add_logo_reaction(message: discord.Message) -> None:
+    """Adds a Maya reaction if not already added"""
+    reaction_exists = False
+    for reaction in message.reactions:
+        if reaction.emoji == emojis.LOGO:
+            reaction_exists = True
+            break
+    if not reaction_exists: await message.add_reaction(emojis.LOGO)
+        
+
 async def add_reminder_reaction(message: discord.Message, reminder: reminders.Reminder,  user_settings: users.User) -> None:
     """Adds a Maya reaction if the reminder was created, otherwise add a warning and send the error if debug mode is on"""
-    if reminder.record_exists:
-        if user_settings.reactions_enabled: await message.add_reaction(emojis.LOGO)
+    if reminder.record_exists and user_settings.reactions_enabled:
+        await add_logo_reaction(message)
     else:
         if settings.DEBUG_MODE or message.guild.id in settings.DEV_GUILDS:
             await message.add_reaction(emojis.WARNING)
@@ -462,87 +472,3 @@ async def reply_or_respond(ctx: Union[discord.ApplicationContext, commands.Conte
         return await ctx.reply(answer)
     else:
         return await ctx.respond(answer, ephemeral=ephemeral)
-
-
-async def parse_embed(message: discord.Message) -> Dict[str, str]:
-    """Parses all data from an embed into a dictionary.
-    All keys are guaranteed to exist and have an empty string as value if not set in the embed.
-    """    
-    embed_data = {
-        'author': {'icon-url': '', 'name': ''},
-        'description': '',
-        'field0': {'name': '', 'value': ''},
-        'field1': {'name': '', 'value': ''},
-        'field2': {'name': '', 'value': ''},
-        'field3': {'name': '', 'value': ''},
-        'field4': {'name': '', 'value': ''},
-        'field5': {'name': '', 'value': ''},
-        'footer': {'icon-url': '', 'text': ''},
-        'title': '',
-    }
-    if message.embeds:
-        embed = message.embeds[0]
-        if embed.author:
-            if embed.author.icon_url != discord.Embed.Empty:
-                embed_data['author']['icon_url'] = embed.author.icon_url
-            if embed.author.name != discord.Embed.Empty:
-                embed_data['author']['name'] = embed.author.name
-        if embed.description:
-            embed_data['description'] = embed.description
-        if embed.fields:
-            try:
-                embed_data['field0']['name'] = embed.fields[0].name
-                embed_data['field0']['value'] = embed.fields[0].value
-            except IndexError:
-                pass
-            try:
-                embed_data['field1']['name'] = embed.fields[1].name
-                embed_data['field1']['value'] = embed.fields[1].value
-            except IndexError:
-                pass
-            try:
-                embed_data['field2']['name'] = embed.fields[2].name
-                embed_data['field2']['value'] = embed.fields[2].value
-            except IndexError:
-                pass
-            try:
-                embed_data['field3']['name'] = embed.fields[3].name
-                embed_data['field3']['value'] = embed.fields[3].value
-            except IndexError:
-                pass
-            try:
-                embed_data['field4']['name'] = embed.fields[4].name
-                embed_data['field4']['value'] = embed.fields[4].value
-            except IndexError:
-                pass
-            try:
-                embed_data['field5']['name'] = embed.fields[5].name
-                embed_data['field5']['value'] = embed.fields[5].value
-            except IndexError:
-                pass
-        if embed.footer:
-            if embed.footer.icon_url != discord.Embed.Empty:
-                embed_data['footer']['icon_url'] = embed.footer.icon_url
-            if embed.footer.text != discord.Embed.Empty:
-                embed_data['footer']['text'] = embed.footer.text
-        if embed.title:
-            embed_data['title'] = embed.title
-    return embed_data
-
-
-async def check_message_for_active_components(message: discord.Message) -> Union[bool, None]:
-    """Checks if the message has any active components.
-    
-    Returns
-    -------
-    - False if all components are disabled
-    - True if at least one component is not disabled OR the message doesn't have any components
-    """
-    if not message.components: return True
-    active_component = False
-    for row in message.components:
-        for component in row.children:
-            if not component.disabled:
-                active_component = True
-                break
-    return active_component

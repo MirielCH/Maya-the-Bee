@@ -51,7 +51,9 @@ async def on_error(event: str, *args, **kwargs) -> None:
         embed.add_field(name='Event', value=f'`{event}`', inline=False)
         embed.add_field(name='Error', value=f'```py\n{traceback_message[:1015]}```', inline=False)
         await errors.log_error(f'- Event: {event}\n- Error: {error[1]}\n- Traceback:\n{traceback_str}', message)
-        if settings.DEBUG_MODE: await message.channel.send(embed=embed)
+        if settings.DEBUG_MODE:
+            await message.channel.send(embed=embed)
+            await functions.add_warning_reaction(message)
     else:
         try:
             message, = args
@@ -64,7 +66,9 @@ async def on_error(event: str, *args, **kwargs) -> None:
         traceback_message = f'{error[1]}\n{traceback_str}'
         embed.add_field(name='Error', value=f'```py\n{traceback_message[:1015]}```', inline=False)
         await errors.log_error(f'- Event: {event}\n- Error: {error[1]}\n- Traceback:\n{traceback_str}', message)
-        if settings.DEBUG_MODE: await message.channel.send(embed=embed)
+        if settings.DEBUG_MODE:
+            await message.channel.send(embed=embed)
+            await functions.add_warning_reaction(message)
         if event == 'on_reaction_add':
             reaction, user = args
             return
@@ -77,24 +81,13 @@ async def on_error(event: str, *args, **kwargs) -> None:
 
 EXTENSIONS = [
         'cogs.cache',
-        'cogs.chests',
-        'cogs.clean',
-        'cogs.cooldowns',
-        'cogs.daily',
+        'cogs.detection',
         'cogs.dev',
-        'cogs.fusion',
-        'cogs.hive',
-        'cogs.laboratory',
         'cogs.main',
-        'cogs.profile',
-        'cogs.prune',
-        'cogs.quests',
         'cogs.reminders',
         'cogs.settings',
-        'cogs.tracking',
+        #'cogs.tracking',
         'cogs.tasks',
-        'cogs.tool',
-        'cogs.vote',
     ]
 
 if __name__ == '__main__':
