@@ -140,7 +140,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled: return
+            if not user_settings.bot_enabled: return add_reaction
         embed_field_commands = unicodedata.normalize('NFKD', embed_data['field0']['value'])
         embed_field_quests = unicodedata.normalize('NFKD', embed_data['field1']['value'])
         embed_field_raid = unicodedata.normalize('NFKD', embed_data['field2']['value'])

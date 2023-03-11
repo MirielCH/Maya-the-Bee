@@ -102,7 +102,7 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return
+            if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'laboratory')
         if user_settings.research_time == 0:
             await functions.add_warning_reaction(message)

@@ -1,18 +1,13 @@
 # tracking.py
 """Contains commands related to command tracking"""
 
-from datetime import datetime
 import re
 
 import discord
-from discord import utils
 from discord.commands import slash_command, Option
 from discord.ext import commands
 
-from cache import messages
 from content import tracking as tracking_cmd
-from database import errors, users, tracking
-from resources import emojis, functions, exceptions, regex, settings
 
 
 class TrackingCog(commands.Cog):
@@ -49,81 +44,7 @@ class TrackingCog(commands.Cog):
         timestring = re.sub(r'<@!?[0-9]+>', '', args.lower())
         if timestring == '': timestring = None
         await tracking_cmd.command_stats(self.bot, ctx, timestring, user)
-
-    # Events
-    @commands.Cog.listener()
-    async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message) -> None:
-        """Runs when a message is edited in a channel."""
-        if message_before.pinned != message_after.pinned: return
-        if message_before.components and not message_after.components: return
-        active_component = await functions.check_message_for_active_components(message_after)
-        if active_component: await self.on_message(message_after)
-
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message) -> None:
-        """Fires when a message is sent"""
-        if message.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
-        if not message.embeds: return
-        embed_data = await functions.parse_embed(message)
-
-        # Captcha
-        search_strings_title = [
-            'verification required!', #English
-        ]
-        search_strings_content = [
-            'captcha solved successfully', #English
-        ]
-        if (any(search_string in embed_data['title'].lower() for search_string in search_strings_title)
-            and any(search_string in message.content.lower() for search_string in search_strings_content)):
-            user = await functions.get_interaction_user(message)
-            if user is None:
-                if message.mentions:
-                    user = message.mentions[0]
-                else:
-                    return
-            try:
-                user_settings: users.User = await users.get_user(user.id)
-            except exceptions.FirstTimeUserError:
-                return
-            if user_settings.tracking_enabled and user_settings.bot_enabled:
-                current_time = utils.utcnow().replace(microsecond=0)
-                await tracking.insert_log_entry(user.id, message.guild.id, 'captcha', current_time)
-
-        """
-        # Last rebirth (message currently broken)
-        search_strings = [
-            'i have absolutely no idea whatsoever lol', #English
-        ]
-        if any(search_string in embed.description.lower() for search_string in search_strings):
-            user_command_message = None
-            user = await functions.get_interaction_user(message)
-            if user is None:
-                search_patterns = [
-                    r'\*\*(.+?)\*\* has', #English
-                    r'\*\*(.+?)\*\* viajó', #English
-                    r'\*\*(.+?)\*\* tempo', #Portuguese
-                ]
-                user_name_match = await functions.get_match_from_patterns(search_patterns, message_content)
-                if user_name_match:
-                    user_name = user_name_match.group(1)
-                    user_command_message = (
-                        await messages.find_message(message.channel.id, regex.COMMAND_TIME_TRAVEL,
-                                                    user_name=user_name)
-                    )
-                if not user_name_match or user_command_message is None:
-                    await errors.log_error('User name not found in time travel message.', message)
-                    return
-                user = user_command_message.author
-            try:
-                user_settings: users.User = await users.get_user(user.id)
-            except exceptions.FirstTimeUserError:
-                return
-            if not user_settings.bot_enabled: return
-            tt_time = message.created_at.replace(microsecond=0, tzinfo=None)
-            await user_settings.update(last_tt=tt_time.isoformat(sep=' '))
-            if user_settings.last_tt == tt_time and user_settings.bot_enabled and user_settings.reactions_enabled:
-                await message.add_reaction(emojis.NAVI)
-        """
+        
 
 # Initialization
 def setup(bot):

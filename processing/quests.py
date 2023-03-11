@@ -117,10 +117,6 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
             if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'quests')
         quest_type_match = re.search(r'> (.+?) quest', embed_data['description'].lower())
-        if not quest_type_match:
-            await functions.add_warning_reaction(message)
-            await errors.log_error('Quest type not found in quest message.', message)
-            return
         quest_start_field = ''
         for value in embed_data.values():
             if isinstance(value, dict):
@@ -131,10 +127,6 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
                 except KeyError:
                     continue
         quest_start_match = re.search(r'<t:(\d+?):d>', quest_start_field.lower())
-        if not quest_start_match:
-            await functions.add_warning_reaction(message)
-            await errors.log_error('Quest start time not found in active quest message.', message)
-            return
         quest_type = quest_type_match.group(1).lower()
         activity = f'quest-{quest_type}'
         quest_start = datetime.fromtimestamp(int(quest_start_match.group(1)), timezone.utc).replace(microsecond=0)
@@ -142,7 +134,7 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
         end_time = quest_start + reminder_time
         current_time = utils.utcnow().replace(microsecond=0)
         time_left = end_time - current_time
-        if time_left < timedelta(0): return
+        if time_left < timedelta(0): return add_reaction
         reminder_message = (
             user_settings.reminder_quests.message
             .replace('{command}', user_command)

@@ -66,7 +66,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         user_command = await functions.get_game_command(user_settings, 'vote')
         timestring_match = re.search(r'\*\*`(.+?)`\*\*', embed_data['title'], re.IGNORECASE)
         time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
-        if time_left < timedelta(0): return
+        if time_left < timedelta(0): return add_reaction
         reminder_message = user_settings.reminder_vote.message.replace('{command}', user_command)
         reminder: reminders.Reminder = (
             await reminders.insert_reminder(user.id, 'vote', time_left,

@@ -66,8 +66,8 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
             try:
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
-                return
-            if not user_settings.bot_enabled: return
+                return add_reaction
+            if not user_settings.bot_enabled: return add_reaction
         if embed_data['field3']['value'] != '':
             cooldowns = []
             ready_commands = []
@@ -100,7 +100,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 )
                 if not reminder.record_exists:
                     await message.channel.send(strings.MSG_ERROR)
-                    return
+                    return add_reaction
                 updated_reminder = True
             for activity in ready_commands:
                 try:
