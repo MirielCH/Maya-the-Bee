@@ -30,7 +30,8 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
 
     Returns
     -------
-    - False
+    - True if a logo reaction should be added to the message
+    - False otherwise
     """
     add_reaction = False
     search_strings = [

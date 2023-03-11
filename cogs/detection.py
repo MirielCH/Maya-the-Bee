@@ -22,7 +22,8 @@ class DetectionCog(commands.Cog):
     async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message) -> None:
         """Runs when a message is edited in a channel."""
         if message_before.pinned != message_after.pinned: return
-        if message_before.components and not message_after.components: return
+        if message_before.components and not message_after.components and not 'captcha' in message_after.content.lower():
+            return
         active_component = await check_message_for_active_components(message_after)
         if active_component: await self.on_message(message_after)
 
@@ -42,8 +43,9 @@ class DetectionCog(commands.Cog):
             try:
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
-                return
-            if not user_settings.bot_enabled: return
+                if not 'fusion results' in embed_data['field0']['name'].lower(): return
+            if user_settings is not None:
+                if not user_settings.bot_enabled: return
         if embed_data['embed_user'] is not None:
             if interaction_user is not None and embed_data['embed_user'] == interaction_user:
                 embed_user_settings = user_settings
