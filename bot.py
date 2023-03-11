@@ -86,6 +86,7 @@ EXTENSIONS = [
         'cogs.hive',
         'cogs.laboratory',
         'cogs.main',
+        'cogs.profile',
         'cogs.prune',
         'cogs.quests',
         'cogs.reminders',

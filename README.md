@@ -44,8 +44,8 @@ Reminder for the Discord bot Tree.
 
 ## Commands
 
-Maya uses slash commands but also supports some legacy commands.  
-Default prefix for legacy commands is `maya ` and is changeable in `/settings server`.  
+Maya uses slash commands but also supports some text commands.  
+Default prefix for text commands is `maya ` and is changeable in `/settings server`.  
 Use `/help` for an overview.  
 
 ## Dev commands

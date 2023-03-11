@@ -103,8 +103,10 @@ class ToolCog(commands.Cog):
                     user_settings: users.User = await users.get_user(user.id)
                 except exceptions.FirstTimeUserError:
                     return
-                if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return
+                if not user_settings.bot_enabled: return
                 activity = 'upgrade' if 'coin' in embed_description.lower() else 'research'
+                if activity == 'upgrade' and not user_settings.reminder_upgrade.enabled: return
+                if activity == 'research' and not user_settings.reminder_research.enabled: return
                 try:
                     reminder: reminders.Reminder = await reminders.get_reminder(user.id, activity)
                     await reminder.delete()

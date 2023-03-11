@@ -202,6 +202,8 @@ class LaboratoryCog(commands.Cog):
                 if user_settings.reactions_enabled:
                     await message.add_reaction(emojis.LOGO)
 
+            # Cancel research -> is done in tool.py because it's the exact same message
+
 
 # Initialization
 def setup(bot):
