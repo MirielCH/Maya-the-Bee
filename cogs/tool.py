@@ -89,7 +89,7 @@ class ToolCog(commands.Cog):
                 )
                 await functions.add_reminder_reaction(message, reminder, user_settings)
 
-            # Cancel upgrade
+            # Cancel upgrade or research
             search_strings = [
                 'you have been refund', #English
             ]
@@ -101,8 +101,9 @@ class ToolCog(commands.Cog):
                 except exceptions.FirstTimeUserError:
                     return
                 if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return
+                activity = 'upgrade' if 'coin' in embed_description.lower() else 'research'
                 try:
-                    reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'upgrade')
+                    reminder: reminders.Reminder = await reminders.get_reminder(user.id, activity)
                     await reminder.delete()
                 except exceptions.NoDataFoundError:
                     return
