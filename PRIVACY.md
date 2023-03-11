@@ -21,11 +21,12 @@ Important things to note:
 
 Maya has access to the content of all messages it can see. This access is necessary to create reminders.  
 Maya reads Tree messages and also reads the commands you issue to trigger said messages (e.g. if a prune message is detected, it will also read your `/prune` slash command or your `tree prune` message).  
-This data does usually (see below) not get stored and is immediately discarded.  
 
-### Exception
+## Storing message data
 
-If there is an error, the following data is stored in the error log:  
+The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discraded after 1 minute and not stored permanently.  
+
+If there is an error, the following data is stored permanently in the error log:  
 • Content of the **Tree** message that couldn’t get processed correctly (but never messages by **you**).  
 • A message link to the **Tree** message that couldn’t get processed correctly. If the error happened in a private channel, I do not have access to that channel, as the stored message link will **not** work.  
 
@@ -45,4 +46,4 @@ At my discretion, I may change my privacy policy to reflect updates. If I decide
 
 ## Contact me
 
-For any questions or concerns regarding this privacy, you may contact me (Miriel#0001) on Discord directly.  
+For any questions or concerns regarding this policy, you may contact me (Miriel#0001) on Discord directly.  
