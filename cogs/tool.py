@@ -9,7 +9,7 @@ from discord.ext import commands
 
 from cache import messages
 from database import errors, reminders, users
-from resources import exceptions, functions, regex, settings
+from resources import emojis, exceptions, functions, regex, settings
 
 
 class ToolCog(commands.Cog):
@@ -42,7 +42,7 @@ class ToolCog(commands.Cog):
             if embed.fields:
                 embed_field_0 = embed.fields[0].value
 
-            # Upgrade
+            # Start upgrade
             search_strings = [
                 'upgrading to level', #English
             ]
@@ -88,6 +88,58 @@ class ToolCog(commands.Cog):
                                                     message.channel.id, reminder_message)
                 )
                 await functions.add_reminder_reaction(message, reminder, user_settings)
+
+            # Cancel upgrade
+            search_strings = [
+                'you have been refund', #English
+            ]
+            if any(search_string in embed_description.lower() for search_string in search_strings):
+                user = await functions.get_interaction_user(message)
+                if user is None: user = message.mentions[0]
+                try:
+                    user_settings: users.User = await users.get_user(user.id)
+                except exceptions.FirstTimeUserError:
+                    return
+                if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return
+                try:
+                    reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'upgrade')
+                    await reminder.delete()
+                except exceptions.NoDataFoundError:
+                    return
+                if user_settings.reactions_enabled:
+                    await message.add_reaction(emojis.LOGO)
+
+            # Skip upgrade
+            search_strings = [
+                'you have skipped the upgrade', #English
+            ]
+            if any(search_string in embed_description.lower() for search_string in search_strings):
+                user = await functions.get_interaction_user(message)
+                if user is None:
+                    user_name_match = re.search(r"^\*\*(.+?)\*\*, ", embed_description)
+                    if user_name_match:
+                        user_command_message = (
+                            await messages.find_message(message.channel.id, regex.COMMAND_TOOL,
+                                                        user_name=user_name_match.group(1))
+                        )
+                    if not user_name_match or user_command_message is None:
+                        await functions.add_warning_reaction(message)
+                        await errors.log_error('User not found in tool skip message.', message)
+                        return
+                    user = user_command_message.author
+
+                try:
+                    user_settings: users.User = await users.get_user(user.id)
+                except exceptions.FirstTimeUserError:
+                    return
+                if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return
+                try:
+                    reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'upgrade')
+                    await reminder.delete()
+                except exceptions.NoDataFoundError:
+                    return
+                if user_settings.reactions_enabled:
+                    await message.add_reaction(emojis.LOGO)
 
 
 # Initialization

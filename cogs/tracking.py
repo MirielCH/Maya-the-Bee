@@ -55,10 +55,6 @@ class TrackingCog(commands.Cog):
     async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message) -> None:
         """Runs when a message is edited in a channel."""
         if message_before.pinned != message_after.pinned: return
-        for row in message_after.components:
-            for component in row.children:
-                if component.disabled:
-                    return
         await self.on_message(message_after)
 
     @commands.Cog.listener()

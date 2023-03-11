@@ -47,7 +47,7 @@ class FusionCog(commands.Cog):
                 user2 = None
                 add_reaction = False
                 fusion_users = embed_field_0_value.split('\n')
-                regex_user_name = re.compile(r'> \*\*(.+?)\*\*\'s')
+                regex_user_name = re.compile(r"> \*\*(.+?)\*\*(?:'s| got)")
                 user1_name_match = re.search(regex_user_name, fusion_users[0])
                 user2_name_match = re.search(regex_user_name, fusion_users[1])
                 if not user1_name_match or not user2_name_match:
@@ -104,8 +104,8 @@ class FusionCog(commands.Cog):
 
                 if add_reaction:
                     await message.add_reaction(emojis.LOGO)
-                if 'got a level' in embed_field_0_value.lower():
-                    await message.add_reaction(emojis.PAN_HAPPY)
+                    if 'got a level' in embed_field_0_value.lower():
+                        await message.add_reaction(emojis.PAN_HAPPY)
 
 
 # Initialization
