@@ -23,9 +23,12 @@ class User():
     dnd_mode_enabled: bool
     donor_tier: int
     helper_context_enabled: bool
+    helper_prune_enabled: bool
     last_rebirth: datetime
+    level: int
     pruner_type: str
     reactions_enabled: bool
+    rebirth: int
     reminder_boosts: UserReminder
     reminder_chests: UserReminder
     reminder_clean: UserReminder
@@ -41,6 +44,10 @@ class User():
     research_time: int
     tracking_enabled: bool
     user_id: int
+    xp: int
+    xp_gain_average: float
+    xp_prune_count: int
+    xp_target: int
 
     async def refresh(self) -> None:
         """Refreshes user data from the database."""
@@ -49,9 +56,12 @@ class User():
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
         self.helper_context_enabled = new_settings.helper_context_enabled
+        self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.last_rebirth = new_settings.last_rebirth
+        self.level = new_settings.level
         self.pruner_type = new_settings.pruner_type
         self.reactions_enabled = new_settings.reactions_enabled
+        self.rebirth = new_settings.rebirth
         self.reminder_boosts = new_settings.reminder_boosts
         self.reminder_chests = new_settings.reminder_chests
         self.reminder_clean = new_settings.reminder_clean
@@ -66,6 +76,10 @@ class User():
         self.reminders_slash_enabled = new_settings.reminders_slash_enabled
         self.research_time = new_settings.research_time
         self.tracking_enabled = new_settings.tracking_enabled
+        self.xp = new_settings.xp
+        self.xp_gain_average = new_settings.xp_gain_average
+        self.xp_prune_count = new_settings.xp_prune_count
+        self.xp_target = new_settings.xp_target
 
     async def update(self, **kwargs) -> None:
         """Updates the user record in the database. Also calls refresh().
@@ -78,9 +92,12 @@ class User():
             dnd_mode_enabled: bool
             donor_tier: int
             helper_context_enabled: bool
+            helper_prune_enabled: bool
             last_rebirth: datetime UTC aware
+            level: int
             pruner_type: str
             reactions_enabled: bool
+            rebirth: int
             reminder_boosts_enabled: bool
             reminder_boosts_message: str
             reminder_chests_enabled: bool
@@ -106,6 +123,10 @@ class User():
             reminders_slash_enabled: bool
             research_time: int
             tracking_enabled: bool
+            xp: int
+            xp_gain_average: float
+            xp_prune_count: int
+            xp_target: int
         """
         await _update_user(self, **kwargs)
         await self.refresh()
@@ -135,8 +156,11 @@ async def _dict_to_user(record: dict) -> User:
             donor_tier = record['donor_tier'],
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
             helper_context_enabled = bool(record['helper_context_enabled']),
+            helper_prune_enabled = bool(record['helper_prune_enabled']),
+            level = record['level'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
             reactions_enabled = bool(record['reactions_enabled']),
+            rebirth = record['rebirth'],
             reminder_boosts = UserReminder(enabled=bool(record['reminder_boosts_enabled']),
                                            message=record['reminder_boosts_message']),
             reminder_chests = UserReminder(enabled=bool(record['reminder_chests_enabled']),
@@ -162,6 +186,10 @@ async def _dict_to_user(record: dict) -> User:
             reminders_slash_enabled = bool(record['reminders_slash_enabled']),
             research_time = record['research_time'],
             tracking_enabled = bool(record['tracking_enabled']),
+            xp = record['xp'],
+            xp_gain_average = float(record['xp_gain_average']),
+            xp_prune_count = record['xp_prune_count'],
+            xp_target = record['xp_target'],
             user_id = record['user_id'],
         )
     except Exception as error:
@@ -284,9 +312,12 @@ async def _update_user(user: User, **kwargs) -> None:
         dnd_mode_enabled: bool
         donor_tier: int
         helper_context_enabled: bool
+        helper_prune_enabled: bool
         last_rebirth: datetime UTC aware
+        level: int
         pruner_type: str
         reactions_enabled: bool
+        rebirth: int
         reminder_boosts_enabled: bool
         reminder_boosts_message: str
         reminder_chests_enabled: bool
@@ -312,6 +343,10 @@ async def _update_user(user: User, **kwargs) -> None:
         reminders_slash_enabled: bool
         research_time: int
         tracking_enabled: bool
+        xp: int
+        xp_gain_average: float
+        xp_prune_count: int
+        xp_target: int
 
     Raises
     ------

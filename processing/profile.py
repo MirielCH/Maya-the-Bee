@@ -71,7 +71,9 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 return add_reaction
             if not user_settings.bot_enabled: return add_reaction
 
-        # Insecticide & raid shield boost
+        # Insecticide & Raid shield boost reminder
+        # Store level, xp and rebirth
+        level = rebirth = xp = xp_target = -1
         for line in embed_data['field0']['value'].split('\n'):
             if 'insecticide' in line.lower():
                 boost_end_match = re.search(r'<t:(\d+?):r>', line.lower())
@@ -89,7 +91,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 else:
                     ready_commands.append(activity)
 
-            if 'raid shield' in line.lower():
+            elif 'raid shield' in line.lower():
                 timestring_match = re.search(r"\*\*`(.+?)`\*\*", line.lower())
                 activity = 'raid-shield'
                 if timestring_match:
@@ -103,6 +105,25 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                     cooldowns.append([activity, time_left, reminder_message])
                 else:
                     ready_commands.append(activity)
+
+            elif 'level:' in line.lower():
+                level_match = re.search(r'\) (\d+?)\*\*', line.lower())
+                level = int(level_match.group(1))
+            elif 'exp:' in line.lower():
+                xp_match = re.search(r'\) (.+?)\*\*\/\*\*(.+?)\*\*', line.lower())
+                xp = int(xp_match.group(1).replace(',',''))
+                xp_target = int(xp_match.group(2).replace(',',''))
+            elif 'rebirths:' in line.lower():
+                rebirth_match = re.search(r'\) (\d+?)\*\*', line.lower())
+                rebirth = int(rebirth_match.group(1))
+        if level == -1 or rebirth == -1 or xp == -1 or xp_target == -1:
+            await functions.add_warning_reaction(message)
+            await errors.log_error(
+                f'Unable to detect level, rebirth, xp or xp target\n'
+                f'Level: {level}, Rebirth: {rebirth}, XP: {xp}, XP target: {xp_target}',
+                message
+            )
+        await user_settings.update(level=level, rebirth=rebirth, xp=xp, xp_target=xp_target)
 
         # Sweet apple boost
         if 'boost active' in embed_data['description'].lower():

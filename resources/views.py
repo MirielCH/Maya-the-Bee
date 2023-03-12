@@ -153,7 +153,8 @@ class SettingsHelpersView(discord.ui.View):
         self.user_settings = user_settings
         self.embed_function = embed_function
         toggled_settings = {
-            'Context helper': 'helper_context_enabled',
+            'Context Helper': 'helper_context_enabled',
+            'Prune Assistant': 'helper_prune_enabled',
         }
         self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
         self.add_item(components.SwitchSettingsSelect(self, commands_settings))

@@ -1,6 +1,7 @@
 # prune.py
 
 from datetime import timedelta
+from math import ceil, floor
 import re
 from typing import Dict, Optional
 
@@ -9,7 +10,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, tracking, users
-from resources import emojis, exceptions, functions, regex
+from resources import emojis, exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -23,6 +24,7 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     """
     return_values = []
     return_values.append(await create_reminder(message, embed_data, user, user_settings))
+    return_values.append(await update_stats_on_level_up(message, embed_data, user, user_settings))
     return any(return_values)
 
 
@@ -40,7 +42,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         'you have pruned your tree', #English
     ]
     if any(search_string in message.content.lower() for search_string in search_strings):
-        user = await functions.get_interaction_user(message)
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']
@@ -82,5 +83,64 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if reminder.record_exists: add_reaction = True
             if 'goldennugget' in message.content.lower():
                 await message.add_reaction(emojis.PAN_WOOHOO)
-            
+        if (user_settings.helper_prune_enabled and user_settings.level > 0 and user_settings.xp_target > 0):
+            xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
+            xp_gain = int(xp_gain_match.group(1).replace(',',''))
+            if user_settings.xp_gain_average > 0:
+                xp_gain_average = (
+                    (user_settings.xp_prune_count * user_settings.xp_gain_average + xp_gain)
+                    / (user_settings.xp_prune_count + 1)
+                )
+            else:
+                xp_gain_average = xp_gain
+            await user_settings.update(xp_gain_average=xp_gain_average, xp=(user_settings.xp + xp_gain),
+                                       xp_prune_count=(user_settings.xp_prune_count + 1))
+            if user_settings.rebirth <= 10:
+                level_target = 5 + user_settings.rebirth
+            else:
+                level_target = 15 + ((user_settings.rebirth - 10) % 2)
+            xp_left = user_settings.xp_target - user_settings.xp
+            if xp_left > 0:
+                try:
+                    prunes_until_level_up = f'{ceil(xp_left / floor(user_settings.xp_gain_average)):,}'
+                except ZeroDivisionError:
+                    prunes_until_level_up = 'N/A'
+                embed = discord.Embed(
+                    description = (
+                        f'➜ **{xp_left:,}** {emojis.STAT_XP} until level **{user_settings.level + 1}** '
+                        f'(~**{prunes_until_level_up}** prunes at **{floor(user_settings.xp_gain_average):,}** {emojis.XP} average)\n'
+                    )
+                )
+                embed.set_footer(text = f'Rebirth {user_settings.rebirth} • Level {user_settings.level}/{level_target}')
+                await message.channel.send(embed=embed)
+        return add_reaction
+
+
+async def update_stats_on_level_up(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                   user_settings: Optional[users.User]) -> bool:
+    """Creates a reminder when using /prune. Also adds an entry to the tracking log and updates the pruner type.
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings = [
+        'your tree leveled up!', #English
+    ]
+    if any(search_string in message.content.lower() for search_string in search_strings):
+        if user is None:
+            user = message.mentions[0]
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+            if not user_settings.bot_enabled: return add_reaction
+        if not user_settings.helper_prune_enabled: return add_reaction
+        await user_settings.update(xp_gain_average=0, xp=0, xp_prune_count=0, xp_target=0, level=user_settings.level + 1)
+        await message.reply(
+            f'➜ Use {strings.SLASH_COMMANDS["profile"]} to start XP tracking for this level.'
+        )
     return add_reaction

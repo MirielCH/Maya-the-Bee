@@ -16,23 +16,30 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
     """On command"""
     first_time_user = False
     try:
-        user: users.User = await users.get_user(ctx.author.id)
-        if user.bot_enabled:
+        user_settings: users.User = await users.get_user(ctx.author.id)
+        if user_settings.bot_enabled:
             await ctx.respond(f'**{ctx.author.name}**, I\'m already turned on.', ephemeral=True)
             return
     except exceptions.FirstTimeUserError:
-        user = await users.insert_user(ctx.author.id)
+        user_settings = await users.insert_user(ctx.author.id)
         first_time_user = True
-    if not user.bot_enabled: await user.update(bot_enabled=True)
-    if not user.bot_enabled:
+    if not user_settings.bot_enabled: await user_settings.update(bot_enabled=True)
+    if not user_settings.bot_enabled:
         await ctx.respond(strings.MSG_ERROR, ephemeral=True)
         return
     if not first_time_user:
-        await ctx.respond(f'Bzzt! Welcome back **{ctx.author.name}**!')
+        answer = f'Bzzt! Welcome back **{ctx.author.name}**!'
+        if user_settings.helper_prune_enabled:
+            answer = (
+                f'{answer}\n'
+                f'Please use {strings.SLASH_COMMANDS["profile"]} to start XP tracking.'
+            )
+        await ctx.respond(answer)
     else:
         field_settings = (
-            f'To set your donor tier and change other settings, click the button below or use '
-            f'{await functions.get_maya_slash_command(bot, "settings user")}.'
+            f'To set your **donor tier** and change other settings, click the button below or use '
+            f'{await functions.get_maya_slash_command(bot, "settings user")}.\n'
+            f'Please also use {strings.SLASH_COMMANDS["profile"]} to start XP tracking.'
         )
         field_tracking = (
             f'I track the amount of some Tree commands you use. Check '
@@ -227,8 +234,11 @@ async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContex
 async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext, user_settings: users.User) -> discord.Embed:
     """Helper settings embed"""
     helpers = (
-        f'{emojis.BP} **Context helper**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
+        f'{emojis.BP} **Context Helper**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
         f'{emojis.DETAIL} _Shows some helpful slash commands depending on context._\n'
+        f'{emojis.BP} **Prune Assistant**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
+        f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
+        f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} to start tracking.**_\n'
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
