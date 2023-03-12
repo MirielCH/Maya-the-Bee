@@ -1,15 +1,15 @@
 # profile.py
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 import re
 from typing import Dict, Optional
 
 import discord
-from datetime import timedelta
+from discord import utils
 
 from cache import messages
 from database import errors, reminders, users
-from resources import exceptions, functions, regex, strings
+from resources import emojis, exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -37,6 +37,8 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
     - False otherwise
     """
     add_reaction = updated_reminder = False
+    cooldowns = []
+    ready_commands = []
     search_strings = [
         '\'s tree', #English
     ]
@@ -68,15 +70,67 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
             except exceptions.FirstTimeUserError:
                 return add_reaction
             if not user_settings.bot_enabled: return add_reaction
+
+        # Insecticide & raid shield boost
+        for line in embed_data['field0']['value'].split('\n'):
+            if 'insecticide' in line.lower():
+                boost_end_match = re.search(r'<t:(\d+?):r>', line.lower())
+                activity = 'insecticide'
+                if boost_end_match:
+                    end_time = datetime.fromtimestamp(int(boost_end_match.group(1)), timezone.utc).replace(microsecond=0)
+                    current_time = utils.utcnow().replace(microsecond=0)
+                    time_left = end_time - current_time
+                    reminder_message = (
+                        user_settings.reminder_boosts.message
+                        .replace('{boost_emoji}', emojis.INSECTICIDE)
+                        .replace('{boost_name}', 'insecticide')
+                    )
+                    cooldowns.append([activity, time_left, reminder_message])
+                else:
+                    ready_commands.append(activity)
+
+            if 'raid shield' in line.lower():
+                timestring_match = re.search(r"\*\*`(.+?)`\*\*", line.lower())
+                activity = 'raid-shield'
+                if timestring_match:
+                    time_left = await functions.calculate_time_left_from_timestring(message,
+                                                                                    timestring_match.group(1).lower())
+                    reminder_message = (
+                        user_settings.reminder_boosts.message
+                        .replace('{boost_emoji}', emojis.BOOST_RAID_SHIELD)
+                        .replace('{boost_name}', 'raid shield')
+                    )
+                    cooldowns.append([activity, time_left, reminder_message])
+                else:
+                    ready_commands.append(activity)
+
+        # Sweet apple boost
+        if 'boost active' in embed_data['description'].lower():
+            boost_end_match = re.search(r'<t:(\d+?):r>', embed_data['description'].lower())
+            activity = 'sweet-apple'
+            if boost_end_match:
+                end_time = datetime.fromtimestamp(int(boost_end_match.group(1)), timezone.utc).replace(microsecond=0)
+                current_time = utils.utcnow().replace(microsecond=0)
+                time_left = end_time - current_time
+                reminder_message = (
+                    user_settings.reminder_boosts.message
+                    .replace('{boost_emoji}', emojis.SWEET_APPLE)
+                    .replace('{boost_name}', 'sweet apple')
+                )
+                cooldowns.append([activity, time_left, reminder_message])
+            else:
+                ready_commands.append(activity)
+
+        # Research & Upgrade cooldowns
         if embed_data['field3']['value'] != '':
-            cooldowns = []
-            ready_commands = []
             if user_settings.reminder_research.enabled:
                 timestring_match = re.search(r"researching: `(.+?)` remaining", embed_data['field3']['value'].lower())
                 if timestring_match:
                     user_command = await functions.get_game_command(user_settings, 'laboratory')
                     reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
-                    cooldowns.append(['research', timestring_match.group(1).lower(), reminder_message])
+                    time_left = await functions.calculate_time_left_from_timestring(message,
+                                                                                    timestring_match.group(1).lower())
+                    cooldowns.append(['research', time_left, reminder_message])
                 else:
                     ready_commands.append('research')
             if user_settings.reminder_upgrade.enabled:
@@ -84,35 +138,36 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 if timestring_match:
                     user_command = await functions.get_game_command(user_settings, 'tool')
                     reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
-                    cooldowns.append(['upgrade', timestring_match.group(1).lower(), reminder_message])
+                    time_left = await functions.calculate_time_left_from_timestring(message,
+                                                                                    timestring_match.group(1).lower())
+                    cooldowns.append(['upgrade', time_left, reminder_message])
                 else:
                     ready_commands.append('upgrade')
 
-            for cooldown in cooldowns:
-                cd_activity = cooldown[0]
-                cd_timestring = cooldown[1]
-                cd_message = cooldown[2]
-                time_left = await functions.parse_timestring_to_timedelta(cd_timestring)
-                if time_left < timedelta(0): continue
-                reminder: reminders.Reminder = (
-                    await reminders.insert_reminder(interaction_user.id, cd_activity, time_left,
-                                                    message.channel.id, cd_message)
+        for cooldown in cooldowns:
+            cd_activity = cooldown[0]
+            cd_time_left = cooldown[1]
+            cd_message = cooldown[2]
+            if cd_time_left < timedelta(0): continue
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(interaction_user.id, cd_activity, cd_time_left,
+                                                message.channel.id, cd_message)
+            )
+            if not reminder.record_exists:
+                await message.channel.send(strings.MSG_ERROR)
+                return add_reaction
+            updated_reminder = True
+        for activity in ready_commands:
+            try:
+                reminder: reminders.Reminder = await reminders.get_reminder(interaction_user.id, activity)
+            except exceptions.NoDataFoundError:
+                continue
+            await reminder.delete()
+            if reminder.record_exists:
+                await functions.add_warning_reaction(message)
+                await errors.log_error(
+                    f'Had an error in the profile, deleting the reminder with activity "{activity}".',
+                    message
                 )
-                if not reminder.record_exists:
-                    await message.channel.send(strings.MSG_ERROR)
-                    return add_reaction
-                updated_reminder = True
-            for activity in ready_commands:
-                try:
-                    reminder: reminders.Reminder = await reminders.get_reminder(interaction_user.id, activity)
-                except exceptions.NoDataFoundError:
-                    continue
-                await reminder.delete()
-                if reminder.record_exists:
-                    await functions.add_warning_reaction(message)
-                    await errors.log_error(
-                        f'Had an error in the profile, deleting the reminder with activity "{activity}".',
-                        message
-                    )
         if updated_reminder and user_settings.reactions_enabled: add_reaction = True
     return add_reaction

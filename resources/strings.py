@@ -113,6 +113,15 @@ PLACEHOLDER_DESCRIPTIONS = {
 
 MSG_ERROR = 'Whoops, something went wrong here. You should probably tell Miriel#0001 about this.'
 
+ACTIVITIES_BOOSTS_EMOJIS = {
+    'drop-chance-boost': emojis.BOOST_DROP_CHANCE,
+    'insecticide': emojis.INSECTICIDE,
+    'queen-bee-boost': emojis.QUEEN_BEE,
+    'raid-shield': emojis.BOOST_RAID_SHIELD,
+    'sweet-apple': emojis.SWEET_APPLE,
+    'xp-boost': emojis.BOOST_XP,
+}
+
 DONOR_TIERS_EMOJIS = {
     'Non-donator': emojis.DONOR0,
     'Seed Donator': emojis.DONOR1,
@@ -199,6 +208,15 @@ ACTIVITIES_COLUMNS = {
     'research': 'reminder_research',
     'upgrade': 'reminder_upgrade',
     'vote': 'reminder_vote',
+}
+
+ACTIVITIES_NAME_BOOSTS = {
+    'drop chance boost': 'drop-chance-boost',
+    'insecticide': 'insecticide',
+    'queen bee hp boost': 'queen-bee-boost',
+    'raid shield': 'raid-shield',
+    'sweet apple': 'sweet-apple',
+    'xp boost': 'xp-boost',
 }
 
 SLASH_COMMANDS = {

@@ -11,6 +11,7 @@ NAME_FROM_MESSAGE_START = re.compile(r"^\*\*(.+?)\*\*\s")
 
 
 # --- User command detection ---
+COMMAND_BONUSES = re.compile(r"\bbonuses\b")
 COMMAND_CHESTS = re.compile(r"\bchests?\b")
 COMMAND_CLEAN = re.compile(r"\bclean\b")
 COMMAND_COOLDOWNS = re.compile(r"(?:\bcd\b|\bcooldowns?\b)")
@@ -22,5 +23,6 @@ COMMAND_PROFILE_STATS = re.compile(r"(?:\bp\b|\bprofile\b|\bstats\b)")
 COMMAND_PRUNE = re.compile(r"\bprune\b")
 COMMAND_QUESTS = re.compile(r"\bquests?\b")
 COMMAND_TOOL = re.compile(r"\btool\b")
+COMMAND_USE_INSECTICIDE = re.compile(r"\buse\b\s+\binsecticide\b")
 COMMAND_USE_SWEET_APPLE = re.compile(r"\buse\b\s+\bsweet\b\s+\bapple\b")
 COMMAND_VOTE = re.compile(r"\bvote\b")

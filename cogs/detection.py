@@ -8,8 +8,8 @@ import discord
 from discord.ext import commands
 
 from database import users
-from processing import chests, clean, cooldowns, daily, fusion, hive, laboratory, profile, prune, quests, tool
-from processing import tracking, vote
+from processing import bonuses, chests, clean, cooldowns, daily, fusion, hive, laboratory, profile, prune, quests, tool
+from processing import tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
 
@@ -59,6 +59,7 @@ class DetectionCog(commands.Cog):
                     embed_user_settings = None
             embed_data['embed_user_settings'] = embed_user_settings
         return_values = []
+        reminder_boosts_enabled = getattr(getattr(user_settings, 'reminder_boosts', None), 'enabled', True)
         reminder_chests_enabled = getattr(getattr(user_settings, 'reminder_chests', None), 'enabled', True)
         reminder_clean_enabled = getattr(getattr(user_settings, 'reminder_clean', None), 'enabled', True)
         reminder_daily_enabled = getattr(getattr(user_settings, 'reminder_daily', None), 'enabled', True)
@@ -70,6 +71,13 @@ class DetectionCog(commands.Cog):
         reminder_upgrade_enabled = getattr(getattr(user_settings, 'reminder_upgrade', None), 'enabled', True)
         reminder_vote_enabled = getattr(getattr(user_settings, 'reminder_vote', None), 'enabled', True)
         tracking_enabled = getattr(user_settings, 'tracking_enabled', True)
+
+        # Boosts
+        if reminder_boosts_enabled:
+            add_reaction = await use.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
+            add_reaction = await bonuses.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
 
         # Cooldowns
         add_reaction = await cooldowns.process_message(message, embed_data, interaction_user, user_settings)
