@@ -109,10 +109,37 @@ async def command_off(bot: discord.Bot, ctx: discord.ApplicationContext) -> None
         await functions.edit_interaction(interaction, content='Aborted.', view=None)
 
 
+async def command_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext,
+                                   switch_view: Optional[discord.ui.View] = None) -> None:
+    """Helper settings command"""
+    commands_settings = {
+        'Helpers': command_settings_helpers,
+        'Reminders': command_settings_reminders,
+        'Reminder messages': command_settings_messages,
+        'User': command_settings_user,
+    }
+    user_settings = interaction = None
+    if switch_view is not None:
+        user_settings = getattr(switch_view, 'user_settings', None)
+        interaction = getattr(switch_view, 'interaction', None)
+        switch_view.stop()
+    if user_settings is None:
+        user_settings: users.User = await users.get_user(ctx.author.id)
+    view = views.SettingsHelpersView(ctx, bot, user_settings, embed_settings_helpers, commands_settings)
+    embed = await embed_settings_helpers(bot, ctx, user_settings)
+    if interaction is None:
+        interaction = await ctx.respond(embed=embed, view=view)
+    else:
+        await functions.edit_interaction(interaction, embed=embed, view=view)
+    view.interaction = interaction
+    await view.wait()
+
+    
 async def command_settings_messages(bot: discord.Bot, ctx: discord.ApplicationContext,
                                     switch_view: Optional[discord.ui.View] = None) -> None:
     """Reminder message settings command"""
     commands_settings = {
+        'Helpers': command_settings_helpers,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -138,6 +165,7 @@ async def command_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationC
                                      switch_view: Optional[discord.ui.View] = None) -> None:
     """Reminder settings command"""
     commands_settings = {
+        'Helpers': command_settings_helpers,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -173,6 +201,7 @@ async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContex
                                 switch_view: Optional[discord.ui.View] = None) -> None:
     """User settings command"""
     commands_settings = {
+        'Helpers': command_settings_helpers,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -195,6 +224,21 @@ async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContex
 
 
 # --- Embeds ---
+async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext, user_settings: users.User) -> discord.Embed:
+    """Helper settings embed"""
+    helpers = (
+        f'{emojis.BP} **Context helper**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
+        f'{emojis.DETAIL} _Shows some helpful slash commands depending on context._\n'
+    )
+    embed = discord.Embed(
+        color = settings.EMBED_COLOR,
+        title = f'{ctx.author.name}\'s helper settings',
+        description = '_Settings to toggle some helpful little features._'
+    )
+    embed.add_field(name='Helpers', value=helpers, inline=False)
+    return embed
+
+
 async def embed_settings_messages(bot: discord.Bot, ctx: discord.ApplicationContext,
                                   user_settings: users.User, activity: str) -> List[discord.Embed]:
     """Reminder message specific activity embed"""

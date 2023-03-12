@@ -123,6 +123,52 @@ class RemindersListView(discord.ui.View):
 
 
 # --- Settings ---
+class SettingsHelpersView(discord.ui.View):
+    """View with a all components to manage helper settings.
+    Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
+
+    Arguments
+    ---------
+    ctx: Context.
+    bot: Bot.
+    user_settings: User object with the settings of the user.
+    embed_function: Function that returns the settings embed. The view expects the following arguments:
+    - bot: Bot
+    - user_settings: User object with the settings of the user
+    commands_settings: Dict[str, callable] with the names and embeds of all settings pages to switch to
+
+    Returns
+    -------
+    None
+
+    """
+    def __init__(self, ctx: discord.ApplicationContext, bot: discord.Bot, user_settings: users.User,
+                 embed_function: callable, commands_settings: Dict, interaction: Optional[discord.Interaction] = None):
+        super().__init__(timeout=settings.INTERACTION_TIMEOUT)
+        self.ctx = ctx
+        self.bot = bot
+        self.value = None
+        self.interaction = interaction
+        self.user = ctx.author
+        self.user_settings = user_settings
+        self.embed_function = embed_function
+        toggled_settings = {
+            'Context helper': 'helper_context_enabled',
+        }
+        self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
+        self.add_item(components.SwitchSettingsSelect(self, commands_settings))
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user != self.user:
+            await interaction.response.send_message(random.choice(strings.MSG_INTERACTION_ERRORS), ephemeral=True)
+            return False
+        return True
+
+    async def on_timeout(self) -> None:
+        await functions.edit_interaction(self.interaction, view=None)
+        self.stop()
+
+
 class SettingsMessagesView(discord.ui.View):
     """View with a all components to change message reminders.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
@@ -136,6 +182,7 @@ class SettingsMessagesView(discord.ui.View):
     - bot: Bot
     - user_settings: User object with the settings of the user
     - activity: str, If this is None, the view doesn't show the buttons to change a message
+    commands_settings: Dict[str, callable] with the names and embeds of all settings pages to switch to
 
     Returns
     -------
@@ -194,6 +241,7 @@ class SettingsRemindersView(discord.ui.View):
     embed_function: Function that returns the settings embed. The view expects the following arguments:
     - bot: Bot
     - user_settings: User object with the settings of the user
+    commands_settings: Dict[str, callable] with the names and embeds of all settings pages to switch to
 
     Returns
     -------

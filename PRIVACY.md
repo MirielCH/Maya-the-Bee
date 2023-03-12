@@ -24,7 +24,7 @@ Maya reads Tree messages and also reads the commands you issue to trigger said m
 
 ## Storing message data
 
-The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 1 minute and not stored permanently.  
+The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 6 minutes and not stored permanently.  
 
 If there is an error, the following data is stored permanently in the error log:  
 • Content of the **Tree** message that couldn’t get processed correctly (but never messages by **you**).  

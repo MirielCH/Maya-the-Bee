@@ -8,7 +8,7 @@ import discord
 from discord import utils
 
 from cache import messages
-from database import errors, reminders, tracking, users
+from database import reminders, tracking, users
 from resources import emojis, exceptions, functions, regex
 
 
@@ -78,5 +78,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             await reminders.insert_reminder(user.id, 'prune', time_left,
                                                     message.channel.id, reminder_message)
         )
-        if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+        if user_settings.reactions_enabled:
+            if reminder.record_exists: add_reaction = True
+            if 'goldennugget' in message.content.lower():
+                await message.add_reaction(emojis.PAN_WOOHOO)
+            
     return add_reaction

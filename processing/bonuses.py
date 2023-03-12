@@ -57,9 +57,7 @@ async def create_reminders(message: discord.Message, embed_data: Dict, interacti
                 user_id = int(user_id_match.group(1))
                 embed_users.append(message.guild.get_member(user_id))
             else:
-                user_name_match = re.search(regex.USERNAME_FROM_EMBED_AUTHOR, embed_data['author']['name'])
-                user_name = user_name_match.group(1)
-                embed_users = await functions.get_guild_member_by_name(message.guild, user_name)
+                embed_users = await functions.get_guild_member_by_name(message.guild, embed_data['author']['name'])
         else:
             embed_users.append(embed_data['embed_user'])
         if interaction_user not in embed_users: return add_reaction

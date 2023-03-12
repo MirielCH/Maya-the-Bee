@@ -9,7 +9,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, users
-from resources import exceptions, functions, regex
+from resources import exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -22,10 +22,51 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     - False otherwise
     """
     return_values = []
+    return_values.append(await call_context_helper_on_upgrade_claim(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_when_active(message, embed_data, user, user_settings))
     return_values.append(await delete_reminder_on_cancel(message, embed_data, user, user_settings))
     return_values.append(await delete_reminder_on_skip(message, embed_data, user, user_settings))
     return any(return_values)
+
+
+async def call_context_helper_on_upgrade_claim(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                              user_settings: Optional[users.User]) -> bool:
+    """Call the context helper after claiming n upgrade
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings = [
+        'upgrade ended!', #English
+    ]
+    if any(search_string in embed_data['description'].lower() for search_string in search_strings):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_TOOL,
+                                                user_name=embed_data['author']['name'])
+                )
+                user = user_command_message.author
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled or not user_settings.helper_context_enabled: return add_reaction
+        level_match = re.search(r'level (\d+?) tier', embed_data['title'].lower())
+        level = int(level_match.group(1))
+        if level == 10:
+            command = strings.SLASH_COMMANDS['laboratory']
+        else:
+            command = strings.SLASH_COMMANDS['tool']
+        await message.reply(f"➜ {command}")
+    return add_reaction
 
 
 async def create_reminder_when_active(message: discord.Message, embed_data: Dict, interaction_user: Optional[discord.User],

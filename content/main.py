@@ -74,6 +74,9 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings server")} : Manage server settings\n'
         f'{emojis.DETAIL} _Requires `Manage server` permission._\n'
     )
+    commands_misc = (
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "calculator")} : A basic calculator\n'
+    )
     img_logo = discord.File(settings.IMG_LOGO, filename='logo.png')
     image_url = 'attachment://logo.png'
     embed = discord.Embed(
@@ -83,6 +86,7 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
     embed.add_field(name='Reminder management', value=commands_reminders, inline=False)
     embed.add_field(name='Settings', value=commands_settings, inline=False)
     embed.add_field(name='Tracking', value=commands_tracking, inline=False)
+    embed.add_field(name='Miscellaenous', value=commands_misc, inline=False)
     embed.set_thumbnail(url=image_url)
     return (img_logo, embed)
 

@@ -221,13 +221,17 @@ ACTIVITIES_NAME_BOOSTS = {
 
 SLASH_COMMANDS = {
     'chests': '</chests:1027309977104285697>',
+    'chips show': '</chips show:1076966047351046186>',
+    'chips fusion': '</chips fusion:1076966047351046186>',
     'clean': '</clean:960947259560820813>',
     'daily': '</daily:989564333308661771>',
     'fusion': '</fusion:976919525415071826>',
     'hive claim energy': '</hive claim-energy:976919525415071824>',
+    'hive equip': '</hive equip:976919525415071824>',
     'laboratory': '</laboratory:960947259560820810>',
     'prune': '</prune:960947259560820814>',
     'quests': '</quests:1012448280002707488>',
+    'raid': '</raid:976919525415071827>',
     'tool': '</tool:960947259560820811>',
     'vote': '</vote:981520666916450355>',
 }

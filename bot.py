@@ -84,6 +84,7 @@ EXTENSIONS = [
         'cogs.detection',
         'cogs.dev',
         'cogs.main',
+        'cogs.misc',
         'cogs.reminders',
         'cogs.settings',
         'cogs.tracking',

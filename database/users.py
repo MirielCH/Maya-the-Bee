@@ -22,6 +22,7 @@ class User():
     bot_enabled: bool
     dnd_mode_enabled: bool
     donor_tier: int
+    helper_context_enabled: bool
     last_rebirth: datetime
     pruner_type: str
     reactions_enabled: bool
@@ -47,6 +48,7 @@ class User():
         self.bot_enabled = new_settings.bot_enabled
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
+        self.helper_context_enabled = new_settings.helper_context_enabled
         self.last_rebirth = new_settings.last_rebirth
         self.pruner_type = new_settings.pruner_type
         self.reactions_enabled = new_settings.reactions_enabled
@@ -75,6 +77,7 @@ class User():
             bot_enabled: bool
             dnd_mode_enabled: bool
             donor_tier: int
+            helper_context_enabled: bool
             last_rebirth: datetime UTC aware
             pruner_type: str
             reactions_enabled: bool
@@ -131,6 +134,7 @@ async def _dict_to_user(record: dict) -> User:
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
             donor_tier = record['donor_tier'],
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
+            helper_context_enabled = bool(record['helper_context_enabled']),
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
             reactions_enabled = bool(record['reactions_enabled']),
             reminder_boosts = UserReminder(enabled=bool(record['reminder_boosts_enabled']),
@@ -279,6 +283,7 @@ async def _update_user(user: User, **kwargs) -> None:
         bot_enabled: bool
         dnd_mode_enabled: bool
         donor_tier: int
+        helper_context_enabled: bool
         last_rebirth: datetime UTC aware
         pruner_type: str
         reactions_enabled: bool

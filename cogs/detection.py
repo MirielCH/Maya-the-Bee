@@ -8,8 +8,8 @@ import discord
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, chests, clean, cooldowns, daily, fusion, hive, laboratory, profile, prune, quests, tool
-from processing import tracking, use, vote
+from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, laboratory, profile, prune
+from processing import quests, raid, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
 
@@ -59,6 +59,7 @@ class DetectionCog(commands.Cog):
                     embed_user_settings = None
             embed_data['embed_user_settings'] = embed_user_settings
         return_values = []
+        helper_context_enabled = getattr(getattr(user_settings, 'helper_context_enabled', None), 'enabled', True)
         reminder_boosts_enabled = getattr(getattr(user_settings, 'reminder_boosts', None), 'enabled', True)
         reminder_chests_enabled = getattr(getattr(user_settings, 'reminder_chests', None), 'enabled', True)
         reminder_clean_enabled = getattr(getattr(user_settings, 'reminder_clean', None), 'enabled', True)
@@ -84,8 +85,13 @@ class DetectionCog(commands.Cog):
         return_values.append(add_reaction)
             
         # Chests
-        if reminder_chests_enabled:
+        if reminder_chests_enabled or helper_context_enabled:
             add_reaction = await chests.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
+            
+        # Chips
+        if helper_context_enabled:
+            add_reaction = await chips.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         # Clean
@@ -114,7 +120,7 @@ class DetectionCog(commands.Cog):
             return_values.append(add_reaction)
             
         # Laboratory
-        if reminder_research_enabled:
+        if reminder_research_enabled or helper_context_enabled:
             add_reaction = await laboratory.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
             
@@ -128,8 +134,13 @@ class DetectionCog(commands.Cog):
             add_reaction = await quests.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
             
+        # Raid
+        if helper_context_enabled:
+            add_reaction = await raid.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
+            
         # Tool upgrade
-        if reminder_upgrade_enabled:
+        if reminder_upgrade_enabled or helper_context_enabled:
             add_reaction = await tool.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
             

@@ -8,7 +8,7 @@ import discord
 
 from cache import messages
 from database import reminders, users
-from resources import exceptions, functions, regex
+from resources import exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -71,4 +71,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         )
         if user_settings.reactions_enabled and reminder.record_exists:
             add_reaction = True
+        if user_settings.helper_context_enabled:
+            await message.reply(f"➜ {strings.SLASH_COMMANDS['raid']}")
     return add_reaction
