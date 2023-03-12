@@ -21,11 +21,14 @@ class DetectionCog(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message) -> None:
         """Runs when a message is edited in a channel."""
-        if message_before.pinned != message_after.pinned: return
-        if message_before.components and not message_after.components and not 'captcha' in message_after.content.lower():
-            return
-        active_component = await check_message_for_active_components(message_after)
-        if active_component: await self.on_message(message_after)
+        if message_after.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
+        embed_data = await parse_embed(message_after)
+        if await check_edited_message_never_allowed(message_before, message_after, embed_data): return
+        if await check_edited_message_always_allowed(message_before, message_after, embed_data):
+            await self.on_message(message_after)
+        if message_before.components and not message_after.components: return
+        if await check_message_for_active_components(message_after):
+            await self.on_message(message_after)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -222,3 +225,38 @@ async def check_message_for_active_components(message: discord.Message) -> Union
                 active_component = True
                 break
     return active_component
+
+
+async def check_edited_message_always_allowed(message_before: discord.Message,
+                                             message_after: discord.Message, embed_data: Dict) -> Union[bool, None]:
+    """Check if the edited message should be allowed to process regardless of its components.
+    
+    Returns
+    -------
+    - True if allowed
+    - False if not affected by this check
+    """
+    search_strings_content = [
+        'captcha solved successfully', #English
+    ]
+    if any(search_string in message_after.content.lower() for search_string in search_strings_content):
+        return True
+    search_strings = [
+        'fusion results', #English
+    ]
+    if any(search_string in embed_data['field0']['name'].lower() for search_string in search_strings):
+        return True
+    return False
+
+
+async def check_edited_message_never_allowed(message_before: discord.Message,
+                                             message_after: discord.Message, embed_data: Dict) -> Union[bool, None]:
+    """Check if the edited message should never be allowed to process.
+    
+    Returns
+    -------
+    - True if never allowed
+    - False if not affected by this check
+    """
+    if message_before.pinned != message_after.pinned: return True
+    return False
