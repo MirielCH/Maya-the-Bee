@@ -245,7 +245,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             timestring_match = re.search(r"vote\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'vote')
-                reminder_message = user_settings.reminder_fusion.message.replace('{command}', user_command)
+                reminder_message = user_settings.reminder_vote.message.replace('{command}', user_command)
                 cooldowns.append(['vote', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('vote')
