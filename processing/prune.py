@@ -139,8 +139,7 @@ async def update_stats_on_level_up(message: discord.Message, embed_data: Dict, u
                 return add_reaction
             if not user_settings.bot_enabled: return add_reaction
         if not user_settings.helper_prune_enabled: return add_reaction
-        await user_settings.update(xp_gain_average=0, xp=0, xp_prune_count=0, xp_target=0, level=user_settings.level + 1)
-        await message.reply(
-            f'➜ Use {strings.SLASH_COMMANDS["profile"]} to start XP tracking for this level.'
-        )
+        next_level = user_settings.level + 1
+        new_xp_target = (next_level ** 3) * 150
+        await user_settings.update(xp_gain_average=0, xp=0, xp_prune_count=0, xp_target=new_xp_target, level=next_level)
     return add_reaction
