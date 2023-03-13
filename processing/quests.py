@@ -63,11 +63,12 @@ async def create_reminder_on_overview(message: discord.Message, embed_data: Dict
         for button in message.components[0].children:
             quest_match = re.search(regex_quest, button.label)
             if not quest_match: continue
-            activity = quest_match.group(1).lower()
+            quest_type = quest_match.group(1).lower()
+            activity = f'quest-{quest_type}'
             reminder_message = (
                 user_settings.reminder_quests.message
                 .replace('{command}', user_command)
-                .replace('{quest_type}', activity)
+                .replace('{quest_type}', quest_type)
             )
             time_left = await functions.parse_timestring_to_timedelta(quest_match.group(2).lower())
             reminder: reminders.Reminder = (

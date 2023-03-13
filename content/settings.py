@@ -39,7 +39,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
         field_settings = (
             f'To set your **donor tier** and change other settings, click the button below or use '
             f'{await functions.get_maya_slash_command(bot, "settings user")}.\n'
-            f'Please also use {strings.SLASH_COMMANDS["profile"]} to start XP tracking.'
+            f'Please also use {strings.SLASH_COMMANDS["profile"]} once so I can read it.'
         )
         field_tracking = (
             f'I track the amount of some Tree commands you use. Check '
@@ -234,9 +234,9 @@ async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContex
 async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext, user_settings: users.User) -> discord.Embed:
     """Helper settings embed"""
     helpers = (
-        f'{emojis.BP} **Context Helper**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
+        f'{emojis.BP} **Context commands**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
         f'{emojis.DETAIL} _Shows some helpful slash commands depending on context._\n'
-        f'{emojis.BP} **Prune Assistant**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
+        f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
         f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} to start tracking.**_\n'
     )

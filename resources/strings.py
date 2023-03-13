@@ -89,7 +89,7 @@ LINK_PRIVACY_POLICY = 'https://github.com/Miriel-py/Maya-the-Bee/blob/master/PRI
 DEFAULT_MESSAGE_CUSTOM_REMINDER = 'Bzzt! This is your reminder for **{message}**!'
 
 DEFAULT_MESSAGES = {
-    'boosts': '{name} Bzzt! Your {boost_emoji} `{boost_name}` just ran out!',
+    'boosts': '{name} Bzzt! Your {boost_emoji} {boost_name} just ran out!',
     'chests': '{name} Bzzt! A {chest_emoji} {chest_type} chest is ready! Use {command} to open it.',
     'clean': '{name} Bzzt! Go {command} that tree!',
     'daily': '{name} Bzzt! Time for your {command} rewards!',
@@ -104,6 +104,8 @@ DEFAULT_MESSAGES = {
 
 PLACEHOLDER_DESCRIPTIONS = {
     'name': 'Your name or mention depending on DND mode',
+    'boost_emoji': 'The emoji of of the boost',
+    'boost_name': 'The name of the boost',
     'command': 'The command you get reminded for',
     'chest_emoji': 'The emoji of the chest',
     'chest_type': 'The type of the chest (wooden, silver, golden)',

@@ -74,10 +74,8 @@ class DetectionCog(commands.Cog):
         reminder_vote_enabled = getattr(getattr(user_settings, 'reminder_vote', None), 'enabled', True)
         tracking_enabled = getattr(user_settings, 'tracking_enabled', True)
 
-        # Boosts
+        # Bonuses
         if reminder_boosts_enabled:
-            add_reaction = await use.process_message(message, embed_data, interaction_user, user_settings)
-            return_values.append(add_reaction)
             add_reaction = await bonuses.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
 
@@ -153,6 +151,11 @@ class DetectionCog(commands.Cog):
         # Tracking
         if tracking_enabled:
             add_reaction = await tracking.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
+
+        # Use items
+        if reminder_boosts_enabled or helper_prune_enabled:
+            add_reaction = await use.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Vote
