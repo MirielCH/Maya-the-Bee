@@ -95,7 +95,7 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'laboratory')
         if user_settings.research_time == 0:
             await functions.add_warning_reaction(message)
@@ -149,7 +149,7 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'laboratory')
         research_end_match = re.search(r'<t:(\d+?):f>', embed_data['field0']['value'].lower())
         end_time = datetime.fromtimestamp(int(research_end_match.group(1)), timezone.utc).replace(microsecond=0)
@@ -186,7 +186,7 @@ async def delete_reminder_on_cancel(message: discord.Message, embed_data: Dict, 
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
         try:
             reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'research')
             await reminder.delete()
@@ -226,7 +226,7 @@ async def delete_reminder_on_skip(message: discord.Message, embed_data: Dict, us
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
         try:
             reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'research')
             await reminder.delete()
@@ -269,7 +269,7 @@ async def store_research_time(message: discord.Message, embed_data: Dict, intera
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return False
-            if not user_settings.bot_enabled: return
+        if not user_settings.bot_enabled: return
         for line in embed_data['field0']['value'].split('\n'):
             if not 'time needed' in line.lower(): continue
             timestring_match = re.search('\)\*\* (.+?)$', line)

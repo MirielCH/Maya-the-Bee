@@ -71,9 +71,29 @@ async def embed_stats_overview(ctx: commands.Context, user: discord.User) -> dis
     async def command_count(command: str, timeframe: timedelta) -> str:
         try:
             report = await tracking.get_log_report(user.id, command, timeframe)
-            text = f'{emojis.BP} `{report.command}`: {report.command_count:,}'
+            amount = report.amount
+            text = f'{emojis.BP} `{report.command_or_drop}`: {report.amount:,}'
         except exceptions.NoDataFoundError:
             text = f'{emojis.BP} `{command}`: 0'
+            amount = 0
+        if command == 'prune':
+            for drop in strings.TRACKED_PRUNE_DROPS:
+                last_item = True if drop == strings.TRACKED_PRUNE_DROPS[-1] else False
+                text_drop = await drop_count(drop, timeframe, amount, last_item)
+                text = f'{text}\n{text_drop}'
+        return text
+    
+    async def drop_count(drop: str, timeframe: timedelta, command_count: int, last_item: bool) -> str:
+        try:
+            emoji = emojis.DETAIL if last_item else emojis.DETAIL2
+            report = await tracking.get_log_report(user.id, drop, timeframe)
+            try:
+                percentage = round(report.amount / command_count * 100, 2)
+            except ZeroDivisionError:
+                percentage = 0
+            text = f'{emoji} {strings.TRACKED_DROPS_EMOJIS[report.command_or_drop]} {report.amount:,} ({percentage:g}%)'
+        except exceptions.NoDataFoundError:
+            text = f'{emoji} {strings.TRACKED_DROPS_EMOJIS[drop]} 0 (0%)'
 
         return text
 
@@ -112,6 +132,7 @@ async def embed_stats_overview(ctx: commands.Context, user: discord.User) -> dis
     embed.add_field(name='Last 4 weeks', value=field_last_4w, inline=True)
     embed.add_field(name='Last year', value=field_last_1y, inline=True)
     embed.add_field(name='Since last rebirth', value=field_last_rebirth, inline=True)
+    embed.set_footer(text=f'To see drop amounts, use "{ctx.prefix}st [timeframe]".')
     return embed
 
 
@@ -122,9 +143,27 @@ async def embed_stats_timeframe(ctx: commands.Context, user: discord.Member, tim
     for command in strings.TRACKED_COMMANDS:
         try:
             report = await tracking.get_log_report(user.id, command, time_left)
-            field_timeframe = f'{field_timeframe}\n{emojis.BP} `{report.command}`: {report.command_count:,}'
+            amount = report.amount
+            field_timeframe = f'{field_timeframe}\n{emojis.BP} `{report.command_or_drop}`: {amount:,}'
         except exceptions.NoDataFoundError:
+            amount = 0
             field_timeframe = f'{field_timeframe}\n{emojis.BP} `{command}`: 0'
+        if command == 'prune':
+            for drop in strings.TRACKED_PRUNE_DROPS:
+                last_item = True if drop == strings.TRACKED_PRUNE_DROPS[-1] else False
+                emoji = emojis.DETAIL if last_item else emojis.DETAIL2
+                try:
+                    report_drop = await tracking.get_log_report(user.id, drop, time_left)
+                    try:
+                        percentage = round(report_drop.amount / amount * 100, 2)
+                    except ZeroDivisionError:
+                        percentage = 0
+                    field_timeframe = (
+                        f'{field_timeframe}\n{emoji} '
+                        f'{strings.TRACKED_DROPS_EMOJIS[report_drop.command_or_drop]} {report_drop.amount:,} ({percentage:g}%)'
+                    )
+                except exceptions.NoDataFoundError:
+                    field_timeframe = f'{field_timeframe}\n{emoji} {strings.TRACKED_DROPS_EMOJIS[drop]} 0 (0%)'
 
     time_left_seconds = int(time_left.total_seconds())
     days = time_left_seconds // 86400

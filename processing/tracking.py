@@ -53,7 +53,7 @@ async def track_captcha(message: discord.Message, embed_data: Dict, user: Option
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return
-            if not user_settings.tracking_enabled or not user_settings.bot_enabled: return False
+        if not user_settings.tracking_enabled or not user_settings.bot_enabled: return False
         current_time = utils.utcnow().replace(microsecond=0)
         await tracking.insert_log_entry(user.id, message.guild.id, 'captcha', current_time)
     return False

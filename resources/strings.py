@@ -244,3 +244,17 @@ TRACKED_COMMANDS = (
     'clean',
     'captcha',
 ) # Sorted by cooldown length
+
+TRACKED_PRUNE_DROPS = (
+    'wooden-nugget',
+    'copper-nugget',
+    'silver-nugget',
+    'golden-nugget',
+ ) # Sorted by rarity
+
+TRACKED_DROPS_EMOJIS = {
+    'copper-nugget': emojis.NUGGET_COPPER,
+    'golden-nugget': emojis.NUGGET_GOLDEN,
+    'silver-nugget': emojis.NUGGET_SILVER,
+    'wooden-nugget': emojis.NUGGET_WOODEN,
+ }

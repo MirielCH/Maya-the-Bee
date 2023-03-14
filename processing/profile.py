@@ -69,7 +69,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled: return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
 
         # Insecticide & Raid shield boost reminder
         # Store level, xp and rebirth

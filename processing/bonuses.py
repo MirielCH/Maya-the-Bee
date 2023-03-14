@@ -66,7 +66,7 @@ async def create_reminders(message: discord.Message, embed_data: Dict, interacti
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_boosts.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_boosts.enabled: return add_reaction
         
         activity = ''
         boost_name = ''

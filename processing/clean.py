@@ -52,8 +52,8 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             try:
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
-                return False
-            if not user_settings.bot_enabled: return False
+                return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
         if user_settings.tracking_enabled:
             current_time = utils.utcnow().replace(microsecond=0)
             await tracking.insert_log_entry(user.id, message.guild.id, 'clean', current_time)

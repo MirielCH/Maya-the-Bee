@@ -57,10 +57,29 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled: return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
         if user_settings.tracking_enabled:
             current_time = utils.utcnow().replace(microsecond=0)
             await tracking.insert_log_entry(user.id, message.guild.id, 'prune', current_time)
+            nugget_drops = {}
+            nugget_wooden_match = re.search(r'<:woodennugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
+            nugget_copper_match = re.search(r'<:coppernugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
+            nugget_silver_match = re.search(r'<:silvernugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
+            nugget_golden_match = re.search(r'<:goldennugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
+            if nugget_wooden_match:
+                await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
+                                                int(nugget_wooden_match.group(1).replace(',','')))
+            if nugget_copper_match:
+                await tracking.insert_log_entry(user.id, message.guild.id, 'copper-nugget', current_time,
+                                                int(nugget_copper_match.group(1).replace(',','')))
+            if nugget_silver_match:
+                await tracking.insert_log_entry(user.id, message.guild.id, 'silver-nugget', current_time,
+                                                int(nugget_silver_match.group(1).replace(',','')))
+            if nugget_golden_match:
+                await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
+                                                int(nugget_golden_match.group(1).replace(',','')))
+            if nugget_drops:
+                await user_settings.update(**nugget_drops)
         if not user_settings.reminder_prune.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'prune')
         pruner_type_match = re.search(r'> (.+?) pruner', message.content, re.IGNORECASE)
@@ -118,6 +137,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                         f'{emojis.XP} average)\n'
                     )
                 )
-                embed.set_footer(text = f'Rebirth {user_settings.rebirth} • Level {user_settings.level}/{level_target}')
+                footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level}/{level_target}'
+                if user_settings.level >= level_target:
+                    footer = f'{footer} • Ready for rebirth'
+                embed.set_footer(text = footer)
                 await message.channel.send(embed=embed)
     return add_reaction

@@ -57,7 +57,7 @@ async def create_reminder_on_overview(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'quests')
         regex_quest = re.compile(r'^(.+?) \| (.+?)$')
         for button in message.components[0].children:
@@ -110,7 +110,7 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'quests')
         quest_type_match = re.search(r'the (.+?) quest', embed_data['description'].lower())
         quest_type = quest_type_match.group(1).lower()
@@ -160,7 +160,7 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-            if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
+        if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'quests')
         quest_type_match = re.search(r'> (.+?) quest', embed_data['description'].lower())
         quest_start_field = ''
