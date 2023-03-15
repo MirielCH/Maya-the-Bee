@@ -132,7 +132,6 @@ async def embed_stats_overview(ctx: commands.Context, user: discord.User) -> dis
     embed.add_field(name='Last 4 weeks', value=field_last_4w, inline=True)
     embed.add_field(name='Last year', value=field_last_1y, inline=True)
     embed.add_field(name='Since last rebirth', value=field_last_rebirth, inline=True)
-    embed.set_footer(text=f'To see drop amounts, use "{ctx.prefix}st [timeframe]".')
     return embed
 
 
