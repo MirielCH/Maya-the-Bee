@@ -170,6 +170,13 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
             cd_time_left = cooldown[1]
             cd_message = cooldown[2]
             if cd_time_left < timedelta(0): continue
+            if cd_activity == 'sweet-apple':
+                try:
+                    active_reminder: reminders.Reminder= await reminders.get_reminder(interaction_user.id, 'sweet-apple')
+                    if active_reminder.triggered:
+                        await user_settings.update(xp_gain_average=0)
+                except exceptions.NoDataFoundError:
+                    await user_settings.update(xp_gain_average=0)
             reminder: reminders.Reminder = (
                 await reminders.insert_reminder(interaction_user.id, cd_activity, cd_time_left,
                                                 message.channel.id, cd_message)

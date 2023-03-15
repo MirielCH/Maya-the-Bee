@@ -230,6 +230,7 @@ async def parse_timestring_to_timedelta(timestring: str) -> timedelta:
     """Parses a time string and returns the time as timedelta."""
     time_left_seconds = 0
 
+    if '-' in timestring: return timedelta(days=-1)
     if 'ms' in timestring: return timedelta(seconds=1)
     if 'w' in timestring:
         weeks_start = 0

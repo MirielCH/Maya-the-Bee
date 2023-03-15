@@ -71,6 +71,7 @@ async def create_reminder_on_overview(message: discord.Message, embed_data: Dict
                 .replace('{quest_type}', quest_type)
             )
             time_left = await functions.parse_timestring_to_timedelta(quest_match.group(2).lower())
+            if time_left < timedelta(0): continue
             reminder: reminders.Reminder = (
                 await reminders.insert_reminder(user.id, activity, time_left,
                                                 message.channel.id, reminder_message)

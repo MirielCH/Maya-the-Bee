@@ -63,7 +63,6 @@ async def create_reminder_on_insecticide(message: discord.Message, embed_data: D
         current_time = utils.utcnow().replace(microsecond=0)
         time_left = end_time - current_time
         if time_left < timedelta(0): return add_reaction
-        
         reminder_message = (
             user_settings.reminder_boosts.message
             .replace('{boost_emoji}', emojis.INSECTICIDE)
@@ -112,12 +111,17 @@ async def create_reminder_on_sweet_apple(message: discord.Message, embed_data: D
         current_time = utils.utcnow().replace(microsecond=0)
         time_left = end_time - current_time
         if time_left < timedelta(0): return add_reaction
-        
         reminder_message = (
             user_settings.reminder_boosts.message
             .replace('{boost_emoji}', emojis.SWEET_APPLE)
             .replace('{boost_name}', 'sweet apple')
         )
+        try:
+            active_reminder: reminders.Reminder= await reminders.get_reminder(user.id, 'sweet-apple')
+            if active_reminder.triggered:
+                await user_settings.update(xp_gain_average=0)
+        except exceptions.NoDataFoundError:
+            await user_settings.update(xp_gain_average=0)
         reminder: reminders.Reminder = (
             await reminders.insert_reminder(user.id, 'sweet-apple', time_left,
                                             message.channel.id, reminder_message)

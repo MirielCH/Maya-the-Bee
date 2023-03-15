@@ -40,7 +40,7 @@ class TasksCog(commands.Cog):
             user = await functions.get_discord_user(self.bot, first_reminder.user_id)
             user_settings = await users.get_user(user.id)
             message_no = 1
-            messages = {message_no: ''}
+            messages = {message_no: ('', '')}
             for reminder in reminders_list:
                 if reminder.activity == 'custom':
                     reminder_message = strings.DEFAULT_MESSAGE_CUSTOM_REMINDER.format(message=reminder.message)
@@ -54,15 +54,18 @@ class TasksCog(commands.Cog):
                         message = f'{reminder_message.replace("{name}", f"**{user.name}**")}\n'
                     else:
                         message = f'{reminder_message.replace("{name}", user.mention)}\n'
-                if len(f'{messages[message_no]}{message}') > 1900:
+                if len(f'{messages[message_no][1]}{message}') > 1900:
                     message_no += 1
-                    messages[message_no] = ''
-                messages[message_no] = f'{messages[message_no]}{message}'
+                    messages[message_no] = (reminder.activity, '')
+                messages[message_no] = (reminder.activity, f'{messages[message_no][1]}{message}')
             time_left = get_time_left()
             try:
                 await asyncio.sleep(time_left.total_seconds())
                 allowed_mentions = discord.AllowedMentions(users=[user,])
-                for message in messages.values():
+                for activity_message in messages.values():
+                    activity, message = activity_message
+                    if activity == 'sweet-apple':
+                        await user_settings.update(xp_gain_average=0)
                     await channel.send(message.strip(), allowed_mentions=allowed_mentions)
             except asyncio.CancelledError:
                 return
