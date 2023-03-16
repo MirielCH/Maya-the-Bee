@@ -83,6 +83,7 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = 'Hi! I\'m Maya the Bee!',
+        description = '_I can help you with that important Tree business!_',
     )
     embed.add_field(name='Reminder management', value=commands_reminders, inline=False)
     embed.add_field(name='Settings', value=commands_settings, inline=False)

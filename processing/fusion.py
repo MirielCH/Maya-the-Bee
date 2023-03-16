@@ -91,6 +91,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                 )
                 if user2_settings.reactions_enabled and reminder.record_exists: add_reaction = True
 
-        if add_reaction and 'got a level' in embed_data['field0']['value'].lower():
+        if add_reaction and '** got a level **' in embed_data['field0']['value'].lower():
             await message.add_reaction(emojis.PAN_HAPPY)
     return add_reaction
