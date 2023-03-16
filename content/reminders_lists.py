@@ -51,6 +51,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_remind
     """Embed with active reminders"""
     current_time = utils.utcnow().replace(microsecond=0)
     reminders_commands_list = []
+    reminders_tool_list = []
     reminders_boosts_list = []
     reminders_custom_list = []
     for reminder in user_reminders:
@@ -58,6 +59,8 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_remind
             reminders_custom_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_BOOSTS:
             reminders_boosts_list.append(reminder)
+        elif reminder.activity in strings.ACTIVITIES_TOOL:
+            reminders_tool_list.append(reminder)
         else:
             reminders_commands_list.append(reminder)
 
@@ -83,6 +86,22 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_remind
                 f'{emojis.BP} **`{activity}`** ({reminder_time})'
             )
         embed.add_field(name='Commands', value=field_command_reminders.strip(), inline=False)
+    if reminders_tool_list:
+        field_tool_reminders = ''
+        for reminder in reminders_tool_list:
+            if show_timestamps:
+                flag = 'T' if reminder.end_time.day == current_time.day else 'f'
+                reminder_time = utils.format_dt(reminder.end_time, style=flag)
+            else:
+                time_left = reminder.end_time - current_time
+                timestring = await functions.parse_timedelta_to_timestring(time_left)
+                reminder_time = f'**{timestring}**'
+            activity = reminder.activity.replace('-',' ').capitalize()
+            field_tool_reminders = (
+                f'{field_tool_reminders}\n'
+                f'{emojis.BP} **`{activity}`** ({reminder_time})'
+            )
+        embed.add_field(name='Tool', value=field_tool_reminders.strip(), inline=False)
     if reminders_boosts_list:
         field_boosts_reminders = ''
         for reminder in reminders_boosts_list:

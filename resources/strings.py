@@ -175,7 +175,7 @@ ACTIVITIES_BOOSTS = (
     'xp-boost',
 )
 
-ACTIVITIES_LABORATORY = (
+ACTIVITIES_TOOL = (
     'research',
     'upgrade',
 )
