@@ -37,8 +37,8 @@ class DeleteCustomRemindersButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction) -> None:
         self.view.remove_item(self)
         self.view.add_item(DeleteCustomReminderSelect(self.view, self.view.custom_reminders))
-        embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_reminders,
-                                               self.view.show_timestamps)
+        embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_settings,
+                                               self.view.user_reminders, self.view.show_timestamps)
         await interaction.response.edit_message(embed=embed, view=self.view)
 
 
@@ -84,8 +84,8 @@ class ToggleTimestampsButton(discord.ui.Button):
             self.label = 'Show time left'
         else:
             self.label = 'Show end time'
-        embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_reminders,
-                                               self.view.show_timestamps)
+        embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_settings,
+                                               self.view.user_reminders, self.view.show_timestamps)
         await interaction.response.edit_message(embed=embed, view=self.view)
 
 

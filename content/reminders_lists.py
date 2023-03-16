@@ -35,8 +35,8 @@ async def command_list(
         user_reminders = list(await reminders.get_active_reminders(user.id))
     except:
         user_reminders = []
-    embed = await embed_reminders_list(bot, user, user_reminders)
-    view = views.RemindersListView(bot, ctx, user, user_reminders, custom_reminders, embed_reminders_list)
+    embed = await embed_reminders_list(bot, user, user_settings, user_reminders)
+    view = views.RemindersListView(bot, ctx, user, user_settings, user_reminders, custom_reminders, embed_reminders_list)
     if isinstance(ctx, discord.ApplicationContext):
         interaction_message = await ctx.respond(embed=embed, view=view)
     else:
@@ -46,7 +46,8 @@ async def command_list(
 
 
 # -- Embeds ---
-async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_reminders: List[reminders.Reminder],
+async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settings: users.User,
+                               user_reminders: List[reminders.Reminder],
                                show_timestamps: Optional[bool] = False) -> discord.Embed:
     """Embed with active reminders"""
     current_time = utils.utcnow().replace(microsecond=0)
@@ -101,7 +102,11 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_remind
                 f'{field_tool_reminders}\n'
                 f'{emojis.BP} **`{activity}`** ({reminder_time})'
             )
-        embed.add_field(name='Tool', value=field_tool_reminders.strip(), inline=False)
+        if user_settings.pruner_type is not None:
+            pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
+        else:
+            pruner_emoji = ''
+        embed.add_field(name=f'Tool {pruner_emoji}', value=field_tool_reminders.strip(), inline=False)
     if reminders_boosts_list:
         field_boosts_reminders = ''
         for reminder in reminders_boosts_list:

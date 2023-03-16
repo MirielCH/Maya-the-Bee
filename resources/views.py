@@ -90,6 +90,7 @@ class RemindersListView(discord.ui.View):
     None
     """
     def __init__(self, bot: discord.Bot, ctx: Union[commands.Context, discord.ApplicationContext], user: discord.User,
+                 user_settings: users.User,
                  user_reminders: List[reminders.Reminder], custom_reminders: List[reminders.Reminder],
                  embed_function: callable, show_timestamps: Optional[bool] = False,
                  interaction_message: Optional[Union[discord.Message, discord.Interaction]] = None):
@@ -102,6 +103,7 @@ class RemindersListView(discord.ui.View):
         self.embed_function = embed_function
         self.interaction_message = interaction_message
         self.user = user
+        self.user_settings = user_settings
         self.show_timestamps = show_timestamps
         self.add_item(components.ToggleTimestampsButton('Show end time'))
         if custom_reminders:

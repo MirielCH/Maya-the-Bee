@@ -71,7 +71,7 @@ async def add_reminder_reaction(message: discord.Message, reminder: reminders.Re
     """Adds a Maya reaction if the reminder was created, otherwise add a warning and send the error if debug mode is on"""
     if reminder.record_exists and user_settings.reactions_enabled:
         await add_logo_reaction(message)
-    else:
+    elif not reminder.record_exists:
         if settings.DEBUG_MODE or message.guild.id in settings.DEV_GUILDS:
             await message.add_reaction(emojis.WARNING)
             await message.channel.send(strings.MSG_ERROR)
