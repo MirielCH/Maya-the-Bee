@@ -52,16 +52,19 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
     """Embed with active reminders"""
     current_time = utils.utcnow().replace(microsecond=0)
     reminders_commands_list = []
+    reminders_chests_list = []
     reminders_tool_list = []
     reminders_boosts_list = []
     reminders_custom_list = []
     for reminder in user_reminders:
         if reminder.activity == 'custom':
             reminders_custom_list.append(reminder)
-        elif reminder.activity in strings.ACTIVITIES_BOOSTS:
-            reminders_boosts_list.append(reminder)
+        elif reminder.activity.startswith('chest'):
+            reminders_chests_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_TOOL:
             reminders_tool_list.append(reminder)
+        elif reminder.activity in strings.ACTIVITIES_BOOSTS:
+            reminders_boosts_list.append(reminder)
         else:
             reminders_commands_list.append(reminder)
 
@@ -84,9 +87,31 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             activity = reminder.activity.replace('-',' ').capitalize()
             field_command_reminders = (
                 f'{field_command_reminders}\n'
-                f'{emojis.BP} **`{activity}`** ({reminder_time})'
+                f'{emojis.COOLDOWN} **`{activity}`** ({reminder_time})'
             )
         embed.add_field(name='Commands', value=field_command_reminders.strip(), inline=False)
+    if reminders_chests_list:
+        field_chests_reminders = ''
+        for reminder in reminders_chests_list:
+            if show_timestamps:
+                flag = 'T' if reminder.end_time.day == current_time.day else 'f'
+                reminder_time = utils.format_dt(reminder.end_time, style=flag)
+            else:
+                time_left = reminder.end_time - current_time
+                timestring = await functions.parse_timedelta_to_timestring(time_left)
+                reminder_time = f'**{timestring}**'
+            activity = reminder.activity.replace('-',' ').capitalize()
+            if 'silver' in reminder.message:
+                emoji = emojis.CHEST_SILVER
+            elif 'golden' in reminder.message:
+                emoji = emojis.CHEST_GOLDEN
+            else:
+                emoji = emojis.CHEST_WOODEN
+            field_chests_reminders = (
+                f'{field_chests_reminders}\n'
+                f'{emoji} **`{activity}`** ({reminder_time})'
+            )
+        embed.add_field(name='Chests', value=field_chests_reminders.strip(), inline=False)
     if reminders_tool_list:
         field_tool_reminders = ''
         for reminder in reminders_tool_list:
@@ -100,7 +125,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             activity = reminder.activity.replace('-',' ').capitalize()
             field_tool_reminders = (
                 f'{field_tool_reminders}\n'
-                f'{emojis.BP} **`{activity}`** ({reminder_time})'
+                f'{emojis.LABORATORY} **`{activity}`** ({reminder_time})'
             )
         if user_settings.pruner_type is not None:
             pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
@@ -118,9 +143,13 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
                 reminder_time = f'**{timestring}**'
             activity = reminder.activity.replace('-',' ').capitalize()
+            if reminder.activity in strings.ACTIVITIES_BOOSTS_EMOJIS:
+                emoji = strings.ACTIVITIES_BOOSTS_EMOJIS[reminder.activity]
+            else:
+                emoji = emojis.BP
             field_boosts_reminders = (
                 f'{field_boosts_reminders}\n'
-                f'{emojis.BP} **`{activity}`** ({reminder_time})'
+                f'{emoji} **`{activity}`** ({reminder_time})'
             )
         embed.add_field(name='Boosts', value=field_boosts_reminders.strip(), inline=False)
     if reminders_custom_list:
