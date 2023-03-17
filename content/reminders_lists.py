@@ -53,6 +53,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
     current_time = utils.utcnow().replace(microsecond=0)
     reminders_commands_list = []
     reminders_chests_list = []
+    reminders_quests_list = []
     reminders_tool_list = []
     reminders_boosts_list = []
     reminders_custom_list = []
@@ -61,6 +62,8 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             reminders_custom_list.append(reminder)
         elif reminder.activity.startswith('chest'):
             reminders_chests_list.append(reminder)
+        elif reminder.activity.startswith('quest'):
+            reminders_quests_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_TOOL:
             reminders_tool_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_BOOSTS:
@@ -90,6 +93,27 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 f'{emojis.COOLDOWN} **{activity}** • {reminder_time}'
             )
         embed.add_field(name='Commands', value=field_command_reminders.strip(), inline=False)
+    if reminders_quests_list:
+        field_quests_reminders = ''
+        for reminder in reminders_quests_list:
+            if show_timestamps:
+                flag = 'T' if reminder.end_time.day == current_time.day else 'f'
+                reminder_time = utils.format_dt(reminder.end_time, style=flag)
+            else:
+                time_left = reminder.end_time - current_time
+                timestring = await functions.parse_timedelta_to_timestring(time_left)
+                reminder_time = f'**`{timestring}`**'
+            if 'weekly' in reminder.message:
+                activity = 'Weekly'
+            elif 'monthly' in reminder.message:
+                activity = 'Monthly'
+            else:
+                activity = 'Daily'
+            field_quests_reminders = (
+                f'{field_quests_reminders}\n'
+                f'{emojis.COOLDOWN} **{activity}** • {reminder_time}'
+            )
+        embed.add_field(name='Quests', value=field_quests_reminders.strip(), inline=False)
     if reminders_chests_list:
         field_chests_reminders = ''
         for reminder in reminders_chests_list:
@@ -102,13 +126,16 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 reminder_time = f'**`{timestring}`**'
             if 'silver' in reminder.message:
                 emoji = emojis.CHEST_SILVER
-                activity = 'Silver Chest'
+                activity = 'Silver'
             elif 'golden' in reminder.message:
                 emoji = emojis.CHEST_GOLDEN
-                activity = 'Golden Chest'
+                activity = 'Golden'
+            elif 'wooden' in reminder.message:
+                emoji = emojis.CHEST_WOODEN
+                activity = 'Wooden'
             else:
                 emoji = emojis.CHEST_WOODEN
-                activity = 'Wooden Chest'
+                activity = reminder.activity.capitalize()
             field_chests_reminders = (
                 f'{field_chests_reminders}\n'
                 f'{emoji} **{activity}** • {reminder_time}'
