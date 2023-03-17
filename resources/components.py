@@ -64,8 +64,8 @@ class DeleteCustomReminderSelect(discord.ui.Select):
                     if user_reminder.custom_id == reminder.custom_id:
                         self.view.user_reminders.remove(user_reminder)
                         break
-        embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_reminders,
-                                               self.view.show_timestamps)
+        embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_settings,
+                                               self.view.user_reminders, self.view.show_timestamps)
         self.view.remove_item(self)
         if self.custom_reminders:
             self.view.add_item(DeleteCustomReminderSelect(self.view, self.view.custom_reminders))

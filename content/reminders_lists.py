@@ -83,11 +83,11 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             else:
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
-                reminder_time = f'**{timestring}**'
-            activity = reminder.activity.replace('-',' ').capitalize()
+                reminder_time = f'**`{timestring}`**'
+            activity = reminder.activity.replace('-',' ').title()
             field_command_reminders = (
                 f'{field_command_reminders}\n'
-                f'{emojis.COOLDOWN} **`{activity}`** ({reminder_time})'
+                f'{emojis.COOLDOWN} **{activity}** • {reminder_time}'
             )
         embed.add_field(name='Commands', value=field_command_reminders.strip(), inline=False)
     if reminders_chests_list:
@@ -99,17 +99,19 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             else:
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
-                reminder_time = f'**{timestring}**'
-            activity = reminder.activity.replace('-',' ').capitalize()
+                reminder_time = f'**`{timestring}`**'
             if 'silver' in reminder.message:
                 emoji = emojis.CHEST_SILVER
+                activity = 'Silver Chest'
             elif 'golden' in reminder.message:
                 emoji = emojis.CHEST_GOLDEN
+                activity = 'Golden Chest'
             else:
                 emoji = emojis.CHEST_WOODEN
+                activity = 'Wooden Chest'
             field_chests_reminders = (
                 f'{field_chests_reminders}\n'
-                f'{emoji} **`{activity}`** ({reminder_time})'
+                f'{emoji} **{activity}** • {reminder_time}'
             )
         embed.add_field(name='Chests', value=field_chests_reminders.strip(), inline=False)
     if reminders_tool_list:
@@ -121,11 +123,11 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             else:
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
-                reminder_time = f'**{timestring}**'
-            activity = reminder.activity.replace('-',' ').capitalize()
+                reminder_time = f'**`{timestring}`**'
+            activity = reminder.activity.replace('-',' ').title()
             field_tool_reminders = (
                 f'{field_tool_reminders}\n'
-                f'{emojis.LABORATORY} **`{activity}`** ({reminder_time})'
+                f'{emojis.LABORATORY} **{activity}** • {reminder_time}'
             )
         if user_settings.pruner_type is not None:
             pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
@@ -141,15 +143,15 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             else:
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
-                reminder_time = f'**{timestring}**'
-            activity = reminder.activity.replace('-',' ').capitalize()
+                reminder_time = f'**`{timestring}`**'
+            activity = reminder.activity.replace('-',' ').title()
             if reminder.activity in strings.ACTIVITIES_BOOSTS_EMOJIS:
                 emoji = strings.ACTIVITIES_BOOSTS_EMOJIS[reminder.activity]
             else:
                 emoji = emojis.BP
             field_boosts_reminders = (
                 f'{field_boosts_reminders}\n'
-                f'{emoji} **`{activity}`** ({reminder_time})'
+                f'{emoji} **{activity}** • {reminder_time}'
             )
         embed.add_field(name='Boosts', value=field_boosts_reminders.strip(), inline=False)
     if reminders_custom_list:
@@ -161,11 +163,11 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             else:
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
-                reminder_time = f'**{timestring}**'
+                reminder_time = f'**`{timestring}`**'
             custom_id = f'0{reminder.custom_id}' if reminder.custom_id <= 9 else reminder.custom_id
             field_custom_reminders = (
                 f'{field_custom_reminders}\n'
-                f'{emojis.BP} **`{custom_id}`** ({reminder_time}) - {reminder.message}'
+                f'{emojis.BP} **{custom_id}** • {reminder_time} • {reminder.message}'
             )
         embed.add_field(name='Custom', value=field_custom_reminders.strip(), inline=False)
     return embed
