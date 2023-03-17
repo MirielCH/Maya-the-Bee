@@ -225,6 +225,7 @@ SLASH_COMMANDS = {
     'chests': '</chests:1027309977104285697>',
     'chips show': '</chips show:1076966047351046186>',
     'chips fusion': '</chips fusion:1076966047351046186>',
+    'claim': '</claim:960947259560820812>',
     'clean': '</clean:960947259560820813>',
     'daily': '</daily:989564333308661771>',
     'fusion': '</fusion:976919525415071826>',

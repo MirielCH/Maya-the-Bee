@@ -42,6 +42,7 @@ class User():
     reminder_vote: UserReminder
     reminders_slash_enabled: bool
     research_time: int
+    streak_vote: int
     tracking_enabled: bool
     user_id: int
     xp: int
@@ -75,6 +76,7 @@ class User():
         self.reminder_vote = new_settings.reminder_vote
         self.reminders_slash_enabled = new_settings.reminders_slash_enabled
         self.research_time = new_settings.research_time
+        self.streak_vote = new_settings.streak_vote
         self.tracking_enabled = new_settings.tracking_enabled
         self.xp = new_settings.xp
         self.xp_gain_average = new_settings.xp_gain_average
@@ -122,6 +124,7 @@ class User():
             reminder_vote_message: str
             reminders_slash_enabled: bool
             research_time: int
+            streak_vote: int
             tracking_enabled: bool
             xp: int
             xp_gain_average: float
@@ -185,6 +188,7 @@ async def _dict_to_user(record: dict) -> User:
                                          message=record['reminder_vote_message']),
             reminders_slash_enabled = bool(record['reminders_slash_enabled']),
             research_time = record['research_time'],
+            streak_vote = record['streak_vote'],
             tracking_enabled = bool(record['tracking_enabled']),
             xp = record['xp'],
             xp_gain_average = float(record['xp_gain_average']),
@@ -342,6 +346,7 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_vote_message: str
         reminders_slash_enabled: bool
         research_time: int
+        streak_vote: int
         tracking_enabled: bool
         xp: int
         xp_gain_average: float
