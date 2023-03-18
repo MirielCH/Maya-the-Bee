@@ -9,7 +9,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, users
-from resources import emojis, exceptions, regex, strings
+from resources import emojis, exceptions, regex
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -179,6 +179,8 @@ async def update_xp_on_water_bottle(message: discord.Message, embed_data: Dict, 
                     break
                 else:
                     levels_gained += 1
-        await user_settings.update(xp=new_xp, level=(user_settings.level + levels_gained), xp_target=xp_target)
-        
+        xp_gain_average = 0 if levels_gained > 0 else user_settings.xp_gain_average
+        await user_settings.update(xp=new_xp, level=(user_settings.level + levels_gained), xp_target=xp_target,
+                                   xp_gain_average=xp_gain_average)
+
     return add_reaction
