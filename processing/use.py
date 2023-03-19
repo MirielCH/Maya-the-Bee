@@ -9,7 +9,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, users
-from resources import emojis, exceptions, regex
+from resources import emojis, exceptions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -22,10 +22,50 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     - False otherwise
     """
     return_values = []
+    return_values.append(await call_context_helper_on_energy_drink(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_on_insecticide(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_on_sweet_apple(message, embed_data, user, user_settings))
     return_values.append(await update_xp_on_water_bottle(message, embed_data, user, user_settings))
     return any(return_values)
+
+
+async def call_context_helper_on_energy_drink(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                              user_settings: Optional[users.User]) -> bool:
+    """Call the context helper when using an energy drink
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings_1 = [
+        'you drank', #English
+    ]
+    search_strings_2 = [
+        'energy drink', #English
+    ]
+    if (any(search_string in embed_data['title'].lower() for search_string in search_strings_1)
+        and any(search_string in embed_data['title'].lower() for search_string in search_strings_2)):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_name_match = re.search(regex.USERNAME_FROM_EMBED_AUTHOR, embed_data['author']['name'])
+                user_name = user_name_match.group(1)
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_USE_ENERGY_DRINK, user_name=user_name)
+                )
+                user = user_command_message.author
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled or not user_settings.helper_context_enabled: return add_reaction
+        await message.reply(f"➜ {strings.SLASH_COMMANDS['raid']}")
+    return add_reaction
 
 
 async def create_reminder_on_insecticide(message: discord.Message, embed_data: Dict, user: Optional[discord.User],

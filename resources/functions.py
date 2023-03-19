@@ -232,6 +232,17 @@ async def parse_timestring_to_timedelta(timestring: str) -> timedelta:
 
     if '-' in timestring: return timedelta(days=-1)
     if 'ms' in timestring: return timedelta(seconds=1)
+    if 'y' in timestring:
+        years_start = 0
+        years_end = timestring.find('y')
+        years = timestring[years_start:years_end]
+        timestring = timestring[years_end+1:].strip()
+        try:
+            time_left_seconds = time_left_seconds + (int(years) * 52 * 604800)
+        except:
+            await errors.log_error(
+                f'Error parsing timestring \'{timestring}\', couldn\'t convert \'{years}\' to an integer'
+            )
     if 'w' in timestring:
         weeks_start = 0
         weeks_end = timestring.find('w')
@@ -299,18 +310,22 @@ async def parse_timestring_to_timedelta(timestring: str) -> timedelta:
 
 async def parse_timedelta_to_timestring(time_left: timedelta) -> str:
     """Creates a time string from a timedelta."""
-    weeks = time_left.total_seconds() // 604800
+    years = time_left.total_seconds() // 31_536_000
+    years = int(years)
+    weeks = (time_left.total_seconds() % 31_536_000) // 604_800
     weeks = int(weeks)
-    days = (time_left.total_seconds() % 604800) // 86400
+    days = (time_left.total_seconds() % 604_800) // 86_400
     days = int(days)
-    hours = (time_left.total_seconds() % 86400) // 3600
+    hours = (time_left.total_seconds() % 86_400) // 3_600
     hours = int(hours)
-    minutes = (time_left.total_seconds() % 3600) // 60
+    minutes = (time_left.total_seconds() % 3_600) // 60
     minutes = int(minutes)
     seconds = time_left.total_seconds() % 60
     seconds = int(seconds)
 
     timestring = ''
+    if not years == 0:
+        timestring = f'{timestring}{years}y '
     if not weeks == 0:
         timestring = f'{timestring}{weeks}w '
     if not days == 0:

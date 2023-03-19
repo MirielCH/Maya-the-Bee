@@ -8,8 +8,8 @@ import discord
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, laboratory, profile, prune
-from processing import quests, raid, rebirth, tool, tracking, use, vote
+from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, laboratory, patreon, profile
+from processing import prune, quests, raid, rebirth, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
 
@@ -122,6 +122,10 @@ class DetectionCog(commands.Cog):
         if reminder_research_enabled or helper_context_enabled:
             add_reaction = await laboratory.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
+            
+        # Patreon
+        add_reaction = await patreon.process_message(message, embed_data, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Profile & Stats
         if reminder_research_enabled or reminder_upgrade_enabled or helper_prune_enabled:

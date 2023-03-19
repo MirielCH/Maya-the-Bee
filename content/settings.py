@@ -37,15 +37,16 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
         await ctx.respond(answer)
     else:
         field_settings = (
-            f'To set your **donor tier** and change other settings, click the button below or use '
+            f'Use {strings.SLASH_COMMANDS["patreon"]} to set your **donor tier** if you are a donor.\n'
+            f'To view and change my other settings, click the button below or use '
             f'{await functions.get_maya_slash_command(bot, "settings user")}.\n'
             f'Please also use {strings.SLASH_COMMANDS["profile"]} once so I can read it.'
         )
         field_tracking = (
-            f'I track the amount of some Tree commands you use. Check '
-            f'{await functions.get_maya_slash_command(bot, "stats")} to see what commands are tracked.\n'
+            f'I track the amount of some Tree commands you use and count your nugget drops. Check '
+            f'{await functions.get_maya_slash_command(bot, "stats")} to see what is tracked.\n'
             f'**__No personal data is processed or stored in any way!__**\n'
-            f'You can opt-out of command tracking in {await functions.get_maya_slash_command(bot, "stats")} '
+            f'You can opt-out of tracking in {await functions.get_maya_slash_command(bot, "stats")} '
             f'or in your user settings.\n\n'
         )
         field_privacy = (

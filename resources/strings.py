@@ -232,6 +232,7 @@ SLASH_COMMANDS = {
     'hive claim energy': '</hive claim-energy:976919525415071824>',
     'hive equip': '</hive equip:976919525415071824>',
     'laboratory': '</laboratory:960947259560820810>',
+    'patreon': '</patreon:989564333308661773>',
     'profile': '</profile:960947259560820808>',
     'prune': '</prune:960947259560820814>',
     'quests': '</quests:1012448280002707488>',
