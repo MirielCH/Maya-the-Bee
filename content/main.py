@@ -76,6 +76,8 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
         f'{emojis.DETAIL} _Requires `Manage server` permission._\n'
     )
     commands_misc = (
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "rebirth guide")} : What to do before rebirth\n'
+        f'{emojis.DETAIL} _Alias: `tree i rb`_\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "calculator")} : A basic calculator\n'
     )
     img_logo = discord.File(settings.IMG_LOGO, filename='logo.png')

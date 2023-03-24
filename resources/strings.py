@@ -3,6 +3,12 @@
 
 from resources import emojis
 
+
+# --- Messages ---
+MSG_ABORTED = 'Aborted.'
+MSG_BOT_MESSAGE_NOT_FOUND = '**{user}**, couldn\'t find your {information}.'
+MSG_WAIT_FOR_INPUT = '**{user}**, please use {command}'
+
 # --- Error messages ---
 MSG_INTERACTION_ERRORS =  [
     "Hands off, mate! Interactions are sentient beings too, you know!",
@@ -227,10 +233,14 @@ SLASH_COMMANDS = {
     'chips fusion': '</chips fusion:1076966047351046186>',
     'claim': '</claim:960947259560820812>',
     'clean': '</clean:960947259560820813>',
+    'craft': '</craft:960947259627958293>',
     'daily': '</daily:989564333308661771>',
+    'dismantle': '</dismantle:960947259627958295>',
     'fusion': '</fusion:976919525415071826>',
     'hive claim energy': '</hive claim-energy:976919525415071824>',
+    'hive claim honey': '</hive claim-honey:976919525415071824>',
     'hive equip': '</hive equip:976919525415071824>',
+    'inventory': '</inventory:960947259627958292>',
     'laboratory': '</laboratory:960947259560820810>',
     'patreon': '</patreon:989564333308661773>',
     'profile': '</profile:960947259560820808>',

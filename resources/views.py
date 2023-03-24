@@ -12,6 +12,40 @@ from resources import components, functions, settings, strings
 
 
 # --- Miscellaneous ---
+class AbortView(discord.ui.View):
+    """View with an abort button.
+
+    Also needs the interaction of the response with the view, so do AbortView.interaction = await ctx.respond('foo').
+
+    Returns
+    -------
+    'abort' while button is active.
+    'timeout' on timeout.
+    None if nothing happened yet.
+    """
+    def __init__(self, ctx: discord.ApplicationContext, interaction: Optional[discord.Interaction] = None):
+        super().__init__(timeout=settings.INTERACTION_TIMEOUT)
+        self.value = None
+        self.interaction = interaction
+        self.user = ctx.author
+
+    @discord.ui.button(custom_id="abort", style=discord.ButtonStyle.grey, label='Abort')
+    async def button_abort(self, button: discord.ui.Button, interaction: discord.Interaction):
+        """Abort button"""
+        self.value = button.custom_id
+        self.stop()
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message(strings.MSG_INTERACTION_ERROR, ephemeral=True)
+            return False
+        return True
+
+    async def on_timeout(self) -> None:
+        self.value = 'timeout'
+        self.stop()
+
+
 class ConfirmCancelView(discord.ui.View):
     """View with confirm and cancel button.
 

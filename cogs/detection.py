@@ -8,8 +8,8 @@ import discord
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, laboratory, patreon, profile
-from processing import prune, quests, raid, rebirth, tool, tracking, use, vote
+from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, inventory, laboratory, patreon
+from processing import profile, prune, quests, raid, rebirth, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
 
@@ -112,6 +112,10 @@ class DetectionCog(commands.Cog):
         if reminder_hive_enabled:
             add_reaction = await hive.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
+            
+        # Inventory
+        add_reaction = await inventory.process_message(message, embed_data, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Prune
         if reminder_prune_enabled or helper_prune_enabled:

@@ -1,15 +1,16 @@
 # functions.py
 
+import asyncio
 from datetime import timedelta
 import re
-from typing import Dict, List, Optional, Union
+from typing import Any, Coroutine, List, Optional, Union
 
 import discord
 from discord.ext import commands
 from discord import utils
 
 from database import cooldowns, errors, reminders, users
-from resources import emojis, exceptions, settings, strings
+from resources import emojis, exceptions, regex, settings, strings, views
 
 
 # --- Get discord data ---
@@ -488,3 +489,137 @@ async def reply_or_respond(ctx: Union[discord.ApplicationContext, commands.Conte
         return await ctx.reply(answer)
     else:
         return await ctx.respond(answer, ephemeral=ephemeral)
+
+
+async def get_inventory_item(inventory: str, emoji_name: str) -> int:
+    """Extracts the amount of a material from an inventory
+    Because the material is only listed with its emoji, the exact and full emoji name needs to be given."""
+    material_match = re.search(fr'`\s*([\d,]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
+    return int(material_match.group(1).replace(',','')) if material_match else 0
+
+
+async def get_result_from_tasks(ctx: discord.ApplicationContext, tasks: List[asyncio.Task]) -> Any:
+    """Returns the first result from several running asyncio tasks."""
+    try:
+        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+    except asyncio.CancelledError:
+        return
+    for task in pending:
+        if not task.done():
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+    try:
+        result = list(done)[0].result()
+    except asyncio.CancelledError:
+        pass
+    except asyncio.TimeoutError as error:
+        raise
+    except Exception as error:
+        await errors.log_error(error, ctx)
+        raise
+    return result
+
+
+# Wait for input
+async def wait_for_bot_or_abort(ctx: discord.ApplicationContext, bot_message_task: Coroutine,
+                                content: str) -> Union[discord.Message, None]:
+    """Sends a message with an abort button that tells the user to input a command.
+    This function then waits for both view input and bot_message_task.
+    If the bot message task finishes first, the bot message is returned, otherwise return value is None.
+
+    The abort button is removed after this function finishes.
+    Make sure that the view timeout is longer than the bot message task timeout to get proper errors.
+
+    Arguments
+    ---------
+    ctx: Context.
+    bot_message_task: The task with the coroutine that waits for the EPIC RPG message.
+    content: The content of the message that tells the user what to enter.
+
+    Returns
+    -------
+    Bot message if message task finished first.
+    None if the interaction was aborted or the view timed out first.
+
+    Raises
+    ------
+    asyncio.TimeoutError if the bot message task timed out before the view timed out.
+    This error is also logged to the database.
+    """
+    view = views.AbortView(ctx)
+    interaction = await ctx.respond(content, view=view)
+    view.interaction = interaction
+    view_task = asyncio.ensure_future(view.wait())
+    done, pending = await asyncio.wait([bot_message_task, view_task], return_when=asyncio.FIRST_COMPLETED)
+    for task in pending:
+        if not task.done():
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+    if view.value in ('abort','timeout'):
+        try:
+            await edit_interaction(interaction, content=strings.MSG_ABORTED, view=None)
+        except discord.errors.NotFound:
+            pass
+    elif view.value is None:
+        view.stop()
+        asyncio.ensure_future(edit_interaction(interaction, view=None))
+    bot_message = None
+    if bot_message_task.done():
+        try:
+            bot_message = bot_message_task.result()
+        except asyncio.CancelledError:
+            pass
+        except asyncio.TimeoutError as error:
+            raise
+        except Exception as error:
+            await errors.log_error(error, ctx)
+            raise
+
+    return bot_message
+
+
+async def wait_for_inventory_message(bot: commands.Bot, ctx: discord.ApplicationContext) -> discord.Message:
+    """Waits for and returns the message with the inventory embed from Tree"""
+    def game_check(message_before: discord.Message, message_after: Optional[discord.Message] = None):
+        correct_message = False
+        message = message_after if message_after is not None else message_before
+        if message.embeds:
+            embed = message.embeds[0]
+            if embed.author:
+                embed_author = encode_text_non_async(str(embed.author.name))
+                icon_url = embed.author.icon_url
+                try:
+                    user_id_match = re.search(regex.USER_ID_FROM_ICON_URL, icon_url)
+                    if user_id_match:
+                        user_id = int(user_id_match.group(1))
+                        search_strings = [
+                            f'\'s inventory', #All languages
+                        ]
+                        if (any(search_string in embed_author for search_string in search_strings)
+                            and user_id == ctx.author.id):
+                            correct_message = True
+                    else:
+                        ctx_author = encode_text_non_async(ctx.author.name)
+                        search_strings = [
+                            f'{ctx_author}\'s inventory', ##All languages
+                        ]
+                        if any(search_string in embed_author for search_string in search_strings):
+                            correct_message = True
+                except:
+                    pass
+
+        return ((message.author.id in (settings.GAME_ID, settings.TESTY_ID)) and (message.channel == ctx.channel)
+                and correct_message)
+
+    message_task = asyncio.ensure_future(bot.wait_for('message', check=game_check,
+                                                      timeout = settings.ABORT_TIMEOUT))
+    message_edit_task = asyncio.ensure_future(bot.wait_for('message_edit', check=game_check,
+                                                           timeout = settings.ABORT_TIMEOUT))
+    result = await get_result_from_tasks(ctx, [message_task, message_edit_task])
+    return result[1] if isinstance(result, tuple) else result

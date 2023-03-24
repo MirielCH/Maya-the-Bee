@@ -110,7 +110,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if 'silver' in button.emoji.name:
                 chest_type = 'silver'
                 chest_emoji = emojis.CHEST_SILVER
-            elif 'golden' in button.emoji.name:
+            elif 'gold' in button.emoji.name:
                 chest_type = 'golden'
                 chest_emoji = emojis.CHEST_GOLDEN
             else:
