@@ -5,13 +5,13 @@ from datetime import datetime
 from humanfriendly import format_timespan
 import psutil
 import sys
-from typing import Union
+from typing import List, Union
 
 import discord
 from discord import utils
 from discord.ext import commands
 
-from database import guilds, users
+from database import cooldowns, guilds, users
 from database import settings as settings_db
 from resources import emojis, functions, settings, strings
 
@@ -29,6 +29,13 @@ class LinksView(discord.ui.View):
 
 
 # --- Commands ---
+async def command_event_reduction(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
+    """Help command"""
+    all_cooldowns = list(await cooldowns.get_all_cooldowns())
+    embed = await embed_event_reductions(bot, all_cooldowns)
+    await ctx.respond(embed=embed)
+
+
 async def command_help(bot: discord.Bot, ctx: Union[discord.ApplicationContext, commands.Context, discord.Message]) -> None:
     """Help command"""
     view = LinksView()
@@ -51,6 +58,31 @@ async def command_about(bot: discord.Bot, ctx: discord.ApplicationContext) -> No
 
 
 # --- Embeds ---
+async def embed_event_reductions(bot: discord.Bot, all_cooldowns: List[cooldowns.Cooldown]) -> discord.Embed:
+    """Event reductions embed"""
+    reductions_slash = reductions_text = ''
+    for cooldown in all_cooldowns:
+        if cooldown.event_reduction_slash > 0:
+            reductions_slash = f'{reductions_slash}\n{emojis.BP} {cooldown.activity}: `{cooldown.event_reduction_slash}`%'
+        if cooldown.event_reduction_mention > 0:
+            reductions_text = f'{reductions_text}\n{emojis.BP} {cooldown.activity}: `{cooldown.event_reduction_mention}`%'
+    if reductions_slash == '':
+        reductions_slash = f'{emojis.BP} No event reductions active'
+    if reductions_text == '':
+        reductions_text = f'{emojis.BP} No event reductions active'
+    embed = discord.Embed(
+        color = settings.EMBED_COLOR,
+        title = 'Active event reductions',
+        description = (
+            f'_Event reductions reduce the cooldown of commands by the listed amount._\n'
+            f'_Commands not listed do not have a reduction active._\n'
+        )
+    )
+    embed.add_field(name='Slash commands', value=reductions_slash, inline=False)
+    embed.add_field(name='Text & mention commands', value=reductions_text, inline=False)
+    return embed
+
+
 async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> discord.Embed:
     """Main menu embed"""
     prefix = await guilds.get_prefix(ctx)
@@ -79,6 +111,7 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "rebirth guide")} : What to do before rebirth\n'
         f'{emojis.DETAIL} _Alias: `tree i rb`_\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "calculator")} : A basic calculator\n'
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "event-reductions")} : Check active event reductions\n'
     )
     img_logo = discord.File(settings.IMG_LOGO, filename='logo.png')
     image_url = 'attachment://logo.png'

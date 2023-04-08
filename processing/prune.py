@@ -132,9 +132,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                     prunes_until_level_up = 'N/A'
                 embed = discord.Embed(
                     description = (
-                        f'➜ **{xp_left:,}** {emojis.STAT_XP} until level **{user_settings.level + 1}** '
-                        f'(~**{prunes_until_level_up}** prunes at **{floor(user_settings.xp_gain_average):,}** '
-                        f'{emojis.XP} average)\n'
+                        f'**{xp_left:,}** {emojis.STAT_XP} until level **{user_settings.level + 1}**\n'
+                        f'➜ **{prunes_until_level_up}** prunes at **{floor(user_settings.xp_gain_average):,}** '
+                        f'{emojis.XP} average\n'
                     )
                 )
                 footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level}/{level_target}'

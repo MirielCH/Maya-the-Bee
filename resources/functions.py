@@ -494,8 +494,16 @@ async def reply_or_respond(ctx: Union[discord.ApplicationContext, commands.Conte
 async def get_inventory_item(inventory: str, emoji_name: str) -> int:
     """Extracts the amount of a material from an inventory
     Because the material is only listed with its emoji, the exact and full emoji name needs to be given."""
-    material_match = re.search(fr'`\s*([\d,]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
-    return int(material_match.group(1).replace(',','')) if material_match else 0
+    material_match = re.search(fr'`\s*([\d,.km]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
+    if not material_match: return 0
+    amount = material_match.group(1).replace(',','')
+    if amount.isnumeric(): return int(amount)
+    if amount.lower().endswith('k'):
+        return int(float(amount.lower().rstrip('k')) * 1_000)
+    elif amount.lower().endswith('m'):
+        return int(float(amount.lower().rstrip('k')) * 1_000_000)
+    else:
+        raise ValueError(f'Inventory amount "{amount}" can\'t be parsed.')        
 
 
 async def get_result_from_tasks(ctx: discord.ApplicationContext, tasks: List[asyncio.Task]) -> Any:

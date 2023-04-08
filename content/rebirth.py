@@ -10,7 +10,7 @@ from database import users
 from resources import emojis, functions, settings, strings
 
 
-# --- Commands ---    
+# --- Commands ---
 async def command_rebirth_guide(
     ctx_or_message: Union[discord.ApplicationContext, discord.Message],
     user: discord.User,
@@ -87,72 +87,75 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             sweet_apples = honey_pots // 2
         else:
             sweet_apples = honey // 10
-        honey_pots_crafted = sweet_apples * 2 - honey_pots
-    else:
-        honey_pots_crafted = (honey - (sweet_apples * 10)) // 10
+    honey_pots_crafted = sweet_apples * 2 - honey_pots
     resources = (
         f'{emojis.READY} Use {strings.SLASH_COMMANDS["claim"]}\n'
         f'{emojis.READY} Use {strings.SLASH_COMMANDS["hive claim honey"]}\n'
         f'{emojis.ENERGY} Empty your energy\n'
         f'{emojis.READY} Use {strings.SLASH_COMMANDS["hive claim energy"]} if ready\n'
         f'{emojis.ENERGY} Empty your energy\n'
-        f'{emojis.ENERGY_DRINK} Craft as many energy drinks as you can\n'
+        f'{emojis.ENERGY_DRINK} Use as many energy drinks as you can if you have any\n'
         f'{emojis.ENERGY} Empty your energy\n'
         f'{emojis.CHEST_WOODEN} If you have chests ready, do **not** open them until after rebirth\n'
-    )    
-            
-    nuggets = ''
-    if inventory_data['golden_nugget'] > 0:
-        nuggets = (
-            f'{emojis.NUGGET_GOLDEN} Sell `all` golden nuggets'
-        )
+    )
+
+    craft_dismantle = ''
     if inventory_data['silver_nugget'] > 0:
-        nuggets = (
-            f'{nuggets}\n'
+        craft_dismantle = (
             f'{emojis.NUGGET_SILVER} Dismantle `all` silver nuggets'
         )
     if copper_nuggets_dismantled > 0:
-        nuggets = (
-            f'{nuggets}\n'
-            f'{emojis.NUGGET_COPPER} Dismantle `{copper_nuggets_dismantled:,}` copper nuggets\n'
+        craft_dismantle = (
+            f'{craft_dismantle}\n'
+            f'{emojis.NUGGET_COPPER} Dismantle `{copper_nuggets_dismantled:,}` copper nuggets'
         )
     if copper_nuggets_crafted > 0:
-        nuggets = (
-            f'{nuggets}\n'
-            f'{emojis.NUGGET_COPPER} Craft `{copper_nuggets_crafted:,}` copper nuggets\n'
+        craft_dismantle = (
+            f'{craft_dismantle}\n'
+            f'{emojis.NUGGET_COPPER} Craft `{copper_nuggets_crafted:,}` copper nuggets'
         )
-    if nuggets == '':
-        nuggets = f'{emojis.BP} Nothing to do'
-
-    consumables_craft = ''
+        
     if insecticides > 0:
-        consumables_craft = (
+        craft_dismantle = (
+            f'{craft_dismantle}\n'
             f'{emojis.INSECTICIDE} Craft `{insecticides:,}` insecticides'
         )
     if honey_pots_crafted > 0:
-        consumables_craft = (
-            f'{consumables_craft}\n'
+        craft_dismantle = (
+            f'{craft_dismantle}\n'
             f'{emojis.HONEY_POT} Craft `{honey_pots_crafted:,}` honey pots'
         )
     if sweet_apples > 0:
-        consumables_craft = (
-            f'{consumables_craft}\n'
+        craft_dismantle = (
+            f'{craft_dismantle}\n'
             f'{emojis.SWEET_APPLE} Craft `{sweet_apples:,}` sweet apples'
         )
-    consumables_craft = (
-        f'{consumables_craft}\n'
+    craft_dismantle = (
+        f'{craft_dismantle}\n'
         f'{emojis.EPIC_POTION} Craft `all` epic potions\n'
-        f'{emojis.WATER_BOTTLE} Craft `all` water bottles'
+        f'{emojis.WATER_BOTTLE} Craft `all` water bottles\n'
+        f'{emojis.HONEY_POT} Craft `all` honey pots'
     )
 
-    consumables_use = (
+    use = (
         f'{emojis.INSECTICIDE} Use as many insecticides as you want\n'
         f'{emojis.EPIC_POTION} Use as many epic potions as you want\n'
         f'{emojis.SWEET_APPLE} Use as many sweet apples as you want\n'
         f'{emojis.LEAF_CHESTNUT} Use as many chestnut leaves as you **can**\n'
     )
-    
-    consumables_sell = (
+
+    sell = ''
+    if inventory_data['golden_nugget'] > 0:
+        sell = (
+            f'{emojis.NUGGET_GOLDEN} Sell `all` golden nuggets'
+        )
+    if copper_nuggets > 0:
+        sell = (
+            f'{sell}\n'
+            f'{emojis.NUGGET_COPPER} Sell `all` copper nuggets'
+        )
+    sell = (
+        f'{sell}\n'
         f'{emojis.INSECTICIDE} Sell `all` insecticides\n'
         f'{emojis.EPIC_POTION} Sell `all` epic potions\n'
         f'{emojis.SWEET_APPLE} Sell `all` sweet apples\n'
@@ -164,17 +167,16 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         f'{emojis.LEAF} Sell `all` leaves\n'
         f'{emojis.HONEY} Sell `all` honey\n'
     )
-    
+
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = f'{user.name}\'s rebirth guide',
         description = '_**EXPERIMENTAL FEATURE**, use numbers at your own risk._'
     )
     embed.add_field(name='1. Resources', value=resources, inline=False)
-    embed.add_field(name='2. Nuggets', value=nuggets.strip(), inline=False)
-    embed.add_field(name='3. Craft consumables', value=consumables_craft, inline=False)
-    embed.add_field(name='4. Use consumables', value=consumables_use, inline=False)
-    embed.add_field(name='5. Sell leftovers', value=consumables_sell, inline=False)
+    embed.add_field(name='2. Craft & Dismantle', value=craft_dismantle.strip(), inline=False)
+    embed.add_field(name='3. Use', value=use.strip(), inline=False)
+    embed.add_field(name='4. Sell', value=sell.strip(), inline=False)
     if isinstance(ctx_or_message, discord.ApplicationContext):
         embed.set_footer(text='Tip: You can open this faster by using \'tree i rb\'!')
     return embed

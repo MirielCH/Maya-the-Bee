@@ -194,9 +194,9 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             else:
                 ready_commands.append('prune')
         if user_settings.reminder_quests.enabled:
-            timestring_daily_match = re.search(r"daily • \*\*`(.+?)`\*\*", embed_field_quests.lower())
-            timestring_weekly_match = re.search(r"weekly • \*\*`(.+?)`\*\*", embed_field_quests.lower())
-            timestring_monthly_match = re.search(r"monthly • \*\*`(.+?)`\*\*", embed_field_quests.lower())
+            timestring_daily_match = re.search(r"daily\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())
+            timestring_weekly_match = re.search(r"weekly\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())
+            timestring_monthly_match = re.search(r"monthly\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())
             user_command = await functions.get_game_command(user_settings, 'quests')
             if timestring_daily_match:
                 reminder_message = (
@@ -226,7 +226,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             else:
                 ready_commands.append('quest-monthly')
         if user_settings.reminder_research.enabled:
-            timestring_match = re.search(r"researching: `(.+?)` remaining", embed_field_tool.lower())
+            timestring_match = re.search(r"researching: \*\*`(.+?)`\*\* remaining", embed_field_tool.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'laboratory')
                 reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
@@ -234,7 +234,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             else:
                 ready_commands.append('research')
         if user_settings.reminder_upgrade.enabled:
-            timestring_match = re.search(r"upgrading: `(.+?)` remaining", embed_field_tool.lower())
+            timestring_match = re.search(r"upgrading: \*\*`(.+?)`\*\* remaining", embed_field_tool.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'tool')
                 reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
