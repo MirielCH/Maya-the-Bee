@@ -21,11 +21,15 @@ class LinksView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(discord.ui.Button(label="Invite", style=discord.ButtonStyle.link,
-                                        url=strings.LINK_INVITE, emoji=emojis.INVITE))
+                                        url=strings.LINK_INVITE, emoji=emojis.INVITE, row=0))
+        self.add_item(discord.ui.Button(label="Support", style=discord.ButtonStyle.link,
+                                        url=strings.LINK_SUPPORT_SERVER, emoji=emojis.SUPPORT, row=0))
         self.add_item(discord.ui.Button(label="Github", style=discord.ButtonStyle.link,
-                                        url=strings.LINK_GITHUB, emoji=emojis.GITHUB))
+                                        url=strings.LINK_GITHUB, emoji=emojis.GITHUB, row=0))
         self.add_item(discord.ui.Button(label="Privacy policy", style=discord.ButtonStyle.link,
-                                        url=strings.LINK_PRIVACY_POLICY, emoji=emojis.PRIVACY_POLICY))
+                                        url=strings.LINK_PRIVACY_POLICY, emoji=emojis.PRIVACY_POLICY, row=1))
+        self.add_item(discord.ui.Button(label="Terms of Service", style=discord.ButtonStyle.link,
+                                        url=strings.LINK_TERMS, emoji=emojis.TERMS, row=1))
 
 
 # --- Commands ---

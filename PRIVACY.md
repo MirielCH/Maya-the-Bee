@@ -1,4 +1,4 @@
-# Maya Privacy Policy
+# Maya the Bee Privacy Policy
 
 This policy is effective as of 10 March 2023 and was last updated on 10 March 2023.  
 

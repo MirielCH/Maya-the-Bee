@@ -122,6 +122,27 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await user_settings.update(xp_gain_average=0, xp=new_xp, xp_prune_count=0, xp_target=new_xp_target,
                                            level=next_level)
             else:
+                xp_percentage = user_settings.xp / user_settings.xp_target * 100
+                progress = 6 / 100 * xp_percentage
+                progress_fractional = progress % 1
+                progress_emojis_full = floor(progress)
+                progress_emojis_empty = 6 - progress_emojis_full - 1
+                if 0 <= progress_fractional < 0.25:
+                    progress_emoji_fractional = emojis.PROGRESS_0
+                elif 0.25 <= progress_fractional < 0.5:
+                    progress_emoji_fractional = emojis.PROGRESS_25
+                elif 0.5 <= progress_fractional < 0.75:
+                    progress_emoji_fractional = emojis.PROGRESS_50
+                elif 0.75 <= progress_fractional < 1:
+                    progress_emoji_fractional = emojis.PROGRESS_75
+                else:
+                    progress_emoji_fractional = emojis.PROGRESS_100
+                progress_bar = ''
+                for x in range(progress_emojis_full):
+                    progress_bar = f'{progress_bar}{emojis.PROGRESS_100}'
+                progress_bar = f'{progress_bar}{progress_emoji_fractional}'
+                for x in range(progress_emojis_empty):
+                    progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
                 if user_settings.rebirth <= 10:
                     level_target = 5 + user_settings.rebirth
                 else:
@@ -131,8 +152,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 except ZeroDivisionError:
                     prunes_until_level_up = 'N/A'
                 embed = discord.Embed(
+                    title = progress_bar,
                     description = (
-                        f'**{xp_left:,}** {emojis.STAT_XP} until level **{user_settings.level + 1}**\n'
+                        f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1}**\n'
                         f'➜ **{prunes_until_level_up}** prunes at **{floor(user_settings.xp_gain_average):,}** '
                         f'{emojis.XP} average\n'
                     )

@@ -90,6 +90,8 @@ INTERNAL_ERROR_DICT_TO_OBJECT = 'Error converting record into object\nFunction: 
 LINK_GITHUB = 'https://github.com/Miriel-py/Maya-the-Bee'
 LINK_INVITE = 'https://discord.com/api/oauth2/authorize?client_id=1082304094842146897&permissions=378944&scope=bot'
 LINK_PRIVACY_POLICY = 'https://github.com/Miriel-py/Maya-the-Bee/blob/master/PRIVACY.md'
+LINK_SUPPORT_SERVER = 'https://discord.gg/NShwfuGED2'
+LINK_TERMS = 'https://github.com/Miriel-py/Maya-the-Bee/blob/master/TERMS.md'
 
 # --- Default messages ---
 DEFAULT_MESSAGE_CUSTOM_REMINDER = 'Bzzt! This is your reminder for **{message}**!'
