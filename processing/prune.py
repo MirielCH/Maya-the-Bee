@@ -68,16 +68,16 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             nugget_golden_match = re.search(r'<:goldennugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
             if nugget_wooden_match:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
-                                                int(nugget_wooden_match.group(1).replace(',','')))
+                                                int(re.sub('\D', '', nugget_wooden_match.group(1))))
             if nugget_copper_match:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'copper-nugget', current_time,
-                                                int(nugget_copper_match.group(1).replace(',','')))
+                                                int(re.sub('\D', '', nugget_copper_match.group(1))))
             if nugget_silver_match:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'silver-nugget', current_time,
-                                                int(nugget_silver_match.group(1).replace(',','')))
+                                                int(re.sub('\D', '', nugget_silver_match.group(1))))
             if nugget_golden_match:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
-                                                int(nugget_golden_match.group(1).replace(',','')))
+                                                int(re.sub('\D', '', nugget_golden_match.group(1))))
             if nugget_drops:
                 await user_settings.update(**nugget_drops)
         if not user_settings.reminder_prune.enabled: return add_reaction
@@ -103,7 +103,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await message.add_reaction(emojis.PAN_WOOHOO)
         if (user_settings.helper_prune_enabled and user_settings.level > 0 and user_settings.xp_target > 0):
             xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
-            xp_gain = int(xp_gain_match.group(1).replace(',',''))
+            xp_gain = int(re.sub('\D', '', xp_gain_match.group(1)))
             if user_settings.xp_gain_average > 0:
                 xp_gain_average = (
                     (user_settings.xp_prune_count * user_settings.xp_gain_average + xp_gain)

@@ -74,6 +74,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             wooden_nuggets += 12
             copper_nuggets_dismantled += 1
         else:
+            if wooden_nuggets >= 15: copper_nuggets_dismantled -= 1
             break
     apples = inventory_data['apple']
     honey = inventory_data['honey']
@@ -118,7 +119,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     if insecticides > 0:
         craft_dismantle = (
             f'{craft_dismantle}\n'
-            f'{emojis.INSECTICIDE} Craft `{insecticides:,}` insecticides'
+            f'{emojis.INSECTICIDE} Craft `all` insecticides'
         )
     if honey_pots_crafted > 0:
         craft_dismantle = (

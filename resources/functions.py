@@ -496,7 +496,7 @@ async def get_inventory_item(inventory: str, emoji_name: str) -> int:
     Because the material is only listed with its emoji, the exact and full emoji name needs to be given."""
     material_match = re.search(fr'`\s*([\d,.km]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
     if not material_match: return 0
-    amount = material_match.group(1).replace(',','')
+    amount = re.sub('\D', '', material_match.group(1))
     if amount.isnumeric(): return int(amount)
     if amount.lower().endswith('k'):
         return int(float(amount.lower().rstrip('k')) * 1_000)

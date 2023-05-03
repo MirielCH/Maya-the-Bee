@@ -201,7 +201,7 @@ async def update_xp_on_water_bottle(message: discord.Message, embed_data: Dict, 
                 return add_reaction
         if not user_settings.bot_enabled or not user_settings.helper_prune_enabled: return add_reaction
         xp_gain_end_match = re.search(r'gained \*\*(.+?)\*\* exp', embed_data['description'].lower())
-        xp_gain = int(xp_gain_end_match.group(1).replace(',',''))
+        xp_gain = int(re.sub('\D', '', xp_gain_end_match.group(1)))
         if user_settings.xp_target == 0 or user_settings.level == 0: return add_reaction
         new_xp = user_settings.xp + xp_gain
         levels_gained = 0
