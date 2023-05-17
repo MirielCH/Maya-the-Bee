@@ -22,9 +22,7 @@ Important things to note:
 Maya has access to the content of all messages it can see. This access is necessary to create reminders.  
 Maya reads Tree messages and also reads the commands you issue to trigger said messages (e.g. if a prune message is detected, it will also read your `/prune` slash command or your `tree prune` message).  
 
-## Storing message data
-
-The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 6 minutes and not stored permanently.  
+The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 6 minutes and **not** stored permanently.  
 
 ## Limits of this policy
 
@@ -42,4 +40,4 @@ At my discretion, I may change my privacy policy to reflect updates. If I decide
 
 ## Contact me
 
-For any questions or concerns regarding this policy, you may contact me (Miriel#0001) on Discord directly.  
+For any questions or concerns regarding this policy, you may contact me (Miriel#0001) in the [Maya the Bee support server](https://discord.gg/NShwfuGED2).
