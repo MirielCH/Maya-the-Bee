@@ -58,10 +58,6 @@ They are restricted as follows:
 
 The following commands are available:  
 
-### `/dev cache`
-
-Shows the size of the local message cache. All user messages containing a mention of Tree or starting with "tree " are cached for 1 minute to speed up command detection and reduce API requests.
-
 ### `/dev consolidate`
 
 Manually triggers the tracking consolidation. This runs daily at 00:00 UTC, so you probably won't need this.  

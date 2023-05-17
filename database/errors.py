@@ -27,7 +27,7 @@ async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.C
     """
     table = 'errors'
     function_name = 'log_error'
-    sql = f'INSERT INTO {table} (date_time, message_content, error, user_settings, jump_url) VALUES (?, ?, ?, ?, ?)'
+    sql = f'INSERT INTO {table} (date_time, error, user_settings, jump_url) VALUES (?, ?, ?, ?)'
     if hasattr(error, 'message'):
         error_message = f'Error: {error.message}'
     else:
@@ -61,20 +61,6 @@ async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.C
         user_settings = 'N/A'
         date_time = message.created_at
         jump_url = message.jump_url
-        message_content = f'---Message content---\n{message.content}'
-        if message.embeds:
-            embed = message.embeds[0]
-            if embed.author:
-                message_content = f'{message_content}\n\n---Embed author---\n{embed.author.name}'
-            if embed.title:
-                message_content = f'{message_content}\n\n---Embed title---\n{embed.title}'
-            if embed.description:
-                message_content = f'{message_content}\n\n---Embed description---\n{embed.description}'
-            for field_no, field in enumerate(embed.fields):
-                message_content = f'{message_content}\n\n---Embed field {field_no} name---\n{field.name}'
-                message_content = f'{message_content}\n\n---Embed field {field_no} value---\n{field.value}'
-            if embed.footer:
-                message_content = f'{message_content}\n\n---Embed footer---\n{embed.footer.text}'
         if not message.author.bot:
             try:
                 from database import users
@@ -84,12 +70,11 @@ async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.C
                 pass
     else:
         date_time = utils.utcnow()
-        message_content = 'N/A'
         jump_url = 'N/A'
         user_settings = 'N/A'
     try:
         cur = settings.DATABASE.cursor()
-        cur.execute(sql, (date_time, message_content, error_message, user_settings, jump_url))
+        cur.execute(sql, (date_time, error_message, user_settings, jump_url))
         logs.logger.error(f'\n{error_message}\n>> Jump URL: {jump_url}')
     except sqlite3.Error as error:
         if ctx is not None:

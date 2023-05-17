@@ -114,7 +114,7 @@ async def get_cooldown(activity: str) -> Cooldown:
         raise
     if not record:
         await errors.log_error(
-            strings.INTERNAL_ERROR_NO_DATA_FOUND.format(table=table, function=function_name, sql=sql)
+            strings.INTERNAL_ERROR_NO_DATA_FOUND.format(table=table, function=function_name, sql=f'{sql} (activity = {activity})')
         )
         raise exceptions.NoDataFoundError(f'No cooldown data found in database for activity "{activity}".')
     cooldown = await _dict_to_cooldown(dict(record))

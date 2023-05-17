@@ -1,6 +1,6 @@
 # Maya the Bee Privacy Policy
 
-This policy is effective as of 10 March 2023 and was last updated on 10 March 2023.  
+This policy is effective as of 10 March 2023 and was last updated on 17 May 2023.  
 
 ## User information the bot collects
 
@@ -26,17 +26,13 @@ Maya reads Tree messages and also reads the commands you issue to trigger said m
 
 The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 6 minutes and not stored permanently.  
 
-If there is an error, the following data is stored permanently in the error log:  
-• Content of the **Tree** message that couldn’t get processed correctly (but never messages by **you**).  
-• A message link to the **Tree** message that couldn’t get processed correctly. If the error happened in a private channel, I do not have access to that channel, as the stored message link will **not** work.  
-
 ## Limits of this policy
 
 Please be aware that I have no control over the code and policies of forks and other projects that use Maya’s source code and cannot accept responsibility or liability for their respective privacy practices.  
 
 This policy therefore only applies to:  
 • The code in the [main repository](https://github.com/Miriel-py/Maya-the-Bee), maintained by myself.  
-• The bot instance with the username `Maya the Bee#7702`, hosted by myself. If you encounter another Maya with another discriminator, it is outside of the scope of this privacy policy.  
+• The bot instance with the username `Maya the Bee#7702`, hosted by myself. If you encounter another Maya with another discriminator, it is outside of the scope of this privacy policy, even if it falsely links to this document.  
 
 The bot may also link to external sites that are not operated by me. The same limits apply to those sites.  
 

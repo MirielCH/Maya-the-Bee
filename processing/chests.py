@@ -117,6 +117,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 chest_type = 'wooden'
                 chest_emoji = emojis.CHEST_WOODEN
             timestring_match = re.search(regex_timestring, button.label.lower())
+            if not timestring_match: return add_reaction
             reminder_message = (
                 user_settings.reminder_chests.message
                 .replace('{command}', user_command)

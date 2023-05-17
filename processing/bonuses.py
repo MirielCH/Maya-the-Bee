@@ -43,7 +43,7 @@ async def create_reminders(message: discord.Message, embed_data: Dict, interacti
     ]
     if any(search_string in embed_data['title'].lower() for search_string in search_strings):
         if embed_data['embed_user'] is not None and interaction_user is not None:
-            if interaction_user != embed_data['embed_user'] != interaction_user:
+            if interaction_user != embed_data['embed_user']:
                 return add_reaction
         embed_users = []
         if interaction_user is None:

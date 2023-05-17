@@ -114,6 +114,10 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
                                        xp_prune_count=(user_settings.xp_prune_count + 1))
             xp_left = user_settings.xp_target - user_settings.xp
+            if user_settings.rebirth <= 10:
+                level_target = 5 + user_settings.rebirth
+            else:
+                level_target = 15 + ((user_settings.rebirth - 10) // 2)
             if xp_left < 0:
                 next_level = user_settings.level + 1
                 new_xp = user_settings.xp - user_settings.xp_target
@@ -121,6 +125,10 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 new_xp_target = (next_level ** 3) * 150
                 await user_settings.update(xp_gain_average=0, xp=new_xp, xp_prune_count=0, xp_target=new_xp_target,
                                            level=next_level)
+                if next_level == level_target:
+                    answer = f'Bzzt! You reached level {next_level} and are now ready for rebirth!'
+                    answer = f'**{user.name}** {answer}' if user_settings.dnd_mode_enabled else f'{user.mention} {answer}'
+                    await message.channel.send(answer)
             else:
                 xp_percentage = user_settings.xp / user_settings.xp_target * 100
                 progress = 6 / 100 * xp_percentage
@@ -143,10 +151,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 progress_bar = f'{progress_bar}{progress_emoji_fractional}'
                 for x in range(progress_emojis_empty):
                     progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
-                if user_settings.rebirth <= 10:
-                    level_target = 5 + user_settings.rebirth
-                else:
-                    level_target = 15 + ((user_settings.rebirth - 10) // 2)
                 try:
                     prunes_until_level_up = f'{ceil(xp_left / floor(user_settings.xp_gain_average)):,}'
                 except ZeroDivisionError:
