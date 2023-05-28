@@ -172,7 +172,6 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = f'{user.name}\'s rebirth guide',
-        description = '_**EXPERIMENTAL FEATURE**, use numbers at your own risk._'
     )
     embed.add_field(name='1. Resources', value=resources, inline=False)
     embed.add_field(name='2. Craft & Dismantle', value=craft_dismantle.strip(), inline=False)

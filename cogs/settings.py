@@ -25,6 +25,16 @@ class SettingsCog(commands.Cog):
         """Disable Maya"""
         await settings_cmd.command_off(self.bot, ctx)
 
+    cmd_purge = SlashCommandGroup(
+        "purge",
+        "Purge commands",
+    )
+
+    @cmd_purge.command()
+    async def data(self, ctx: discord.ApplicationContext) -> None:
+        """Purges your user data from Maya"""
+        await settings_cmd.command_purge_data(self.bot, ctx)
+
     cmd_settings = SlashCommandGroup(
         "settings",
         "Settings commands",

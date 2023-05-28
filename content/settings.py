@@ -1,13 +1,14 @@
 # settings.py
 """Contains settings commands"""
 
+import asyncio
 import re
 from typing import List, Optional
 
 import discord
 from discord import utils
 
-from database import guilds, reminders, users
+from database import guilds, reminders, tracking, users
 from resources import emojis, exceptions, functions, settings, strings, views
 
 
@@ -115,6 +116,88 @@ async def command_off(bot: discord.Bot, ctx: discord.ApplicationContext) -> None
             return
     else:
         await functions.edit_interaction(interaction, content='Aborted.', view=None)
+
+
+async def command_purge_data(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
+    """Purge data command"""
+    user_settings: users.User = await users.get_user(ctx.author.id)
+    answer_aborted = f'**{ctx.author.name}**, phew, was worried there for a second.'
+    answer_timeout = f'**{ctx.author.name}**, you didn\'t answer in time.'
+    answer = (
+        f'{emojis.WARNING} **{ctx.author.name}**, this will purge your user data from Maya **completely** {emojis.WARNING}\n\n'
+        f'This includes the following:\n'
+        f'{emojis.BP} All reminders\n'
+        f'{emojis.BP} Your complete command tracking history\n'
+        f'{emojis.BP} And finally, your user settings\n\n'
+        f'**There is no coming back from this**.\n'
+        f'You will of course be able to start using Maya again, but all of your data will start '
+        f'from scratch.\n'
+        f'Are you **SURE**?'
+    )
+    view = views.ConfirmCancelView(ctx, styles=[discord.ButtonStyle.red, discord.ButtonStyle.green])
+    interaction = await ctx.respond(answer, view=view)
+    view.interaction_message = interaction
+    await view.wait()
+    if view.value is None:
+        await functions.edit_interaction(
+            interaction, content=answer_timeout, view=None
+        )
+    elif view.value == 'confirm':
+        await functions.edit_interaction(interaction, view=None)
+        answer = (
+            f'{emojis.WARNING} **{ctx.author.name}**, just a friendly final warning {emojis.WARNING}\n'
+            f'**ARE YOU SURE?**'
+        )
+        view = views.ConfirmCancelView(ctx, styles=[discord.ButtonStyle.red, discord.ButtonStyle.green])
+        interaction = await ctx.respond(answer, view=view)
+        view.interaction_message = interaction
+        await view.wait()
+        if view.value is None:
+            await functions.edit_interaction(
+                interaction, content=answer_timeout, view=None
+            )
+        elif view.value == 'confirm':
+            cur = settings.DATABASE.cursor()
+            await functions.edit_interaction(
+                interaction, content='Purging user settings...',
+                view=None
+            )
+            cur.execute('DELETE FROM users WHERE user_id=?', (ctx.author.id,))
+            await asyncio.sleep(1)
+            await functions.edit_interaction(
+                interaction, content='Purging reminders...',
+                view=None
+            )
+            cur.execute('DELETE FROM reminders WHERE user_id=?', (ctx.author.id,))
+            await asyncio.sleep(1)
+            await functions.edit_interaction(
+                interaction, content='Purging tracking data... (this can take a while)',
+                view=None
+            )
+            try:
+                log_entries =  await tracking.get_all_log_entries(ctx.author.id)
+            except exceptions.NoDataFoundError:
+                log_entries = []
+            for log_entry in log_entries:
+                await log_entry.delete()
+                await asyncio.sleep(0.01)
+            await asyncio.sleep(1)
+            await functions.edit_interaction(
+                interaction,
+                content=(
+                    f'{emojis.ENABLED} **{ctx.author.name}**, you are now gone and forgotton. '
+                    f'Thanks for using me! Bzzt! {emojis.LOGO}'
+                ),
+                view=None
+            )   
+        else:
+            await functions.edit_interaction(
+                interaction, content=answer_aborted, view=None
+            )
+    else:
+        await functions.edit_interaction(
+            interaction, content=answer_aborted, view=None
+        )
 
 
 async def command_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext,
