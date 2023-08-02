@@ -73,10 +73,14 @@ class LogEntry():
 
 class LogReport(NamedTuple):
     """Object that represents a report based on a certain amount of log entries."""
-    amount: int
-    command_or_drop: str
-    guild_id: int # Set to None if report_type is 'global'
-    report_type: str # Either 'guild' or 'global'
+    captcha_amount: int
+    clean_amount: int
+    prune_amount: int
+    nugget_copper_amount: int
+    nugget_golden_amount: int
+    nugget_silver_amount: int
+    nugget_wooden_amount: int
+    guild_id: int # Set to None if not given
     timeframe: timedelta
     user_id: int
 
@@ -299,7 +303,7 @@ async def get_old_log_entries(days: int) -> Tuple[LogEntry]:
     return tuple(log_entries)
 
 
-async def get_log_report(user_id: int, command_or_drop: str, timeframe: timedelta,
+async def get_log_report(user_id: int, timeframe: timedelta,
                          guild_id: Optional[int] = None) -> LogReport:
     """Gets a summary log report for one command for a certain amount of time from a user id.
     If the guild_id is specified, the report is limited to that guild.
@@ -314,19 +318,48 @@ async def get_log_report(user_id: int, command_or_drop: str, timeframe: timedelt
     LookupError if something goes wrong reading the dict.
     Also logs all errors to the database.
     """
-    log_entries = await get_log_entries(user_id, command_or_drop, timeframe, guild_id)
-    total_amount = 0
-    for log_entry in log_entries:
-        total_amount += log_entry.amount
+    table = 'tracking_log'
+    function_name = 'get_log_report'
+    sql = f'SELECT command_or_drop, SUM(amount) FROM {table} WHERE user_id=? AND date_time>=?'
+    date_time = datetime.utcnow() - timeframe
+    if guild_id is not None: sql = f'{sql} AND guild_id=?'
+    sql = f'{sql} GROUP BY command_or_drop'
+    try:
+        cur = settings.DATABASE.cursor()
+        if guild_id is None:
+            cur.execute(sql, (user_id, date_time))
+        else:
+            cur.execute(sql, (user_id, date_time, guild_id))
+        records = cur.fetchall()
+    except sqlite3.Error as error:
+        await errors.log_error(
+            strings.INTERNAL_ERROR_SQLITE3.format(error=error, table=table, function=function_name, sql=sql)
+        )
+        raise
+    records_data = {
+        'captcha': 0,
+        'clean': 0,
+        'copper-nugget': 0,
+        'golden-nugget': 0,
+        'silver-nugget': 0,
+        'wooden-nugget': 0,
+        'prune': 0,
+    }
+    for record in records:
+        record = dict(record)
+        records_data[record['command_or_drop']] = record['SUM(amount)']
     log_report = LogReport(
-        amount = total_amount,
-        command_or_drop = command_or_drop,
+        captcha_amount = records_data['captcha'],
+        clean_amount = records_data['clean'],
+        nugget_copper_amount = records_data['copper-nugget'],
+        nugget_golden_amount = records_data['golden-nugget'],
+        nugget_silver_amount = records_data['silver-nugget'],
+        nugget_wooden_amount = records_data['wooden-nugget'],
+        prune_amount = records_data['prune'],
         guild_id = guild_id,
-        report_type = 'guild' if guild_id is not None else 'global',
         timeframe = timeframe,
         user_id = user_id
     )
-
     return log_report
 
 
@@ -455,7 +488,7 @@ async def insert_log_summary(user_id: int, guild_id: int, command_or_drop: str, 
     except exceptions.NoDataFoundError:
         pass
     if log_entry is not None:
-        await log_entry.update(command_count=log_entry.command_count + amount)
+        await log_entry.update(amount=log_entry.amount + amount)
     else:
         sql = (
             f'INSERT INTO {table} (user_id, guild_id, command_or_drop, amount, date_time, type) VALUES (?, ?, ?, ?, ?, ?)'

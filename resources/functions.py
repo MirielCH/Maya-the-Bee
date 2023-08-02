@@ -10,7 +10,7 @@ from discord.ext import commands
 from discord import utils
 
 from database import cooldowns, errors, reminders, users
-from resources import emojis, exceptions, regex, settings, strings, views
+from resources import emojis, exceptions, functions, regex, settings, strings, views
 
 
 # --- Get discord data ---
@@ -496,14 +496,22 @@ async def get_inventory_item(inventory: str, emoji_name: str) -> int:
     Because the material is only listed with its emoji, the exact and full emoji name needs to be given."""
     material_match = re.search(fr'`\s*([\d,.km]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
     if not material_match: return 0
-    amount = re.sub('\D', '', material_match.group(1))
-    if amount.isnumeric(): return int(amount)
+    amount_patterns = [
+        r'(\d+[\.,]\d+[km]?)',
+        r'(\d+)',
+    ]
+    amount_match = await functions.get_match_from_patterns(amount_patterns, material_match.group(1))
+    amount = amount_match.group(1)
     if amount.lower().endswith('k'):
         return int(float(amount.lower().rstrip('k')) * 1_000)
     elif amount.lower().endswith('m'):
-        return int(float(amount.lower().rstrip('k')) * 1_000_000)
+        return int(float(amount.lower().rstrip('m')) * 1_000_000)
     else:
-        raise ValueError(f'Inventory amount "{amount}" can\'t be parsed.')        
+        amount = amount.replace(',','').replace('.','')
+        if amount.isnumeric():
+            return int(amount)
+        else:
+            raise ValueError(f'Inventory amount "{amount}" can\'t be parsed.')        
 
 
 async def get_result_from_tasks(ctx: discord.ApplicationContext, tasks: List[asyncio.Task]) -> Any:

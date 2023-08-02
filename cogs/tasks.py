@@ -152,7 +152,7 @@ class TasksCog(commands.Cog):
             entries = {}
             for log_entry in old_log_entries:
                 date_time = log_entry.date_time.replace(hour=23, minute=59, second=59, microsecond=999999)
-                key = (log_entry.user_id, log_entry.guild_id, log_entry.command, date_time)
+                key = (log_entry.user_id, log_entry.guild_id, log_entry.command_or_drop, date_time)
                 amount = entries.get(key, 0)
                 entries[key] = amount + 1
                 log_entry_count += 1

@@ -90,7 +90,7 @@ async def create_reminder_on_command_cooldown(message: discord.Message, embed_da
         else:
             return add_reaction
         time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
-        if time_left < timedelta(0): return add_reaction
+        if time_left < timedelta(seconds=1): return add_reaction
         reminder: reminders.Reminder = (
             await reminders.insert_reminder(user.id, activity, time_left,
                                             message.channel.id, reminder_message)

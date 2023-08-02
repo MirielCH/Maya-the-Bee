@@ -127,9 +127,13 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{emojis.HONEY_POT} Craft `{honey_pots_crafted:,}` honey pots'
         )
     if sweet_apples > 0:
+        if sweet_apples == apples // 10:
+            sweet_apples_amount = 'all'
+        else:
+            sweet_apples_amount = f'{sweet_apples:,}'
         craft_dismantle = (
             f'{craft_dismantle}\n'
-            f'{emojis.SWEET_APPLE} Craft `{sweet_apples:,}` sweet apples'
+            f'{emojis.SWEET_APPLE} Craft `{sweet_apples_amount}` sweet apples'
         )
     craft_dismantle = (
         f'{craft_dismantle}\n'
