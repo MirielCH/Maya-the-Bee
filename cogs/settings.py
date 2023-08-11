@@ -120,6 +120,7 @@ class SettingsCog(commands.Cog):
     async def prefix_settings(self, ctx: commands.Context, *args: str) -> None:
         """Settings (prefix version)"""
         await ctx.reply(
+            f'➜ {await functions.get_maya_slash_command(self.bot, "settings helpers")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings messages")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings reminders")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings server")}\n'

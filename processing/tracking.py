@@ -1,13 +1,14 @@
 # tracking.py
 """Contains commands related to command tracking"""
 
+import re
 from typing import Dict, Optional
 
 import discord
 from discord import utils
 
 from database import users, tracking
-from resources import exceptions
+from resources import exceptions, functions
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -35,19 +36,24 @@ async def track_captcha(message: discord.Message, embed_data: Dict, user: Option
     - False otherwise
     """
     search_strings_title = [
-        'verification required!', #English
+        'captcha', #English
     ]
-    search_strings_content = [
-        'captcha solved successfully', #English
-    ]
-    if (any(search_string in embed_data['title'].lower() for search_string in search_strings_title)
-        and any(search_string in message.content.lower() for search_string in search_strings_content)):        
+    if any(search_string in embed_data['title'].lower() for search_string in search_strings_title):
+        captcha_solved = False
+        for component in message.components[0].children:
+            if component.style == discord.ButtonStyle.success:
+                captcha_solved = True
+                break
+        if not captcha_solved: return
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']
                 user_settings = embed_data['embed_user_settings']
             else:
-                user = message.mentions[0]
+                user_name_match = re.search(r'hey \*\*(.+?)\*\*!', embed_data['description'].lower())
+                user_name = user_name_match.group(1)
+                guild_members = await functions.get_guild_member_by_name(message.guild, user_name)
+                user = guild_members[0]
         if user_settings is None:
             try:
                 user_settings: users.User = await users.get_user(user.id)

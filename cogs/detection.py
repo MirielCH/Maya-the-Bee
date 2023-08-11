@@ -272,11 +272,16 @@ async def check_edited_message_always_allowed(message_before: discord.Message,
     - True if allowed
     - False if not affected by this check
     """
-    search_strings_content = [
-        'captcha solved successfully', #English
+    search_strings = [
+        'captcha', #English
     ]
-    if any(search_string in message_after.content.lower() for search_string in search_strings_content):
-        return True
+    if any(search_string in embed_data['title'].lower() for search_string in search_strings):
+        captcha_solved = False
+        for component in message_after.components[0].children:
+            if component.style == discord.ButtonStyle.success:
+                captcha_solved = True
+                break
+        return captcha_solved
     search_strings = [
         'fusion results', #English
     ]

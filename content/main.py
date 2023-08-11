@@ -145,6 +145,7 @@ async def embed_about(bot: commands.Bot, api_latency: datetime) -> discord.Embed
         f'{emojis.BP} Online for {format_timespan(uptime)}'
     )
     creator = f'{emojis.BP} miriel.ch'
+    avatar = f'{emojis.BP} [RalfDesign](https://pixabay.com/users/ralfdesign-2031934/)'
     dev_stuff = (
         f'{emojis.BP} Version: {settings.VERSION}\n'
         f'{emojis.BP} Language: Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}\n'
@@ -164,6 +165,7 @@ async def embed_about(bot: commands.Bot, api_latency: datetime) -> discord.Embed
     )
     embed.add_field(name='Bot stats', value=general, inline=False)
     embed.add_field(name='Creator', value=creator, inline=False)
+    embed.add_field(name='Avatar by', value=avatar, inline=False)
     embed.add_field(name='Dev stuff', value=dev_stuff, inline=False)
     embed.add_field(name='Special thanks to', value=thanks_to, inline=False)
     embed.set_thumbnail(url=image_url)

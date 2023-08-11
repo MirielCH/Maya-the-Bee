@@ -10,7 +10,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, tracking, users
-from resources import emojis, exceptions, functions, regex
+from resources import emojis, exceptions, functions, logs, regex
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -40,7 +40,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
     search_strings = [
         'you have pruned your tree', #English
     ]
-    if any(search_string in message.content.lower() for search_string in search_strings):
+    if any(search_string in message.content.lower() for search_string in search_strings) and not message.embeds:
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']
@@ -62,10 +62,11 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             current_time = utils.utcnow().replace(microsecond=0)
             await tracking.insert_log_entry(user.id, message.guild.id, 'prune', current_time)
             nugget_drops = {}
-            nugget_wooden_match = re.search(r'<:woodennugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
-            nugget_copper_match = re.search(r'<:coppernugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
-            nugget_silver_match = re.search(r'<:silvernugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
-            nugget_golden_match = re.search(r'<:goldennugget:\d+>\s\*\*(.+?)\*\*', message.content.lower())
+            nugget_wooden_match = re.search(r'woodennugget:\d+>\s*\*\*`(.+?)`\*\*', message.content.lower())
+            nugget_copper_match = re.search(r'coppernugget:\d+>\s*\*\*`(.+?)`\*\*', message.content.lower())
+            nugget_silver_match = re.search(r'silvernugget:\d+>\s*\*\*`(.+?)`\*\*', message.content.lower())
+            nugget_golden_match = re.search(r'goldennugget:\d+>\s*\*\*`(.+?)`\*\*', message.content.lower())
+            nugget_diamond_match = re.search(r'diamondnugget:\d+>\s*\*\*`(.+?)`\*\*', message.content.lower())
             if nugget_wooden_match:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
                                                 int(re.sub('\D', '', nugget_wooden_match.group(1))))
@@ -78,6 +79,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if nugget_golden_match:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
                                                 int(re.sub('\D', '', nugget_golden_match.group(1))))
+            if nugget_diamond_match:
+                await tracking.insert_log_entry(user.id, message.guild.id, 'diamond-nugget', current_time,
+                                                int(re.sub('\D', '', nugget_diamond_match.group(1))))
             if nugget_drops:
                 await user_settings.update(**nugget_drops)
         if not user_settings.reminder_prune.enabled: return add_reaction
@@ -97,9 +101,11 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             await reminders.insert_reminder(user.id, 'prune', time_left,
                                                     message.channel.id, reminder_message)
         )
+        if 'diamond' in message.content.lower():
+            logs.logger.info(f'Diamond nugget drop: {message.content}')
         if user_settings.reactions_enabled:
             if reminder.record_exists: add_reaction = True
-            if 'goldennugget' in message.content.lower():
+            if 'goldennugget' in message.content.lower() or 'diamondnugget' in message.content.lower():
                 await message.add_reaction(emojis.PAN_WOOHOO)
         if (user_settings.helper_prune_enabled and user_settings.level > 0 and user_settings.xp_target > 0):
             xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())

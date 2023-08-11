@@ -77,6 +77,7 @@ class LogReport(NamedTuple):
     clean_amount: int
     prune_amount: int
     nugget_copper_amount: int
+    nugget_diamond_amount: int
     nugget_golden_amount: int
     nugget_silver_amount: int
     nugget_wooden_amount: int
@@ -340,6 +341,7 @@ async def get_log_report(user_id: int, timeframe: timedelta,
         'captcha': 0,
         'clean': 0,
         'copper-nugget': 0,
+        'diamond-nugget': 0,
         'golden-nugget': 0,
         'silver-nugget': 0,
         'wooden-nugget': 0,
@@ -352,6 +354,7 @@ async def get_log_report(user_id: int, timeframe: timedelta,
         captcha_amount = records_data['captcha'],
         clean_amount = records_data['clean'],
         nugget_copper_amount = records_data['copper-nugget'],
+        nugget_diamond_amount = records_data['diamond-nugget'],
         nugget_golden_amount = records_data['golden-nugget'],
         nugget_silver_amount = records_data['silver-nugget'],
         nugget_wooden_amount = records_data['wooden-nugget'],

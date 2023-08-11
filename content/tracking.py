@@ -127,8 +127,10 @@ async def design_field(timeframe: timedelta, user: discord.Member) -> str:
         f'({await calculate_percentage(report.nugget_copper_amount, report.prune_amount):g}%)\n'
         f'{emojis.DETAIL2} {emojis.NUGGET_SILVER} {report.nugget_silver_amount:,} '
         f'({await calculate_percentage(report.nugget_silver_amount, report.prune_amount):g}%)\n'
-        f'{emojis.DETAIL} {emojis.NUGGET_GOLDEN} {report.nugget_golden_amount:,} '
+        f'{emojis.DETAIL2} {emojis.NUGGET_GOLDEN} {report.nugget_golden_amount:,} '
         f'({await calculate_percentage(report.nugget_golden_amount, report.prune_amount):g}%)\n'
+        f'{emojis.DETAIL} {emojis.NUGGET_DIAMOND} {report.nugget_diamond_amount:,} '
+        f'({await calculate_percentage(report.nugget_diamond_amount, report.prune_amount):g}%)\n'
         f'{emojis.BP} `clean`: {report.clean_amount:,}\n'
         f'{emojis.BP} `captcha`: {report.captcha_amount:,}\n'
     )
