@@ -181,7 +181,7 @@ class MainCog(commands.Cog):
     async def on_guild_join(self, guild: discord.Guild) -> None:
         """Fires when bot joins a guild. Sends a welcome message to the system channel."""
         try:
-            guild_settings: guilds.Guild = guilds.get_guild(guild.id)
+            guild_settings: guilds.Guild = await guilds.get_guild(guild.id)
             welcome_message = (
                 f'Bzzt! **{guild.name}**! I\'m here to remind you to do your Tree commands!\n'
                 f'Some of my commands have prefix versions. My current prefix for this server is '
