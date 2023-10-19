@@ -128,6 +128,7 @@ ACTIVITIES_BOOSTS_EMOJIS = {
     'insecticide': emojis.INSECTICIDE,
     'queen-bee-boost': emojis.QUEEN_BEE,
     'raid-shield': emojis.BOOST_RAID_SHIELD,
+    'spooky-boost': emojis.PUMPKIN,
     'sweet-apple': emojis.SWEET_APPLE,
     'xp-boost': emojis.BOOST_XP,
 }
@@ -179,6 +180,7 @@ ACTIVITIES_BOOSTS = (
     'insecticide',
     'queen-bee-boost',
     'raid-shield',
+    'spooky-boost',
     'sweet-apple',
     'xp-boost',
 )
@@ -225,6 +227,7 @@ ACTIVITIES_NAME_BOOSTS = {
     'insecticide': 'insecticide',
     'queen bee hp boost': 'queen-bee-boost',
     'raid shield': 'raid-shield',
+    'spooky boost': 'spooky-boost',
     'sweet apple': 'sweet-apple',
     'xp boost': 'xp-boost',
 }
@@ -252,23 +255,3 @@ SLASH_COMMANDS = {
     'tool': '</tool:960947259560820811>',
     'vote': '</vote:981520666916450355>',
 }
-
-TRACKED_COMMANDS = (
-    'prune',
-    'clean',
-    'captcha',
-) # Sorted by cooldown length
-
-TRACKED_PRUNE_DROPS = (
-    'wooden-nugget',
-    'copper-nugget',
-    'silver-nugget',
-    'golden-nugget',
- ) # Sorted by rarity
-
-TRACKED_DROPS_EMOJIS = {
-    'copper-nugget': emojis.NUGGET_COPPER,
-    'golden-nugget': emojis.NUGGET_GOLDEN,
-    'silver-nugget': emojis.NUGGET_SILVER,
-    'wooden-nugget': emojis.NUGGET_WOODEN,
- }

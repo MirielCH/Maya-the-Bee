@@ -86,8 +86,12 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 except exceptions.NoDataFoundError:
                     pass
             if user_settings.streak_vote >= 6:
+                answer = (
+                    f"➜ {strings.SLASH_COMMANDS['claim']}\n"
+                    f"➜ {strings.SLASH_COMMANDS['hive claim honey']}"
+                )
                 if reminder is None:
-                    await message.reply(f"➜ {strings.SLASH_COMMANDS['claim']}")
+                    await message.reply(answer)
                 elif reminder.triggered:
-                    await message.reply(f"➜ {strings.SLASH_COMMANDS['claim']}")
+                    await message.reply(answer)
     return add_reaction

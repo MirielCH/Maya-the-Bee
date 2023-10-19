@@ -9,7 +9,7 @@ from discord.ext import commands
 
 from database import users
 from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, inventory, laboratory, patreon
-from processing import profile, prune, quests, raid, rebirth, tool, tracking, use, vote
+from processing import profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
 
@@ -169,6 +169,11 @@ class DetectionCog(commands.Cog):
         # Vote
         if reminder_vote_enabled:
             add_reaction = await vote.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
+            
+        # Shop
+        if reminder_boosts_enabled:
+            add_reaction = await shop.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         if any(return_values): await functions.add_logo_reaction(message)
