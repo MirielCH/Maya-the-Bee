@@ -174,11 +174,19 @@ async def delete_reminder_on_skip(message: discord.Message, embed_data: Dict, us
                 user_settings = embed_data['embed_user_settings']
             else:
                 user_name_match = re.search(r"^\*\*(.+?)\*\*, ", embed_data['description'])
+                user_name = user_name_match.group(1)
                 user_command_message = (
                     await messages.find_message(message.channel.id, regex.COMMAND_TOOL,
-                                                user_name=user_name_match.group(1))
+                                                user_name=user_name)
                 )
-                user = user_command_message.author
+                if user_command_message is not None:
+                    user = user_command_message.author
+                else:
+                    embed_users = await functions.get_guild_member_by_name(message.guild, user_name)
+                    if len(embed_users) == 1:
+                        user = embed_users[0]
+                    else:
+                        return add_reaction
         if user_settings is None:
             try:
                 user_settings: users.User = await users.get_user(user.id)

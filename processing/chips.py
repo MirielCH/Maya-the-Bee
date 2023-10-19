@@ -44,7 +44,7 @@ async def call_context_helper_on_chips_fusion(message: discord.Message, embed_da
                 user_settings = embed_data['embed_user_settings']
             else:
                 user_command_message = (
-                    await messages.find_message(message.channel.id, regex.COMMAND_RAID,
+                    await messages.find_message(message.channel.id, regex.COMMAND_CHIPS_FUSION,
                                                 user_name=embed_data['author']['name'])
                 )
                 user = user_command_message.author

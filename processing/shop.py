@@ -75,7 +75,7 @@ async def create_reminder_on_buying_boost(message: discord.Message, embed_data: 
             user_settings.reminder_boosts.message
             .replace('{boost_emoji}', strings.ACTIVITIES_BOOSTS_EMOJIS.get(activity, ''))
             .replace('{boost_name}', boost_name)
-            .replace(' ','')
+            .replace('  ',' ')
         )
         try:
             active_reminder: reminders.Reminder= await reminders.get_reminder(user.id, activity)

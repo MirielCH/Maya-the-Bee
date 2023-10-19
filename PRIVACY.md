@@ -1,6 +1,6 @@
 # Maya the Bee Privacy Policy
 
-This policy is effective as of 10 March 2023 and was last updated on 17 May 2023.  
+This policy is effective as of 10 March 2023 and was last updated on 19 October 2023.  
 
 ## User information the bot collects
 
@@ -22,7 +22,7 @@ Important things to note:
 Maya has access to the content of all messages it can see. This access is necessary to create reminders.  
 Maya reads Tree messages and also reads the commands you issue to trigger said messages (e.g. if a prune message is detected, it will also read your `/prune` slash command or your `tree prune` message).  
 
-The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 6 minutes and **not** stored permanently.  
+The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 10 minutes and **not** stored permanently.  
 
 ## Limits of this policy
 

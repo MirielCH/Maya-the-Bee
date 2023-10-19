@@ -52,8 +52,7 @@ async def call_context_helper_on_energy_drink(message: discord.Message, embed_da
                 user = embed_data['embed_user']
                 user_settings = embed_data['embed_user_settings']
             else:
-                user_name_match = re.search(regex.USERNAME_FROM_EMBED_AUTHOR, embed_data['author']['name'])
-                user_name = user_name_match.group(1)
+                user_name = embed_data['author']['name']
                 user_command_message = (
                     await messages.find_message(message.channel.id, regex.COMMAND_USE_ENERGY_DRINK, user_name=user_name)
                 )

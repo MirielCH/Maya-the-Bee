@@ -84,7 +84,7 @@ async def create_reminders(message: discord.Message, embed_data: Dict, interacti
                     user_settings.reminder_boosts.message
                     .replace('{boost_emoji}', strings.ACTIVITIES_BOOSTS_EMOJIS.get(activity,''))
                     .replace('{boost_name}', boost_name)
-                    .replace(' ','')
+                    .replace('  ',' ')
                 )
                 cooldowns.append([activity, time_left, reminder_message])
             else:

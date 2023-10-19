@@ -49,7 +49,7 @@ async def call_context_helper_on_chest_open(message: discord.Message, embed_data
                 user_settings = embed_data['embed_user_settings']
             else:
                 user_command_message = (
-                    await messages.find_message(message.channel.id, regex.COMMAND_LABORATORY,
+                    await messages.find_message(message.channel.id, regex.COMMAND_CHESTS,
                                                 user_name=embed_data['author']['name'])
                 )
                 user = user_command_message.author

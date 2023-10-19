@@ -41,7 +41,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         and 'energy' in message.content.lower()):
         if user is None:
             user_command_message = (
-                await messages.find_message(message.channel.id, regex.COMMAND_HIVE_CLAIM_ENERGY)
+                await messages.find_message(message.channel.id, regex.COMMAND_HIVE)
             )
             user = user_command_message.author
         if user_settings is None:

@@ -82,7 +82,7 @@ async def create_reminder_on_command_cooldown(message: discord.Message, embed_da
                 .replace('{pruner_emoji}', pruner_emoji)
                 .replace('  ', ' ')
             )
-        elif (re.search(regex.COMMAND_HIVE_CLAIM_ENERGY, user_command.lower() or user_command == 'hive')
+        elif (re.search(regex.COMMAND_HIVE, user_command.lower() or user_command == 'hive')
             and user_settings.reminder_hive_energy.enabled):
             activity = 'hive-energy'
             user_command = await functions.get_game_command(user_settings, 'hive claim energy')
