@@ -203,11 +203,11 @@ async def parse_embed(message: discord.Message) -> Dict[str, str]:
     if message.embeds:
         embed = message.embeds[0]
         if embed.author:
-            if embed.author.icon_url != discord.Embed.Empty:
+            if embed.author.icon_url is not None:
                 embed_data['author']['icon_url'] = embed.author.icon_url
-            if embed.author.name != discord.Embed.Empty:
+            if embed.author.name is not None:
                 embed_data['author']['name'] = embed.author.name
-        if embed.description:
+        if embed.description is not None:
             embed_data['description'] = embed.description
         if embed.fields:
             try:
@@ -240,12 +240,12 @@ async def parse_embed(message: discord.Message) -> Dict[str, str]:
                 embed_data['field5']['value'] = embed.fields[5].value
             except IndexError:
                 pass
-        if embed.footer:
-            if embed.footer.icon_url != discord.Embed.Empty:
+        if embed.footer is not None:
+            if embed.footer.icon_url is not None:
                 embed_data['footer']['icon_url'] = embed.footer.icon_url
-            if embed.footer.text != discord.Embed.Empty:
+            if embed.footer.text is not None:
                 embed_data['footer']['text'] = embed.footer.text
-        if embed.title:
+        if embed.title is not None:
             embed_data['title'] = embed.title
     return embed_data
 

@@ -255,7 +255,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             cd_timestring = cooldown[1]
             cd_message = cooldown[2]
             time_left = await functions.parse_timestring_to_timedelta(cd_timestring)
-            if time_left <= timedelta(1): continue
+            if time_left <= timedelta(seconds=1): continue
             reminder: reminders.Reminder = (
                 await reminders.insert_reminder(interaction_user.id, cd_activity, time_left,
                                                 message.channel.id, cd_message)

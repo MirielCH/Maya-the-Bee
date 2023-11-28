@@ -117,25 +117,30 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 )
             else:
                 xp_gain_average = xp_gain
-            await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
-                                       xp_prune_count=(user_settings.xp_prune_count + 1))
-            xp_left = user_settings.xp_target - user_settings.xp
+            xp_left = user_settings.xp_target - user_settings.xp - xp_gain
             if user_settings.rebirth <= 10:
                 level_target = 5 + user_settings.rebirth
             else:
                 level_target = 15 + ((user_settings.rebirth - 10) // 2)
             if xp_left < 0:
-                next_level = user_settings.level + 1
-                new_xp = user_settings.xp - user_settings.xp_target
-                if new_xp < 0: new_xp = 0
-                new_xp_target = (next_level ** 3) * 150
-                await user_settings.update(xp_gain_average=0, xp=new_xp, xp_prune_count=0, xp_target=new_xp_target,
+                next_level = user_settings.level
+                while True:
+                    next_level += 1
+                    new_xp_target = (next_level ** 3) * 150
+                    if new_xp_target <= (xp_left * -1):
+                        xp_left = xp_left + new_xp_target
+                    else:
+                        break
+                current_level = user_settings.level
+                await user_settings.update(xp_gain_average=0, xp=xp_left * -1, xp_prune_count=0, xp_target=new_xp_target,
                                            level=next_level)
-                if next_level == level_target:
+                if current_level < level_target and next_level >= level_target:
                     answer = f'Bzzt! You reached level {next_level} and are now ready for rebirth!'
                     answer = f'**{user.name}** {answer}' if user_settings.dnd_mode_enabled else f'{user.mention} {answer}'
                     await message.channel.send(answer)
             else:
+                await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
+                                           xp_prune_count=(user_settings.xp_prune_count + 1))
                 xp_percentage = user_settings.xp / user_settings.xp_target * 100
                 progress = 6 / 100 * xp_percentage
                 progress_fractional = progress % 1

@@ -54,7 +54,7 @@ async def update_rebirth_on_summary(message: discord.Message, embed_data: Dict, 
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled and not user_settings.helper_prune_enabled: return add_reaction
-        await user_settings.update(rebirth=user_settings.rebirth + 1, xp_gain_average=0, xp_target=0, xp=0,
+        await user_settings.update(rebirth=user_settings.rebirth + 1, 
                                    xp_prune_count=0)
         await message.reply(
             f'➜ Use {strings.SLASH_COMMANDS["profile"]} to to start XP tracking after rebirthing!'

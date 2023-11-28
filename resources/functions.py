@@ -497,7 +497,7 @@ async def get_inventory_item(inventory: str, emoji_name: str) -> int:
     material_match = re.search(fr'`\s*([\d,.km]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
     if not material_match: return 0
     amount_patterns = [
-        r'(\d+[\.,]\d+[km]?)',
+        r'(\d+[\.,]?\d+[km]?)',
         r'(\d+)',
     ]
     amount_match = await functions.get_match_from_patterns(amount_patterns, material_match.group(1))

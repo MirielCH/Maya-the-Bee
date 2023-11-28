@@ -44,7 +44,7 @@ async def command_rebirth_guide(
     inventory_data['apple'] = await functions.get_inventory_item(inventory, 'apple')
     inventory_data['honey'] = await functions.get_inventory_item(inventory, 'honey')
     inventory_data['honey_pot'] = await functions.get_inventory_item(inventory, 'honeypot')
-    embed = await embed_rebirth_guide(ctx_or_message, inventory_data, user)
+    embed = await embed_rebirth_guide(ctx_or_message, inventory_data, user, user_settings)
     if isinstance(ctx_or_message, discord.ApplicationContext):
         await ctx_or_message.respond(embed=embed)
     else:
@@ -53,7 +53,7 @@ async def command_rebirth_guide(
 
 # --- Embeds ---
 async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, discord.Message],
-                              inventory_data: Dict, user: discord.User) -> discord.Embed:
+                              inventory_data: Dict, user: discord.User, user_settings: users.User) -> discord.Embed:
     """Rebirth guide embed"""
     copper_nuggets = inventory_data['copper_nugget'] + (inventory_data['silver_nugget'] * 8)
     wooden_nuggets = inventory_data['wooden_nugget']
@@ -79,16 +79,8 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     apples = inventory_data['apple']
     honey = inventory_data['honey']
     honey_pots = inventory_data['honey_pot']
-    sweet_apples = apples // 10
-    honey_required = sweet_apples * 10
-    honey_pots_required = (sweet_apples * 2) - honey_pots
-    honey_pots_crafted = 0
-    if honey < (honey_required + (honey_pots_required * 10)):
-        if honey < honey_required:
-            sweet_apples = honey_pots // 2
-        else:
-            sweet_apples = honey // 10
-    honey_pots_crafted = sweet_apples * 2 - honey_pots
+    sweet_apples_craftable = min((honey + (honey_pots * 10)) // 30, apples // 10)
+    honey_pots_crafted = sweet_apples_craftable * 2 - honey_pots
     resources = (
         f'{emojis.READY} Use {strings.SLASH_COMMANDS["claim"]}\n'
         f'{emojis.READY} Use {strings.SLASH_COMMANDS["hive claim honey"]}\n'
@@ -126,11 +118,11 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{craft_dismantle}\n'
             f'{emojis.HONEY_POT} Craft `{honey_pots_crafted:,}` honey pots'
         )
-    if sweet_apples > 0:
-        if sweet_apples == apples // 10:
+    if sweet_apples_craftable > 0:
+        if sweet_apples_craftable == apples // 10:
             sweet_apples_amount = 'all'
         else:
-            sweet_apples_amount = f'{sweet_apples:,}'
+            sweet_apples_amount = f'{sweet_apples_craftable:,}'
         craft_dismantle = (
             f'{craft_dismantle}\n'
             f'{emojis.SWEET_APPLE} Craft `{sweet_apples_amount}` sweet apples'
@@ -181,6 +173,14 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     embed.add_field(name='2. Craft & Dismantle', value=craft_dismantle.strip(), inline=False)
     embed.add_field(name='3. Use', value=use.strip(), inline=False)
     embed.add_field(name='4. Sell', value=sell.strip(), inline=False)
+    if user_settings.rebirth <= 10:
+        level_target = 5 + user_settings.rebirth
+    else:
+        level_target = 15 + ((user_settings.rebirth - 10) // 2)
+    footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level}/{level_target}'
+    if user_settings.level >= level_target:
+        footer = f'{footer} • Ready for rebirth'
+    embed.set_footer(text = footer)
     if isinstance(ctx_or_message, discord.ApplicationContext):
-        embed.set_footer(text='Tip: You can open this faster by using \'tree i rb\'!')
+        embed.description = '_Tip: You can open this guide faster using `tree i rb`!_'
     return embed
