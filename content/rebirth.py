@@ -24,12 +24,12 @@ async def command_rebirth_guide(
     else:
         bot_message_task = asyncio.ensure_future(functions.wait_for_inventory_message(bot, ctx_or_message))
         try:
-            content = strings.MSG_WAIT_FOR_INPUT.format(user=user.name,
+            content = strings.MSG_WAIT_FOR_INPUT.format(user=user.display_name,
                                                         command=strings.SLASH_COMMANDS["inventory"])
             bot_message = await functions.wait_for_bot_or_abort(ctx_or_message, bot_message_task, content)
         except asyncio.TimeoutError:
             await ctx_or_message.respond(
-                strings.MSG_BOT_MESSAGE_NOT_FOUND.format(user=user.name, information='inventory'),
+                strings.MSG_BOT_MESSAGE_NOT_FOUND.format(user=user.display_name, information='inventory'),
                 ephemeral=True
             )
             return
@@ -167,7 +167,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
 
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
-        title = f'{user.name}\'s rebirth guide',
+        title = f'{user.display_name}\'s rebirth guide',
     )
     embed.add_field(name='1. Resources', value=resources, inline=False)
     embed.add_field(name='2. Craft & Dismantle', value=craft_dismantle.strip(), inline=False)
@@ -177,7 +177,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         level_target = 5 + user_settings.rebirth
     else:
         level_target = 15 + ((user_settings.rebirth - 10) // 2)
-    footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level}/{level_target}'
+    footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level:,}/{level_target:,}'
     if user_settings.level >= level_target:
         footer = f'{footer} • Ready for rebirth'
     embed.set_footer(text = footer)

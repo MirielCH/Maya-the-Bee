@@ -61,29 +61,40 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         if user_settings.tracking_enabled:
             current_time = utils.utcnow().replace(microsecond=0)
             await tracking.insert_log_entry(user.id, message.guild.id, 'prune', current_time)
-            nugget_drops = {}
+            league_beta = None
             nugget_wooden_match = re.search(r'woodennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
             nugget_copper_match = re.search(r'coppernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
             nugget_silver_match = re.search(r'silvernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
             nugget_golden_match = re.search(r'goldennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
             nugget_diamond_match = re.search(r'diamondnugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
             if nugget_wooden_match:
+                nugget_wooden_amount = int(re.sub('\D', '', nugget_wooden_match.group(1)))
+                league_beta = True if nugget_wooden_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
-                                                int(re.sub('\D', '', nugget_wooden_match.group(1))))
+                                                nugget_wooden_amount)
             if nugget_copper_match:
+                nugget_copper_amount = int(re.sub('\D', '', nugget_copper_match.group(1)))
+                league_beta = True if nugget_copper_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'copper-nugget', current_time,
-                                                int(re.sub('\D', '', nugget_copper_match.group(1))))
+                                                nugget_copper_amount)
             if nugget_silver_match:
+                nugget_silver_amount = int(re.sub('\D', '', nugget_silver_match.group(1)))
+                league_beta = True if nugget_silver_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'silver-nugget', current_time,
-                                                int(re.sub('\D', '', nugget_silver_match.group(1))))
+                                                nugget_silver_amount)
             if nugget_golden_match:
+                nugget_golden_amount = int(re.sub('\D', '', nugget_golden_match.group(1)))
+                league_beta = True if nugget_golden_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
-                                                int(re.sub('\D', '', nugget_golden_match.group(1))))
+                                                nugget_golden_amount)
             if nugget_diamond_match:
+                nugget_diamond_amount = int(re.sub('\D', '', nugget_diamond_match.group(1)))
+                league_beta = True if nugget_diamond_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'diamond-nugget', current_time,
-                                                int(re.sub('\D', '', nugget_diamond_match.group(1))))
-            if nugget_drops:
-                await user_settings.update(**nugget_drops)
+                                                nugget_diamond_amount)
+            if league_beta is not None:
+                if (league_beta and not user_settings.league_beta) or (not league_beta and user_settings.league_beta):
+                    await user_settings.update(league_beta=league_beta)
         if not user_settings.reminder_prune.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'prune')
         pruner_type_match = re.search(r'> (.+?) pruner', message.content, re.IGNORECASE)
@@ -101,15 +112,15 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             await reminders.insert_reminder(user.id, 'prune', time_left,
                                                     message.channel.id, reminder_message)
         )
-        if 'diamond' in message.content.lower():
-            logs.logger.info(f'Diamond nugget drop: {message.content}')
         if user_settings.reactions_enabled:
             if reminder.record_exists: add_reaction = True
             if 'goldennugget' in message.content.lower() or 'diamondnugget' in message.content.lower():
                 await message.add_reaction(emojis.PAN_WOOHOO)
         if (user_settings.helper_prune_enabled and user_settings.level > 0 and user_settings.xp_target > 0):
+            message_content = None
             xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
             xp_gain = int(re.sub('\D', '', xp_gain_match.group(1)))
+            if user_settings.league_beta: xp_gain = ceil(xp_gain * 1.33)
             if user_settings.xp_gain_average > 0:
                 xp_gain_average = (
                     (user_settings.xp_prune_count * user_settings.xp_gain_average + xp_gain)
@@ -135,48 +146,53 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await user_settings.update(xp_gain_average=0, xp=xp_left * -1, xp_prune_count=0, xp_target=new_xp_target,
                                            level=next_level)
                 if current_level < level_target and next_level >= level_target:
-                    answer = f'Bzzt! You reached level {next_level} and are now ready for rebirth!'
-                    answer = f'**{user.name}** {answer}' if user_settings.dnd_mode_enabled else f'{user.mention} {answer}'
-                    await message.channel.send(answer)
+                    message_content = f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
+                    message_content = f'**{user.display_name}** {message_content}' if user_settings.dnd_mode_enabled else f'{user.mention} {message_content}'
             else:
                 await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
                                            xp_prune_count=(user_settings.xp_prune_count + 1))
-                xp_percentage = user_settings.xp / user_settings.xp_target * 100
-                progress = 6 / 100 * xp_percentage
-                progress_fractional = progress % 1
-                progress_emojis_full = floor(progress)
-                progress_emojis_empty = 6 - progress_emojis_full - 1
-                if 0 <= progress_fractional < 0.25:
-                    progress_emoji_fractional = emojis.PROGRESS_0
-                elif 0.25 <= progress_fractional < 0.5:
-                    progress_emoji_fractional = emojis.PROGRESS_25
-                elif 0.5 <= progress_fractional < 0.75:
-                    progress_emoji_fractional = emojis.PROGRESS_50
-                elif 0.75 <= progress_fractional < 1:
-                    progress_emoji_fractional = emojis.PROGRESS_75
-                else:
-                    progress_emoji_fractional = emojis.PROGRESS_100
-                progress_bar = ''
-                for x in range(progress_emojis_full):
-                    progress_bar = f'{progress_bar}{emojis.PROGRESS_100}'
-                progress_bar = f'{progress_bar}{progress_emoji_fractional}'
-                for x in range(progress_emojis_empty):
-                    progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
-                try:
-                    prunes_until_level_up = f'{ceil(xp_left / floor(user_settings.xp_gain_average)):,}'
-                except ZeroDivisionError:
-                    prunes_until_level_up = 'N/A'
-                embed = discord.Embed(
-                    title = progress_bar,
-                    description = (
-                        f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1}**\n'
-                        f'➜ **{prunes_until_level_up}** prunes at **{floor(user_settings.xp_gain_average):,}** '
-                        f'{emojis.XP} average\n'
-                    )
+            xp_percentage = user_settings.xp / user_settings.xp_target * 100
+            progress = 6 / 100 * xp_percentage
+            progress_fractional = progress % 1
+            progress_emojis_full = floor(progress)
+            progress_emojis_empty = 6 - progress_emojis_full - 1
+            progress_25_emoji = getattr(emojis,f'PROGRESS_25_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_25_GREEN')
+            progress_50_emoji = getattr(emojis, f'PROGRESS_50_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_50_GREEN')
+            progress_75_emoji = getattr(emojis, f'PROGRESS_75_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_75_GREEN')
+            progress_100_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_100_GREEN')
+            if 0 <= progress_fractional < 0.25:
+                progress_emoji_fractional = emojis.PROGRESS_0
+            elif 0.25 <= progress_fractional < 0.5:
+                progress_emoji_fractional = progress_25_emoji
+            elif 0.5 <= progress_fractional < 0.75:
+                progress_emoji_fractional = progress_50_emoji
+            elif 0.75 <= progress_fractional < 1:
+                progress_emoji_fractional = progress_75_emoji
+            else:
+                progress_emoji_fractional = progress_100_emoji
+            progress_bar = ''
+            for x in range(progress_emojis_full):
+                progress_bar = f'{progress_bar}{progress_100_emoji}'
+            progress_bar = f'{progress_bar}{progress_emoji_fractional}'
+            for x in range(progress_emojis_empty):
+                progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
+            xp_left = user_settings.xp_target - user_settings.xp
+            xp_gain_average = floor(user_settings.xp_gain_average) if user_settings.xp_gain_average > 0 else xp_gain
+            try:
+                prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
+            except ZeroDivisionError:
+                prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
+            embed = discord.Embed(
+                title = progress_bar,
+                description = (
+                    f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1}**\n'
+                    f'➜ **{prunes_until_level_up}** prunes at **{xp_gain_average:,}** '
+                    f'{emojis.XP} average\n'
                 )
-                footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level}/{level_target}'
-                if user_settings.level >= level_target:
-                    footer = f'{footer} • Ready for rebirth'
-                embed.set_footer(text = footer)
-                await message.channel.send(embed=embed)
+            )
+            footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level:,}/{level_target:,}'
+            if user_settings.level >= level_target:
+                footer = f'{footer} • Ready for rebirth'
+            embed.set_footer(text = footer)
+            await message.channel.send(content=message_content, embed=embed)
     return add_reaction

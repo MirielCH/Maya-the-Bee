@@ -161,7 +161,7 @@ class SetReminderMessageButton(discord.ui.Button):
         if self.custom_id == 'reset_all':
             confirm_view = views.ConfirmCancelView(self.view.ctx, styles=[discord.ButtonStyle.red, discord.ButtonStyle.grey])
             confirm_interaction = await interaction.response.send_message(
-                f'**{interaction.user.name}**, this will reset **all** messages to the default one. '
+                f'**{interaction.user.display_name}**, this will reset **all** messages to the default one. '
                 f'Are you sure?',
                 view=confirm_view,
                 ephemeral=True
@@ -190,12 +190,12 @@ class SetReminderMessageButton(discord.ui.Button):
                 return
         elif self.custom_id == 'set_message':
             await interaction.response.send_message(
-                f'**{interaction.user.name}**, please send the new reminder message to this channel (or `abort` to abort):',
+                f'**{interaction.user.display_name}**, please send the new reminder message to this channel (or `abort` to abort):',
             )
             try:
                 answer = await self.view.bot.wait_for('message', check=check, timeout=60)
             except asyncio.TimeoutError:
-                await interaction.edit_original_response(content=f'**{interaction.user.name}**, you didn\'t answer in time.')
+                await interaction.edit_original_response(content=f'**{interaction.user.display_name}**, you didn\'t answer in time.')
                 return
             if answer.mentions:
                 for user in answer.mentions:
@@ -473,3 +473,29 @@ class ManageEventReductionsSelect(discord.ui.Select):
         select_value = self.values[0]
         modal = modals.SetEventReductionModal(self.view, select_value, self.cd_type)
         await interaction.response.send_modal(modal)
+
+
+class SetProgressBarColorSelect(discord.ui.Select):
+    """Select to change the prune XP progress bar color"""
+    def __init__(self, view: discord.ui.View, row: Optional[int] = None):
+        options = []
+        colors = ['Blue', 'Green', 'Grey', 'Maya', 'Red', 'Rose']
+        for color in colors:
+            options.append(discord.SelectOption(label=color,
+                                                value=color.lower()))
+        super().__init__(placeholder='Change progress bar color', min_values=1, max_values=1, options=options, row=row,
+                         custom_id='set_progress_color')
+
+    async def callback(self, interaction: discord.Interaction):
+        select_value = self.values[0]
+        await self.view.user_settings.update(helper_prune_progress_bar_color=select_value)
+        for child in self.view.children.copy():
+            if isinstance(child, SetProgressBarColorSelect):
+                self.view.remove_item(child)
+                self.view.add_item(SetProgressBarColorSelect(self.view))
+                break
+        embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
+        if interaction.response.is_done():
+            await interaction.message.edit(embed=embed, view=self.view)
+        else:
+            await interaction.response.edit_message(embed=embed, view=self.view)

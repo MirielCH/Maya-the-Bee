@@ -193,6 +193,7 @@ class SettingsHelpersView(discord.ui.View):
             'Level XP popup': 'helper_prune_enabled',
         }
         self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
+        self.add_item(components.SetProgressBarColorSelect(self))
         self.add_item(components.SwitchSettingsSelect(self, commands_settings))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:

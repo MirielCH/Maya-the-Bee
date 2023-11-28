@@ -19,7 +19,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
     try:
         user_settings: users.User = await users.get_user(ctx.author.id)
         if user_settings.bot_enabled:
-            await ctx.respond(f'**{ctx.author.name}**, I\'m already turned on.', ephemeral=True)
+            await ctx.respond(f'**{ctx.author.display_name}**, I\'m already turned on.', ephemeral=True)
             return
     except exceptions.FirstTimeUserError:
         user_settings = await users.insert_user(ctx.author.id)
@@ -29,7 +29,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
         await ctx.respond(strings.MSG_ERROR, ephemeral=True)
         return
     if not first_time_user:
-        answer = f'Bzzt! Welcome back **{ctx.author.name}**!'
+        answer = f'Bzzt! Welcome back **{ctx.author.display_name}**!'
         if user_settings.helper_prune_enabled:
             answer = (
                 f'{answer}\n'
@@ -58,7 +58,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
         img_logo = discord.File(settings.IMG_LOGO, filename=file_name)
         image_url = f'attachment://{file_name}'
         embed = discord.Embed(
-            title = f'Bzzt {ctx.author.name}!',
+            title = f'Bzzt {ctx.author.display_name}!',
             description = (
                 f'I am here to remind you of Tree commands!\n'
                 f'Have a look at {await functions.get_maya_slash_command(bot, "help")} for a list of my own commands.'
@@ -82,10 +82,10 @@ async def command_off(bot: discord.Bot, ctx: discord.ApplicationContext) -> None
     """Off command"""
     user: users.User = await users.get_user(ctx.author.id)
     if not user.bot_enabled:
-        await ctx.respond(f'**{ctx.author.name}**, I\'m already turned off.', ephemeral=True)
+        await ctx.respond(f'**{ctx.author.display_name}**, I\'m already turned off.', ephemeral=True)
         return
     answer = (
-        f'**{ctx.author.name}**, turning me off will disable me completely. It will also delete all of your active '
+        f'**{ctx.author.display_name}**, turning me off will disable me completely. It will also delete all of your active '
         f'reminders.\n'
         f'Are you sure?'
     )
@@ -95,7 +95,7 @@ async def command_off(bot: discord.Bot, ctx: discord.ApplicationContext) -> None
     await view.wait()
     if view.value is None:
         await functions.edit_interaction(
-            interaction, content=f'**{ctx.author.name}**, you left me flying.', view=None)
+            interaction, content=f'**{ctx.author.display_name}**, you left me flying.', view=None)
     elif view.value == 'confirm':
         await user.update(bot_enabled=False)
         try:
@@ -106,7 +106,7 @@ async def command_off(bot: discord.Bot, ctx: discord.ApplicationContext) -> None
             pass
         if not user.bot_enabled:
             answer = (
-                f'**{ctx.author.name}**, I\'m now turned off.\n'
+                f'**{ctx.author.display_name}**, I\'m now turned off.\n'
                 f'All active reminders were deleted.\n'
                 f'Bzzt! {emojis.LOGO}'
             )
@@ -121,10 +121,10 @@ async def command_off(bot: discord.Bot, ctx: discord.ApplicationContext) -> None
 async def command_purge_data(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
     """Purge data command"""
     user_settings: users.User = await users.get_user(ctx.author.id)
-    answer_aborted = f'**{ctx.author.name}**, phew, was worried there for a second.'
-    answer_timeout = f'**{ctx.author.name}**, you didn\'t answer in time.'
+    answer_aborted = f'**{ctx.author.display_name}**, phew, was worried there for a second.'
+    answer_timeout = f'**{ctx.author.display_name}**, you didn\'t answer in time.'
     answer = (
-        f'{emojis.WARNING} **{ctx.author.name}**, this will purge your user data from Maya **completely** {emojis.WARNING}\n\n'
+        f'{emojis.WARNING} **{ctx.author.display_name}**, this will purge your user data from Maya **completely** {emojis.WARNING}\n\n'
         f'This includes the following:\n'
         f'{emojis.BP} All reminders\n'
         f'{emojis.BP} Your complete command tracking history\n'
@@ -145,7 +145,7 @@ async def command_purge_data(bot: discord.Bot, ctx: discord.ApplicationContext) 
     elif view.value == 'confirm':
         await functions.edit_interaction(interaction, view=None)
         answer = (
-            f'{emojis.WARNING} **{ctx.author.name}**, just a friendly final warning {emojis.WARNING}\n'
+            f'{emojis.WARNING} **{ctx.author.display_name}**, just a friendly final warning {emojis.WARNING}\n'
             f'**ARE YOU SURE?**'
         )
         view = views.ConfirmCancelView(ctx, styles=[discord.ButtonStyle.red, discord.ButtonStyle.green])
@@ -185,7 +185,7 @@ async def command_purge_data(bot: discord.Bot, ctx: discord.ApplicationContext) 
             await functions.edit_interaction(
                 interaction,
                 content=(
-                    f'{emojis.ENABLED} **{ctx.author.name}**, you are now gone and forgotton. '
+                    f'{emojis.ENABLED} **{ctx.author.display_name}**, you are now gone and forgotton. '
                     f'Thanks for using me! Bzzt! {emojis.LOGO}'
                 ),
                 view=None
@@ -324,12 +324,16 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
         f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
         f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} to start tracking.**_\n'
     )
+    helper_settings = (
+        f'{emojis.BP} **Level XP progress bar color**: `{user_settings.helper_prune_progress_bar_color.capitalize()}`\n'
+    )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
-        title = f'{ctx.author.name}\'s helper settings',
+        title = f'{ctx.author.display_name}\'s helper settings',
         description = '_Settings to toggle some helpful little features._'
     )
     embed.add_field(name='Helpers', value=helpers, inline=False)
+    embed.add_field(name='Helper settings', value=helper_settings, inline=False)
     return embed
 
 
@@ -342,7 +346,7 @@ async def embed_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCont
     if activity == 'all':
         description = ''
         for activity in strings.ACTIVITIES:
-            title = f'{ctx.author.name}\'s reminder messages'
+            title = f'{ctx.author.display_name}\'s reminder messages'
             activity_column = strings.ACTIVITIES_COLUMNS[activity]
             alert = getattr(user_settings, activity_column)
             alert_message = (
@@ -408,7 +412,7 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
-        title = f'{ctx.author.name}\'s reminder settings',
+        title = f'{ctx.author.display_name}\'s reminder settings',
         description = (
             f'_Note that disabling a reminder also deletes the active reminder._'
         )
@@ -459,7 +463,7 @@ async def embed_settings_user(bot: discord.Bot, ctx: discord.ApplicationContext,
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
-        title = f'{ctx.author.name}\'s user settings',
+        title = f'{ctx.author.display_name}\'s user settings',
     )
     embed.add_field(name='Main', value=bot, inline=False)
     embed.add_field(name='Reminder behaviour', value=behaviour, inline=False)
