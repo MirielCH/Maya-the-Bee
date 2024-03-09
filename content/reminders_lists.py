@@ -73,7 +73,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
 
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
-        title = f'{user.display_name}\'s active reminders'
+        title = f'{user.global_name}\'s active reminders'
     )
     if not user_reminders:
         embed.description = f'{emojis.BP} You have no active reminders'

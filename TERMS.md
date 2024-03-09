@@ -28,7 +28,7 @@ At my discretion, I may change my ToS to reflect updates. If I decide to change 
 
 ## Code usage
 
-Maya is open source. For details about its license, please check [LICENSE](https://github.com/Miriel-py/Maya-the-Bee/blob/master/LICENSE).  
+Maya is open source. For details about its license, please check [LICENSE](https://github.com/MirielCH/Maya-the-Bee/blob/master/LICENSE).  
 
 ## Contact me
 

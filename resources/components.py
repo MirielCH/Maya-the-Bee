@@ -161,7 +161,7 @@ class SetReminderMessageButton(discord.ui.Button):
         if self.custom_id == 'reset_all':
             confirm_view = views.ConfirmCancelView(self.view.ctx, styles=[discord.ButtonStyle.red, discord.ButtonStyle.grey])
             confirm_interaction = await interaction.response.send_message(
-                f'**{interaction.user.display_name}**, this will reset **all** messages to the default one. '
+                f'**{interaction.user.global_name}**, this will reset **all** messages to the default one. '
                 f'Are you sure?',
                 view=confirm_view,
                 ephemeral=True
@@ -190,12 +190,12 @@ class SetReminderMessageButton(discord.ui.Button):
                 return
         elif self.custom_id == 'set_message':
             await interaction.response.send_message(
-                f'**{interaction.user.display_name}**, please send the new reminder message to this channel (or `abort` to abort):',
+                f'**{interaction.user.global_name}**, please send the new reminder message to this channel (or `abort` to abort):',
             )
             try:
                 answer = await self.view.bot.wait_for('message', check=check, timeout=60)
             except asyncio.TimeoutError:
-                await interaction.edit_original_response(content=f'**{interaction.user.display_name}**, you didn\'t answer in time.')
+                await interaction.edit_original_response(content=f'**{interaction.user.global_name}**, you didn\'t answer in time.')
                 return
             if answer.mentions:
                 for user in answer.mentions:
@@ -479,10 +479,9 @@ class SetProgressBarColorSelect(discord.ui.Select):
     """Select to change the prune XP progress bar color"""
     def __init__(self, view: discord.ui.View, row: Optional[int] = None):
         options = []
-        colors = ['Blue', 'Green', 'Grey', 'Maya', 'Red', 'Rose']
-        for color in colors:
-            options.append(discord.SelectOption(label=color,
-                                                value=color.lower()))
+        for color in strings.PROGRESS_BAR_COLORS:
+            options.append(discord.SelectOption(label=color, value=color.lower()))
+        options.append(discord.SelectOption(label='Make it random!', value='random'))
         super().__init__(placeholder='Change progress bar color', min_values=1, max_values=1, options=options, row=row,
                          custom_id='set_progress_color')
 

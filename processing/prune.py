@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 from math import ceil, floor
+import random
 import re
 from typing import Dict, Optional
 
@@ -10,7 +11,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, tracking, users
-from resources import emojis, exceptions, functions, logs, regex
+from resources import emojis, exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -97,7 +98,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                     await user_settings.update(league_beta=league_beta)
         if not user_settings.reminder_prune.enabled: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'prune')
-        pruner_type_match = re.search(r'> (.+?) pruner', message.content, re.IGNORECASE)
+        pruner_type_match = re.search(r'> \*\*(.+?) pruner', message.content, re.IGNORECASE)
         await user_settings.update(pruner_type=pruner_type_match.group(1).lower())
         time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'prune')
         if time_left < timedelta(0): return add_reaction
@@ -147,7 +148,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                                            level=next_level)
                 if current_level < level_target and next_level >= level_target:
                     message_content = f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
-                    message_content = f'**{user.display_name}** {message_content}' if user_settings.dnd_mode_enabled else f'{user.mention} {message_content}'
+                    message_content = f'**{user.global_name}** {message_content}' if user_settings.dnd_mode_enabled else f'{user.mention} {message_content}'
             else:
                 await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
                                            xp_prune_count=(user_settings.xp_prune_count + 1))
@@ -156,10 +157,14 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             progress_fractional = progress % 1
             progress_emojis_full = floor(progress)
             progress_emojis_empty = 6 - progress_emojis_full - 1
-            progress_25_emoji = getattr(emojis,f'PROGRESS_25_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_25_GREEN')
-            progress_50_emoji = getattr(emojis, f'PROGRESS_50_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_50_GREEN')
-            progress_75_emoji = getattr(emojis, f'PROGRESS_75_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_75_GREEN')
-            progress_100_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_prune_progress_bar_color.upper()}', 'PROGRESS_100_GREEN')
+            if user_settings.helper_prune_progress_bar_color == 'random':
+                color25 = color50 = color75 = color100 = random.choice(strings.PROGRESS_BAR_COLORS)
+            else:
+                color25 = color50 = color75 = color100 = user_settings.helper_prune_progress_bar_color
+            progress_25_emoji = getattr(emojis,f'PROGRESS_25_{color25.upper()}', emojis.PROGRESS_25_GREEN)
+            progress_50_emoji = getattr(emojis, f'PROGRESS_50_{color50.upper()}', emojis.PROGRESS_50_GREEN)
+            progress_75_emoji = getattr(emojis, f'PROGRESS_75_{color75.upper()}', emojis.PROGRESS_75_GREEN)
+            progress_100_emoji = getattr(emojis, f'PROGRESS_100_{color100.upper()}', emojis.PROGRESS_100_GREEN)
             if 0 <= progress_fractional < 0.25:
                 progress_emoji_fractional = emojis.PROGRESS_0
             elif 0.25 <= progress_fractional < 0.5:

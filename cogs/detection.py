@@ -22,10 +22,14 @@ class DetectionCog(commands.Cog):
     async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message) -> None:
         """Runs when a message is edited in a channel."""
         if message_after.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
+        embed_data_before = await parse_embed(message_before)
         embed_data = await parse_embed(message_after)
+        if (message_before.content == message_after.content and embed_data_before == embed_data
+            and message_before.components == message_after.components): return
         if await check_edited_message_never_allowed(message_before, message_after, embed_data): return
         if await check_edited_message_always_allowed(message_before, message_after, embed_data):
             await self.on_message(message_after)
+            return
         if message_before.components and not message_after.components: return
         if await check_message_for_active_components(message_after):
             await self.on_message(message_after)

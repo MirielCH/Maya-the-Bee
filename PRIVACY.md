@@ -29,7 +29,7 @@ The bot caches all messages sent by users that either mention the Tree bot or st
 Please be aware that I have no control over the code and policies of forks and other projects that use Maya’s source code and cannot accept responsibility or liability for their respective privacy practices.  
 
 This policy therefore only applies to:  
-• The code in the [main repository](https://github.com/Miriel-py/Maya-the-Bee), maintained by myself.  
+• The code in the [main repository](https://github.com/MirielCH/Maya-the-Bee), maintained by myself.  
 • The bot instance with the username `Maya the Bee#7702`, hosted by myself. If you encounter another Maya with another discriminator, it is outside of the scope of this privacy policy, even if it falsely links to this document.  
 
 The bot may also link to external sites that are not operated by me. The same limits apply to those sites.  
