@@ -48,6 +48,7 @@ async def call_context_helper_on_raid_rewards(message: discord.Message, embed_da
                 user_command_message = (
                     await messages.find_message(message.channel.id, regex.COMMAND_RAID, user_name=user_name)
                 )
+                if user_command_message is None: return add_reaction
                 user = user_command_message.author
         if user_settings is None:
             try:

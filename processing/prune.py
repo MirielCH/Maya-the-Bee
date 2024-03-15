@@ -96,29 +96,29 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if league_beta is not None:
                 if (league_beta and not user_settings.league_beta) or (not league_beta and user_settings.league_beta):
                     await user_settings.update(league_beta=league_beta)
-        if not user_settings.reminder_prune.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'prune')
-        pruner_type_match = re.search(r'> \*\*(.+?) pruner', message.content, re.IGNORECASE)
-        await user_settings.update(pruner_type=pruner_type_match.group(1).lower())
-        time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'prune')
-        if time_left < timedelta(0): return add_reaction
-        pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
-        reminder_message = (
-            user_settings.reminder_prune.message
-            .replace('{command}', user_command)
-            .replace('{pruner_emoji}', pruner_emoji)
-            .replace('  ', ' ')
-        )
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, 'prune', time_left,
-                                                    message.channel.id, reminder_message)
-        )
+        if user_settings.reminder_prune.enabled:
+            user_command = await functions.get_game_command(user_settings, 'prune')
+            pruner_type_match = re.search(r'> \*\*(.+?) pruner', message.content, re.IGNORECASE)
+            await user_settings.update(pruner_type=pruner_type_match.group(1).lower())
+            time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'prune')
+            if time_left < timedelta(0): return add_reaction
+            pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
+            reminder_message = (
+                user_settings.reminder_prune.message
+                .replace('{command}', user_command)
+                .replace('{pruner_emoji}', pruner_emoji)
+                .replace('  ', ' ')
+            )
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, 'prune', time_left,
+                                                        message.channel.id, reminder_message)
+            )
         if user_settings.reactions_enabled:
             if reminder.record_exists: add_reaction = True
             if 'goldennugget' in message.content.lower() or 'diamondnugget' in message.content.lower():
                 await message.add_reaction(emojis.PAN_WOOHOO)
-        if (user_settings.helper_prune_enabled and user_settings.level > 0 and user_settings.xp_target > 0):
-            message_content = None
+        message_content = embed = None
+        if user_settings.level > 0 and user_settings.xp_target > 0:
             xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
             xp_gain = int(re.sub('\D', '', xp_gain_match.group(1)))
             if user_settings.league_beta: xp_gain = ceil(xp_gain * 1.33)
@@ -146,58 +146,61 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 current_level = user_settings.level
                 await user_settings.update(xp_gain_average=0, xp=xp_left * -1, xp_prune_count=0, xp_target=new_xp_target,
                                            level=next_level)
-                if current_level < level_target and next_level >= level_target:
+                if user_settings.helper_rebirth_enabled and current_level < level_target and next_level >= level_target:
                     message_content = f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
                     message_content = f'**{user.global_name}** {message_content}' if user_settings.dnd_mode_enabled else f'{user.mention} {message_content}'
+                    
             else:
                 await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
                                            xp_prune_count=(user_settings.xp_prune_count + 1))
-            xp_percentage = user_settings.xp / user_settings.xp_target * 100
-            progress = 6 / 100 * xp_percentage
-            progress_fractional = progress % 1
-            progress_emojis_full = floor(progress)
-            progress_emojis_empty = 6 - progress_emojis_full - 1
-            if user_settings.helper_prune_progress_bar_color == 'random':
-                color25 = color50 = color75 = color100 = random.choice(strings.PROGRESS_BAR_COLORS)
-            else:
-                color25 = color50 = color75 = color100 = user_settings.helper_prune_progress_bar_color
-            progress_25_emoji = getattr(emojis,f'PROGRESS_25_{color25.upper()}', emojis.PROGRESS_25_GREEN)
-            progress_50_emoji = getattr(emojis, f'PROGRESS_50_{color50.upper()}', emojis.PROGRESS_50_GREEN)
-            progress_75_emoji = getattr(emojis, f'PROGRESS_75_{color75.upper()}', emojis.PROGRESS_75_GREEN)
-            progress_100_emoji = getattr(emojis, f'PROGRESS_100_{color100.upper()}', emojis.PROGRESS_100_GREEN)
-            if 0 <= progress_fractional < 0.25:
-                progress_emoji_fractional = emojis.PROGRESS_0
-            elif 0.25 <= progress_fractional < 0.5:
-                progress_emoji_fractional = progress_25_emoji
-            elif 0.5 <= progress_fractional < 0.75:
-                progress_emoji_fractional = progress_50_emoji
-            elif 0.75 <= progress_fractional < 1:
-                progress_emoji_fractional = progress_75_emoji
-            else:
-                progress_emoji_fractional = progress_100_emoji
-            progress_bar = ''
-            for x in range(progress_emojis_full):
-                progress_bar = f'{progress_bar}{progress_100_emoji}'
-            progress_bar = f'{progress_bar}{progress_emoji_fractional}'
-            for x in range(progress_emojis_empty):
-                progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
-            xp_left = user_settings.xp_target - user_settings.xp
-            xp_gain_average = floor(user_settings.xp_gain_average) if user_settings.xp_gain_average > 0 else xp_gain
-            try:
-                prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
-            except ZeroDivisionError:
-                prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
-            embed = discord.Embed(
-                title = progress_bar,
-                description = (
-                    f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1}**\n'
-                    f'➜ **{prunes_until_level_up}** prunes at **{xp_gain_average:,}** '
-                    f'{emojis.XP} average\n'
+            if user_settings.helper_prune_enabled:
+                xp_percentage = user_settings.xp / user_settings.xp_target * 100
+                progress = 6 / 100 * xp_percentage
+                progress_fractional = progress % 1
+                progress_emojis_full = floor(progress)
+                progress_emojis_empty = 6 - progress_emojis_full - 1
+                if user_settings.helper_prune_progress_bar_color == 'random':
+                    color25 = color50 = color75 = color100 = random.choice(strings.PROGRESS_BAR_COLORS)
+                else:
+                    color25 = color50 = color75 = color100 = user_settings.helper_prune_progress_bar_color
+                progress_25_emoji = getattr(emojis,f'PROGRESS_25_{color25.upper()}', emojis.PROGRESS_25_GREEN)
+                progress_50_emoji = getattr(emojis, f'PROGRESS_50_{color50.upper()}', emojis.PROGRESS_50_GREEN)
+                progress_75_emoji = getattr(emojis, f'PROGRESS_75_{color75.upper()}', emojis.PROGRESS_75_GREEN)
+                progress_100_emoji = getattr(emojis, f'PROGRESS_100_{color100.upper()}', emojis.PROGRESS_100_GREEN)
+                if 0 <= progress_fractional < 0.25:
+                    progress_emoji_fractional = emojis.PROGRESS_0
+                elif 0.25 <= progress_fractional < 0.5:
+                    progress_emoji_fractional = progress_25_emoji
+                elif 0.5 <= progress_fractional < 0.75:
+                    progress_emoji_fractional = progress_50_emoji
+                elif 0.75 <= progress_fractional < 1:
+                    progress_emoji_fractional = progress_75_emoji
+                else:
+                    progress_emoji_fractional = progress_100_emoji
+                progress_bar = ''
+                for x in range(progress_emojis_full):
+                    progress_bar = f'{progress_bar}{progress_100_emoji}'
+                progress_bar = f'{progress_bar}{progress_emoji_fractional}'
+                for x in range(progress_emojis_empty):
+                    progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
+                xp_left = user_settings.xp_target - user_settings.xp
+                xp_gain_average = floor(user_settings.xp_gain_average) if user_settings.xp_gain_average > 0 else xp_gain
+                try:
+                    prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
+                except ZeroDivisionError:
+                    prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
+                embed = discord.Embed(
+                    title = progress_bar,
+                    description = (
+                        f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1}**\n'
+                        f'➜ **{prunes_until_level_up}** prunes at **{xp_gain_average:,}** '
+                        f'{emojis.XP} average\n'
+                    )
                 )
-            )
-            footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level:,}/{level_target:,}'
-            if user_settings.level >= level_target:
-                footer = f'{footer} • Ready for rebirth'
-            embed.set_footer(text = footer)
-            await message.channel.send(content=message_content, embed=embed)
+                footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level:,}/{level_target:,}'
+                if user_settings.level >= level_target:
+                    footer = f'{footer} • Ready for rebirth'
+                embed.set_footer(text = footer)
+            if embed is not None or message_content is not None:
+                await message.channel.send(content=message_content, embed=embed)
     return add_reaction

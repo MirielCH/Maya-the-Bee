@@ -44,7 +44,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
     ]
     if any(search_string in embed_data['author']['name'].lower() for search_string in search_strings):
         if embed_data['embed_user'] is not None and interaction_user is not None:
-            if interaction_user != embed_data['embed_user'] != interaction_user:
+            if interaction_user != embed_data['embed_user']:
                 return add_reaction
         embed_users = []
         if interaction_user is None:
@@ -107,8 +107,8 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                     ready_commands.append(activity)
 
             elif 'level:' in line.lower():
-                level_match = re.search(r'\) (\d+?)\*\*', line.lower())
-                level = int(level_match.group(1))
+                level_match = re.search(r'\) (.+?)\*\*', line.lower())
+                level = int(re.sub('\D', '', level_match.group(1)))
             elif 'exp:' in line.lower():
                 xp_match = re.search(r'\) (.+?)\*\*\/\*\*(.+?)\*\*', line.lower())
                 xp = int(re.sub('\D', '', xp_match.group(1)))

@@ -323,6 +323,8 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
         f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} to start tracking.**_\n'
+        f'{emojis.BP} **Rebirth notification**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
+        f'{emojis.DETAIL} _Notifies you when you reach your rebirth level._\n'
     )
     if user_settings.helper_prune_progress_bar_color == 'random':
         color = '`Make it random!`'
