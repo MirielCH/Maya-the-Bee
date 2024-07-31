@@ -33,7 +33,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
         if user_settings.helper_prune_enabled:
             answer = (
                 f'{answer}\n'
-                f'Please use {strings.SLASH_COMMANDS["profile"]} to start XP tracking.'
+                f'Please use {strings.SLASH_COMMANDS["profile"]} or {strings.SLASH_COMMANDS["stats"]} to start XP tracking.'
             )
         await ctx.respond(answer)
     else:
@@ -41,7 +41,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
             f'Use {strings.SLASH_COMMANDS["patreon"]} to set your **donor tier** if you are a donor.\n'
             f'To view and change my other settings, click the button below or use '
             f'{await functions.get_maya_slash_command(bot, "settings user")}.\n'
-            f'Please also use {strings.SLASH_COMMANDS["profile"]} once so I can read it.'
+            f'Please also use {strings.SLASH_COMMANDS["profile"]} or {strings.SLASH_COMMANDS["stats"]} once so I can read it.'
         )
         field_tracking = (
             f'I track the amount of some Tree commands you use and count your nugget drops. Check '
@@ -322,7 +322,7 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
         f'{emojis.DETAIL} _Shows some helpful slash commands depending on context._\n'
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
-        f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} to start tracking.**_\n'
+        f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} or {strings.SLASH_COMMANDS["stats"]} to start tracking.**_\n'
         f'{emojis.BP} **Rebirth notification**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
         f'{emojis.DETAIL} _Notifies you when you reach your rebirth level._\n'
     )

@@ -187,7 +187,7 @@ class MainCog(commands.Cog):
                 f'Some of my commands have prefix versions. My current prefix for this server is '
                 f'`{guild_settings.prefix}`. You can change this in '
                 f'{await functions.get_maya_slash_command(self.bot, "settings server")}.\n\n'
-                f'Note that reminders are off by default. Playerst that want to get reminded, need to use '
+                f'Note that reminders are off by default. Players who want to get reminded, need to use '
                 f'{await functions.get_maya_slash_command(self.bot, "on")} to activate me.\n'
             )
             await guild.system_channel.send(welcome_message)

@@ -88,6 +88,7 @@ EXTENSIONS = [
         'cogs.rebirth',
         'cogs.reminders',
         'cogs.settings',
+        'cogs.skins',
         'cogs.tracking',
         'cogs.tasks',
     ]

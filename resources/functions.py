@@ -113,7 +113,8 @@ async def calculate_time_left_from_cooldown(message: discord.Message, user_setti
     """Returns the time left for a reminder based on a cooldown."""
     slash_command = True if message.interaction is not None else False
     cooldown: cooldowns.Cooldown = await cooldowns.get_cooldown(activity)
-    bot_answer_time = message.created_at.replace(microsecond=0)
+    message_time = message.edited_at if message.edited_at else message.created_at
+    bot_answer_time = message_time.replace(microsecond=0)
     current_time = utils.utcnow().replace(microsecond=0)
     time_elapsed = current_time - bot_answer_time
     actual_cooldown = cooldown.actual_cooldown_slash() if slash_command else cooldown.actual_cooldown_mention()
@@ -129,7 +130,8 @@ async def calculate_time_left_from_cooldown(message: discord.Message, user_setti
 async def calculate_time_left_from_timestring(message: discord.Message, timestring: str) -> timedelta:
     """Returns the time left for a reminder based on a timestring."""
     time_left = await parse_timestring_to_timedelta(timestring.lower())
-    bot_answer_time = message.created_at.replace(microsecond=0)
+    message_time = message.edited_at if message.edited_at else message.created_at
+    bot_answer_time = message_time.replace(microsecond=0)
     current_time = utils.utcnow().replace(microsecond=0)
     time_elapsed = current_time - bot_answer_time
     return time_left - time_elapsed

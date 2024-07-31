@@ -245,6 +245,7 @@ SLASH_COMMANDS = {
     'hive claim energy': '</hive claim-energy:976919525415071824>',
     'hive claim honey': '</hive claim-honey:976919525415071824>',
     'hive equip': '</hive equip:976919525415071824>',
+    'hive show': '</hive show:976919525415071824>',
     'inventory': '</inventory:960947259627958292>',
     'laboratory': '</laboratory:960947259560820810>',
     'patreon': '</patreon:989564333308661773>',
@@ -252,7 +253,10 @@ SLASH_COMMANDS = {
     'prune': '</prune:960947259560820814>',
     'quests': '</quests:1012448280002707488>',
     'raid': '</raid:976919525415071827>',
+    'shop': '</shop:1027309977104285698>',
+    'stats': '</stats:960947259560820809>',
     'tool': '</tool:960947259560820811>',
+    'use': '</use:960947259627958294>',
     'vote': '</vote:981520666916450355>',
 }
 
@@ -266,3 +270,19 @@ PROGRESS_BAR_COLORS = [
     'Red',
     'Rose'
 ]
+
+SKIN_DEFAULT = 'skin_default'
+SKIN_PATREON = 'skin_patreon'
+SKIN_DIAMOND = 'skin_diamond'
+SKIN_DINOSAUR = 'skin_dinosaur'
+SKIN_VECTOR = 'skin_vector'
+SKIN_DRAGON = 'skin_dragon'
+SKIN_FASHALIN = 'skin_fashalin'
+SKIN_SHINOBI = 'skin_shinobi'
+SKIN_COPPER = 'skin_copper'
+SKIN_SILVER = 'skin_silver'
+SKIN_GOLDEN = 'skin_golden'
+SKIN_EASTER = 'skin_easter'
+SKIN_HALLOWEEN = 'skin_halloween'
+SKIN_XMAS = 'skin_xmas'
+SKIN_PHOENIX = 'skin_phoenix'

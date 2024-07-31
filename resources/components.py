@@ -498,3 +498,32 @@ class SetProgressBarColorSelect(discord.ui.Select):
             await interaction.message.edit(embed=embed, view=self.view)
         else:
             await interaction.response.edit_message(embed=embed, view=self.view)
+
+
+# --- Miscellaneous ---
+class TopicSelect(discord.ui.Select):
+    """Topic Select"""
+    def __init__(self, topics: dict, active_topic: str, placeholder: str, row: Optional[int] = None):
+        self.topics = topics
+        options = []
+        for topic in topics.keys():
+            label = topic
+            emoji = '🔹' if topic == active_topic else None
+            options.append(discord.SelectOption(label=label, value=label, emoji=emoji))
+        super().__init__(placeholder=placeholder, min_values=1, max_values=1, options=options, row=row,
+                         custom_id='select_topic')
+
+    async def callback(self, interaction: discord.Interaction):
+        select_value = self.values[0]
+        self.view.active_topic = select_value
+        for child in self.view.children:
+            if child.custom_id == 'select_topic':
+                options = []
+                for topic in self.topics.keys():
+                    label = topic
+                    emoji = '🔹' if topic == self.view.active_topic else None
+                    options.append(discord.SelectOption(label=label, value=label, emoji=emoji))
+                child.options = options
+                break
+        embed = await self.view.topics[select_value]()
+        await interaction.response.edit_message(embed=embed, view=self.view)

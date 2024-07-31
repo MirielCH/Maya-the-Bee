@@ -26,18 +26,20 @@ DATABASE.row_factory = sqlite3.Row
 LOG_FILE = os.path.join(BOT_DIR, 'logs/discord.log')
 IMG_LOGO = os.path.join(BOT_DIR, 'images/maya.png')
 VERSION_FILE = os.path.join(BOT_DIR, 'VERSION')
+IMG_DIR = os.path.join(BOT_DIR, 'images/')
+
 
 
 # Load .env variables
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-if TOKEN == '':
+if not TOKEN:
     print(ENV_VARIABLE_MISSING.format(var='DISCORD_TOKEN'))
     sys.exit()
 
 OWNER_ID = os.getenv('OWNER_ID')
-if OWNER_ID == '':
+if not OWNER_ID:
     print(ENV_VARIABLE_MISSING.format(var='OWNER_ID'))
     sys.exit()
 try:
@@ -49,7 +51,7 @@ except:
 DEBUG_MODE = True if os.getenv('DEBUG_MODE') == 'ON' else False
 
 DEV_IDS = os.getenv('DEV_IDS')
-if DEV_IDS is None or DEV_IDS == '':
+if not DEV_IDS:
     DEV_IDS = []
 else:
     DEV_IDS = DEV_IDS.split(',')
@@ -61,18 +63,17 @@ else:
 DEV_IDS += [OWNER_ID,]
 
 DEV_GUILDS = os.getenv('DEV_GUILDS')
-if DEV_GUILDS == '':
+if not DEV_GUILDS:
     print(ENV_VARIABLE_MISSING.format(var='DEV_GUILDS'))
     sys.exit()
-if DEV_GUILDS == '':
-    print('Variable DEV_GUILDS in the .env file is required. Please set at least one dev guild.')
-    sys.exit()
 else:
-    DEV_GUILDS = DEV_GUILDS.split(',')
     try:
-        DEV_GUILDS = [int(guild_id.strip()) for guild_id in DEV_GUILDS]
-    except:
-        print('At least one id in the .env variable DEV_GUILDS is not a number.')
+        DEV_GUILDS = [int(guild_id.strip()) for guild_id in DEV_GUILDS.split(',')]
+    except Exception as error:
+        print(
+            f'{error}\n'
+            f'Make sure the .env variable DEV_GUILDS has the right format.'
+        )
         sys.exit()
 
 

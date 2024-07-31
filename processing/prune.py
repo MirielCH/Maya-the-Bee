@@ -1,5 +1,6 @@
 # prune.py
 
+import asyncio
 from datetime import timedelta
 from math import ceil, floor
 import random
@@ -113,8 +114,8 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await reminders.insert_reminder(user.id, 'prune', time_left,
                                                         message.channel.id, reminder_message)
             )
-        if user_settings.reactions_enabled:
             if reminder.record_exists: add_reaction = True
+        if user_settings.reactions_enabled:
             if 'goldennugget' in message.content.lower() or 'diamondnugget' in message.content.lower():
                 await message.add_reaction(emojis.PAN_WOOHOO)
         message_content = embed = None
@@ -149,7 +150,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 if user_settings.helper_rebirth_enabled and current_level < level_target and next_level >= level_target:
                     message_content = f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
                     message_content = f'**{user.global_name}** {message_content}' if user_settings.dnd_mode_enabled else f'{user.mention} {message_content}'
-                    
+                    await asyncio.sleep(1)
             else:
                 await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
                                            xp_prune_count=(user_settings.xp_prune_count + 1))

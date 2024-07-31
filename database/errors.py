@@ -59,7 +59,7 @@ async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.C
         message = ctx
     if message is not None:
         user_settings = 'N/A'
-        date_time = message.created_at
+        date_time = message.edited_at if message.edited_at else message.created_at
         jump_url = message.jump_url
         if not message.author.bot:
             try:

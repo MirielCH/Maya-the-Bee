@@ -122,9 +122,8 @@ class DetectionCog(commands.Cog):
         return_values.append(add_reaction)
             
         # Prune
-        if reminder_prune_enabled or helper_prune_enabled:
-            add_reaction = await prune.process_message(message, embed_data, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await prune.process_message(message, embed_data, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Laboratory
         if reminder_research_enabled or helper_context_enabled:
