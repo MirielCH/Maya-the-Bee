@@ -22,7 +22,6 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     return_values = []
     return_values.append(await update_rebirth_on_summary(message, embed_data, user, user_settings))
     return_values.append(await update_rebirth_on_cancel(message, embed_data, user, user_settings))
-    return_values.append(await reset_level_on_rebirth(message, embed_data, user, user_settings))
     return any(return_values)
 
 
@@ -40,6 +39,7 @@ async def update_rebirth_on_summary(message: discord.Message, embed_data: Dict, 
         'are you sure you want to rebirth?', #English
     ]
     if any(search_string in embed_data['description'].lower() for search_string in search_strings):
+        if user is not None: return add_reaction
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']
@@ -88,32 +88,4 @@ async def update_rebirth_on_cancel(message: discord.Message, embed_data: Dict, u
                 return add_reaction
         if not user_settings.bot_enabled and not user_settings.helper_prune_enabled: return add_reaction
         await user_settings.update(rebirth=user_settings.rebirth - 1)
-    return add_reaction
-
-
-async def reset_level_on_rebirth(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
-                                 user_settings: Optional[users.User]) -> bool:
-    """Reset level count on rebirth
-
-    Returns
-    -------
-    - True if a logo reaction should be added to the message
-    - False otherwise
-    """
-    add_reaction = False
-    search_strings = [
-        '** used rebirth!', #English
-    ]
-    if any(search_string in embed_data['description'].lower() for search_string in search_strings):
-        if user is None:
-            user_id = int(re.search(r'^user id: (\d+)$', embed_data['footer']['text'].split('\n')[1].lower()).group(1))
-            user = message.guild.get_member(user_id)
-        if user_settings is None:
-            try:
-                user_settings: users.User = await users.get_user(user.id)
-            except exceptions.FirstTimeUserError:
-                return add_reaction
-        if not user_settings.bot_enabled: return add_reaction
-        await user_settings.update(level=1, xp=0, xp_gain_average=0, xp_prune_count=0, xp_target=150)
-        add_reaction = True
     return add_reaction

@@ -114,7 +114,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await reminders.insert_reminder(user.id, 'prune', time_left,
                                                         message.channel.id, reminder_message)
             )
-            if reminder.record_exists: add_reaction = True
+            if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
         if user_settings.reactions_enabled:
             if 'goldennugget' in message.content.lower() or 'diamondnugget' in message.content.lower():
                 await message.add_reaction(emojis.PAN_WOOHOO)

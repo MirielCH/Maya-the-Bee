@@ -496,18 +496,20 @@ async def reply_or_respond(ctx: Union[discord.ApplicationContext, commands.Conte
 async def get_inventory_item(inventory: str, emoji_name: str) -> int:
     """Extracts the amount of a material from an inventory
     Because the material is only listed with its emoji, the exact and full emoji name needs to be given."""
-    material_match = re.search(fr'`\s*([\d,.km]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
+    material_match = re.search(fr'`\s*([\d,.kmb]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
     if not material_match: return 0
     amount_patterns = [
-        r'(\d+[\.,]?\d+[km]?)',
+        r'(\d+[\.,]?\d+[kmb]?)',
         r'(\d+)',
     ]
     amount_match = await functions.get_match_from_patterns(amount_patterns, material_match.group(1))
     amount = amount_match.group(1)
     if amount.lower().endswith('k'):
-        return int(float(amount.lower().rstrip('k')) * 1_000)
+        return int(round(float(amount.lower().rstrip('k')) * 1_000))
     elif amount.lower().endswith('m'):
-        return int(float(amount.lower().rstrip('m')) * 1_000_000)
+        return int(round(float(amount.lower().rstrip('m')) * 1_000_000))
+    elif amount.lower().endswith('b'):
+        return int(round(float(amount.lower().rstrip('b')) * 1_000_000_000 ))
     else:
         amount = amount.replace(',','').replace('.','')
         if amount.isnumeric():
