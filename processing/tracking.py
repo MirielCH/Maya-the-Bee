@@ -1,6 +1,7 @@
 # tracking.py
 """Contains commands related to command tracking"""
 
+import asyncio
 import re
 from typing import Dict, Optional
 
@@ -58,10 +59,14 @@ async def track_captcha(message: discord.Message, embed_data: Dict, user: Option
             except exceptions.FirstTimeUserError:
                 return
         if not user_settings.bot_enabled: return False
-        if not captcha_solved:
-            await message.reply(
-                f'{user.mention} Bzzt! A **CAPTCHA** appeared!'
-            )
+        if not captcha_solved and user_settings.alert_captcha_enabled:
+            if user_settings.alert_captcha_dm:
+                asyncio.ensure_future(user.send(
+                    f'Bzzt! A **CAPTCHA** appeared!\n'
+                    f'➜ {message.jump_url}'
+                ))
+            else:                
+                await message.reply(f'{user.mention} Bzzt! A **CAPTCHA** appeared!')
             return False
         if not user_settings.tracking_enabled: return False
         current_time = utils.utcnow().replace(microsecond=0)

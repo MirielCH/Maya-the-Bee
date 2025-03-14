@@ -200,10 +200,38 @@ async def command_purge_data(bot: discord.Bot, ctx: discord.ApplicationContext) 
         )
 
 
+async def command_settings_alerts(bot: discord.Bot, ctx: discord.ApplicationContext,
+                                   switch_view: Optional[discord.ui.View] = None) -> None:
+    """Alert settings command"""
+    commands_settings = {
+        'Alerts': command_settings_alerts,
+        'Helpers': command_settings_helpers,
+        'Reminders': command_settings_reminders,
+        'Reminder messages': command_settings_messages,
+        'User': command_settings_user,
+    }
+    user_settings = interaction = None
+    if switch_view is not None:
+        user_settings = getattr(switch_view, 'user_settings', None)
+        interaction = getattr(switch_view, 'interaction', None)
+        switch_view.stop()
+    if user_settings is None:
+        user_settings: users.User = await users.get_user(ctx.author.id)
+    view = views.SettingsAlertsView(ctx, bot, user_settings, embed_settings_alerts, commands_settings)
+    embed = await embed_settings_alerts(bot, ctx, user_settings)
+    if interaction is None:
+        interaction = await ctx.respond(embed=embed, view=view)
+    else:
+        await functions.edit_interaction(interaction, embed=embed, view=view)
+    view.interaction = interaction
+    await view.wait()
+
+    
 async def command_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext,
                                    switch_view: Optional[discord.ui.View] = None) -> None:
     """Helper settings command"""
     commands_settings = {
+        'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
@@ -230,6 +258,7 @@ async def command_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCo
                                     switch_view: Optional[discord.ui.View] = None) -> None:
     """Reminder message settings command"""
     commands_settings = {
+        'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
@@ -256,6 +285,7 @@ async def command_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationC
                                      switch_view: Optional[discord.ui.View] = None) -> None:
     """Reminder settings command"""
     commands_settings = {
+        'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
@@ -292,6 +322,7 @@ async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContex
                                 switch_view: Optional[discord.ui.View] = None) -> None:
     """User settings command"""
     commands_settings = {
+        'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
@@ -315,6 +346,41 @@ async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContex
 
 
 # --- Embeds ---
+async def embed_settings_alerts(bot: discord.Bot, ctx: discord.ApplicationContext, user_settings: users.User) -> discord.Embed:
+    """Alert settings embed"""
+    helpers = (
+        f'{emojis.BP} **Captcha alert**: {await functions.bool_to_text(user_settings.alert_captcha_enabled)}\n'
+        f'{emojis.DETAIL} _Notifies you when a captcha appears._\n'
+        f'{emojis.BP} **Nugget alert**: {await functions.bool_to_text(user_settings.alert_nugget_enabled)}\n'
+        f'{emojis.DETAIL} _Notifies you when you drop nuggets at or above a certain quality._\n'
+        f'{emojis.BP} **Rebirth alert**: {await functions.bool_to_text(user_settings.alert_rebirth_enabled)}\n'
+        f'{emojis.DETAIL} _Notifies you when you reach your rebirth level._\n'
+    )
+    if user_settings.helper_prune_progress_bar_color == 'random':
+        color = '`Make it random!`'
+    else:
+        progress_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_prune_progress_bar_color.upper()}', '')
+        color = f'{progress_color_emoji} `{user_settings.helper_prune_progress_bar_color.capitalize()}`'
+    alert_captcha_mode = 'Direct Message' if user_settings.alert_captcha_dm else 'Ping'
+    alert_nugget_mode = 'Direct Message' if user_settings.alert_nugget_dm else 'Ping'
+    alert_rebirth_mode = 'Direct Message' if user_settings.alert_rebirth_dm else 'Ping'
+    helper_settings = (
+        f'{emojis.BP} **Captcha alert mode**: `{alert_captcha_mode}`\n'
+        f'{emojis.BP} **Nugget alert mode**: `{alert_nugget_mode}`\n'
+        f'{emojis.BP} **Rebirth alert mode**: `{alert_rebirth_mode}`\n'
+        f'{emojis.BP} **Nugget alert threshold**: {strings.NUGGETS[user_settings.alert_nugget_threshold]} '
+        f'`{user_settings.alert_nugget_threshold}`\n'
+    )
+    embed = discord.Embed(
+        color = settings.EMBED_COLOR,
+        title = f'{ctx.author.global_name}\'s alert settings',
+        description = '_Settings for some helpful alerts._'
+    )
+    embed.add_field(name='Alerts', value=helpers, inline=False)
+    embed.add_field(name='Alert settings', value=helper_settings, inline=False)
+    return embed
+
+
 async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext, user_settings: users.User) -> discord.Embed:
     """Helper settings embed"""
     helpers = (
@@ -324,8 +390,6 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
         f'{emojis.DETAIL} _Shows your bee levels after a fusion._\n'
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
-        f'{emojis.BP} **Rebirth alert**: {await functions.bool_to_text(user_settings.alert_rebirth_enabled)}\n'
-        f'{emojis.DETAIL} _Notifies you when you reach your rebirth level._\n'
         f'{emojis.BP} **Rebirth summary**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
         f'{emojis.DETAIL2} _Shows a summary of your last rebirth after rebirth._\n'
         f'{emojis.DETAIL} _**Only works with slash {strings.SLASH_COMMANDS["rebirth"]}!**_\n'
@@ -341,7 +405,7 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = f'{ctx.author.global_name}\'s helper settings',
-        description = '_Settings to toggle some helpful little features._'
+        description = '_Settings for some helpful little features._'
     )
     embed.add_field(name='Helpers', value=helpers, inline=False)
     embed.add_field(name='Helper settings', value=helper_settings, inline=False)

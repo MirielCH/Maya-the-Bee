@@ -41,6 +41,11 @@ class SettingsCog(commands.Cog):
     )
 
     @cmd_settings.command()
+    async def alerts(self, ctx: discord.ApplicationContext) -> None:
+        """Manage alert settings"""
+        await settings_cmd.command_settings_alerts(self.bot, ctx)
+        
+    @cmd_settings.command()
     async def helpers(self, ctx: discord.ApplicationContext) -> None:
         """Manage helpers"""
         await settings_cmd.command_settings_helpers(self.bot, ctx)

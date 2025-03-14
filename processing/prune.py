@@ -12,7 +12,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, tracking, users
-from resources import emojis, exceptions, functions, regex, strings
+from resources import emojis, exceptions, functions, regex, settings, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -60,43 +60,54 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
+        dropped_nuggets = {}
+        current_time = utils.utcnow().replace(microsecond=0)
         if user_settings.tracking_enabled:
-            current_time = utils.utcnow().replace(microsecond=0)
             await tracking.insert_log_entry(user.id, message.guild.id, 'prune', current_time)
-            league_beta = None
-            nugget_wooden_match = re.search(r'woodennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-            nugget_copper_match = re.search(r'coppernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-            nugget_silver_match = re.search(r'silvernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-            nugget_golden_match = re.search(r'goldennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-            nugget_diamond_match = re.search(r'diamondnugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-            if nugget_wooden_match:
-                nugget_wooden_amount = int(re.sub(r'\D', '', nugget_wooden_match.group(1)))
-                league_beta = True if nugget_wooden_amount > 1 else False
+        league_beta = None
+        nugget_wooden_match = re.search(r'woodennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_copper_match = re.search(r'coppernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_silver_match = re.search(r'silvernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_golden_match = re.search(r'goldennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_diamond_match = re.search(r'diamondnugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        if nugget_wooden_match:
+            nugget_wooden_amount = int(re.sub(r'\D', '', nugget_wooden_match.group(1)))
+            league_beta = True if nugget_wooden_amount > 1 else False
+            if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
                                                 nugget_wooden_amount)
-            if nugget_copper_match:
-                nugget_copper_amount = int(re.sub(r'\D', '', nugget_copper_match.group(1)))
-                league_beta = True if nugget_copper_amount > 1 else False
+            dropped_nuggets['Wooden'] = nugget_wooden_amount
+        if nugget_copper_match:
+            nugget_copper_amount = int(re.sub(r'\D', '', nugget_copper_match.group(1)))
+            league_beta = True if nugget_copper_amount > 1 else False
+            if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'copper-nugget', current_time,
                                                 nugget_copper_amount)
-            if nugget_silver_match:
-                nugget_silver_amount = int(re.sub(r'\D', '', nugget_silver_match.group(1)))
-                league_beta = True if nugget_silver_amount > 1 else False
+            dropped_nuggets['Copper'] = nugget_copper_amount
+        if nugget_silver_match:
+            nugget_silver_amount = int(re.sub(r'\D', '', nugget_silver_match.group(1)))
+            league_beta = True if nugget_silver_amount > 1 else False
+            if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'silver-nugget', current_time,
                                                 nugget_silver_amount)
-            if nugget_golden_match:
-                nugget_golden_amount = int(re.sub(r'\D', '', nugget_golden_match.group(1)))
-                league_beta = True if nugget_golden_amount > 1 else False
+            dropped_nuggets['Silver'] = nugget_silver_amount
+        if nugget_golden_match:
+            nugget_golden_amount = int(re.sub(r'\D', '', nugget_golden_match.group(1)))
+            league_beta = True if nugget_golden_amount > 1 else False
+            if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
                                                 nugget_golden_amount)
-            if nugget_diamond_match:
-                nugget_diamond_amount = int(re.sub(r'\D', '', nugget_diamond_match.group(1)))
-                league_beta = True if nugget_diamond_amount > 1 else False
+            dropped_nuggets['Golden'] = nugget_golden_amount
+        if nugget_diamond_match:
+            nugget_diamond_amount = int(re.sub(r'\D', '', nugget_diamond_match.group(1)))
+            league_beta = True if nugget_diamond_amount > 1 else False
+            if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'diamond-nugget', current_time,
                                                 nugget_diamond_amount)
-            if league_beta is not None:
-                if (league_beta and not user_settings.league_beta) or (not league_beta and user_settings.league_beta):
-                    await user_settings.update(league_beta=league_beta)
+            dropped_nuggets['Diamond'] = nugget_diamond_amount
+        if league_beta is not None and user_settings.tracking_enabled:
+            if (league_beta and not user_settings.league_beta) or (not league_beta and user_settings.league_beta):
+                await user_settings.update(league_beta=league_beta)
         if user_settings.reminder_prune.enabled:
             user_command = await functions.get_game_command(user_settings, 'prune')
             pruner_type_match = re.search(r'> \*\*(.+?) pruner', message.content, re.IGNORECASE)
@@ -118,7 +129,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         if user_settings.reactions_enabled:
             if 'goldennugget' in message.content.lower() or 'diamondnugget' in message.content.lower():
                 await message.add_reaction(emojis.PAN_WOOHOO)
-        message_content = embed = None
+        message_content = ''
+        embeds = []
+        rebirth_target = False
         if user_settings.level > 0 and user_settings.xp_target > 0:
             xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
             xp_gain = int(re.sub(r'\D', '', xp_gain_match.group(1)))
@@ -148,9 +161,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await user_settings.update(xp_gain_average=0, xp=xp_left * -1, xp_prune_count=0, xp_target=new_xp_target,
                                            level=next_level)
                 if user_settings.alert_rebirth_enabled and current_level < level_target and next_level >= level_target:
-                    message_content = f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
-                    message_content = f'**{user.global_name}** {message_content}' if user_settings.dnd_mode_enabled else f'{user.mention} {message_content}'
-                    await asyncio.sleep(1)
+                    rebirth_target = True
             else:
                 await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
                                            xp_prune_count=(user_settings.xp_prune_count + 1))
@@ -202,6 +213,50 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 if user_settings.level >= level_target:
                     footer = f'{footer} • Ready for rebirth'
                 embed.set_footer(text = footer)
-            if embed is not None or message_content is not None:
-                await message.channel.send(content=message_content, embed=embed)
+                embeds.append(embed)
+            nugget_alert = False
+            if user_settings.alert_nugget_enabled and dropped_nuggets:
+                nugget_names = list(strings.NUGGETS.keys())
+                threshold_index = nugget_names.index(user_settings.alert_nugget_threshold)
+                nuggets_found = ''
+                for name, amount in dropped_nuggets.items():
+                    if nugget_names.index(name) >= threshold_index:
+                        nuggets_found = (
+                            f'{nuggets_found}\n'
+                            f'{amount:,} {strings.NUGGETS[name]} {name} nuggets'
+                        )
+                if nuggets_found:
+                    if user_settings.alert_nugget_dm:
+                        asyncio.ensure_future(user.send(
+                            f'**Nuggets found!**\n'
+                            f'{nuggets_found.strip()}\n'
+                            f'➜ {message.jump_url}'
+                        ))
+                    else:
+                        embed = discord.Embed(
+                            color = settings.EMBED_COLOR,
+                            title = 'Nuggets found!',
+                            description = nuggets_found,
+                        ) 
+                        embed.set_footer(text='Use "/settings alerts" to change this')
+                        embeds.insert(0, embed)
+                    nugget_alert = True
+                    
+            if embeds or message_content:
+                if nugget_alert and not user_settings.alert_nugget_dm:
+                    message_content = f'{user.mention}\n{message_content}'
+                await message.reply(content=message_content.strip(), embeds=embeds)
+
+            if rebirth_target:
+                if user_settings.alert_rebirth_dm:
+                    asyncio.ensure_future(user.send(
+                        f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!\n'
+                        f'➜ {message.jump_url}'
+                    ))
+                else:
+                    await asyncio.sleep(1)
+                    await message.reply(
+                        f'{user.mention}\n'
+                        f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
+                    )
     return add_reaction

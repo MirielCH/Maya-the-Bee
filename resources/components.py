@@ -500,6 +500,62 @@ class SetProgressBarColorSelect(discord.ui.Select):
             await interaction.response.edit_message(embed=embed, view=self.view)
 
 
+class SetAlertSettingsSelect(discord.ui.Select):
+    """Select to change the alert settings"""
+    def __init__(self, view: discord.ui.View, row: Optional[int] = None):
+        options = []
+        alert_captcha_mode = 'Ping' if view.user_settings.alert_captcha_dm else 'DM'
+        alert_nugget_mode = 'Ping' if view.user_settings.alert_nugget_dm else 'DM'
+        alert_rebirth_mode = 'Ping' if view.user_settings.alert_rebirth_dm else 'DM'
+        options.append(discord.SelectOption(label=f'Send captcha alerts as {alert_captcha_mode}', value='alert_captcha_dm'))
+        options.append(discord.SelectOption(label=f'Send nugget alerts as {alert_nugget_mode}', value='alert_nugget_dm'))
+        options.append(discord.SelectOption(label=f'Send rebirth alerts as {alert_rebirth_mode}', value='alert_rebirth_dm'))
+        
+        super().__init__(placeholder='Change alert settings', min_values=1, max_values=1, options=options, row=row,
+                         custom_id='set_nugget_settings')
+
+    async def callback(self, interaction: discord.Interaction):
+        kwargs = {}
+        select_value = self.values[0]
+        current_setting = getattr(self.view.user_settings, select_value)
+        kwargs[select_value] = not current_setting
+        await self.view.user_settings.update(**kwargs)
+        for child in self.view.children.copy():
+            if isinstance(child, SetAlertSettingsSelect):
+                self.view.remove_item(child)
+                self.view.add_item(SetAlertSettingsSelect(self.view))
+                break
+        embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
+        if interaction.response.is_done():
+            await interaction.message.edit(embed=embed, view=self.view)
+        else:
+            await interaction.response.edit_message(embed=embed, view=self.view)
+            
+
+class SetAlertNuggetThresholdSelect(discord.ui.Select):
+    """Select to change the nugget alert threshold"""
+    def __init__(self, view: discord.ui.View, row: Optional[int] = None):
+        options = []
+        for name, emoji in strings.NUGGETS.items():
+            options.append(discord.SelectOption(label=name, value=name, emoji=emoji))
+        super().__init__(placeholder='Change nugget alert threshold', min_values=1, max_values=1, options=options, row=row,
+                         custom_id='set_nugget_alert_threshold')
+
+    async def callback(self, interaction: discord.Interaction):
+        select_value = self.values[0]
+        await self.view.user_settings.update(alert_nugget_threshold=select_value)
+        for child in self.view.children.copy():
+            if isinstance(child, SetAlertNuggetThresholdSelect):
+                self.view.remove_item(child)
+                self.view.add_item(SetAlertNuggetThresholdSelect(self.view))
+                break
+        embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
+        if interaction.response.is_done():
+            await interaction.message.edit(embed=embed, view=self.view)
+        else:
+            await interaction.response.edit_message(embed=embed, view=self.view)
+
+
 # --- Miscellaneous ---
 class TopicSelect(discord.ui.Select):
     """Topic Select"""

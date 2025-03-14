@@ -104,6 +104,7 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
     commands_settings = (
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "on")} : Turn on Maya\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "off")} : Turn off Maya\n'
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings alerts")} : Manage alerts\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings helpers")} : Manage helpers\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings messages")} : Manage reminder messages\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings reminders")} : Enable/disable reminders\n'

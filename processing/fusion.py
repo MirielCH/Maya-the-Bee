@@ -86,13 +86,16 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                     embed = discord.Embed(
                         color = settings.EMBED_COLOR,
                         title = f'{user1.global_name}\'s bee levels',
-                        description = (
+                    )
+                    if user1_settings.queen_bee_level == 0 or user1_settings.soldier_bee_level == 0:
+                        embed.description = f'_I don\'t know the level of your bees. Use {strings.SLASH_COMMANDS["bees"]} to update them._'
+                    else:
+                        embed.description = (
                             f'{emojis.QUEEN_BEE_A} **Queen bee level**: `{user1_settings.queen_bee_level:,}` '
                             f'/ `{10 + user1_settings.rebirth * 2:,}`\n'
                             f'{emojis.SOLDIER_BEE} **Soldier bee level**: `{user1_settings.soldier_bee_level:,}` '
                             f'/ `{user1_settings.queen_bee_level * 10:,}`\n'
                         )
-                    )
                     fusion_summary_embeds.append(embed)
         if user2_settings is not None:
             if user2_settings.bot_enabled and user2_settings.reminder_fusion.enabled:

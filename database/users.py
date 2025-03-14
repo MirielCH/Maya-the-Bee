@@ -19,6 +19,12 @@ class UserReminder(NamedTuple):
 @dataclass()
 class User():
     """Object that represents a record from table "user"."""
+    alert_captcha_dm: bool
+    alert_captcha_enabled: bool
+    alert_nugget_dm: bool
+    alert_nugget_enabled: bool
+    alert_nugget_threshold: str
+    alert_rebirth_dm: bool
     alert_rebirth_enabled: bool
     bot_enabled: bool
     dnd_mode_enabled: bool
@@ -60,6 +66,12 @@ class User():
     async def refresh(self) -> None:
         """Refreshes user data from the database."""
         new_settings: User = await get_user(self.user_id)
+        self.alert_captcha_dm = new_settings.alert_captcha_dm
+        self.alert_captcha_enabled = new_settings.alert_captcha_enabled
+        self.alert_nugget_dm = new_settings.alert_nugget_dm
+        self.alert_nugget_enabled = new_settings.alert_nugget_enabled
+        self.alert_nugget_threshold = new_settings.alert_nugget_threshold
+        self.alert_rebirth_dm = new_settings.alert_rebirth_dm
         self.alert_rebirth_enabled = new_settings.alert_rebirth_enabled
         self.bot_enabled = new_settings.bot_enabled
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
@@ -104,6 +116,12 @@ class User():
         Arguments
         ---------
         kwargs (column=value):
+            alert_captcha_dm: bool
+            alert_captcha_enabled: bool
+            alert_nugget_dm: bool
+            alert_nugget_enabled: bool
+            alert_nugget_threshold: str
+            alert_rebirth_dm: bool
             alert_rebirth_enabled: bool
             bot_enabled: bool
             dnd_mode_enabled: bool
@@ -175,6 +193,12 @@ async def _dict_to_user(record: dict) -> User:
     function_name = '_dict_to_user'
     try:
         user = User(
+            alert_captcha_dm = bool(record['alert_captcha_dm']),
+            alert_captcha_enabled = bool(record['alert_captcha_enabled']),
+            alert_nugget_dm = bool(record['alert_nugget_dm']),
+            alert_nugget_enabled = bool(record['alert_nugget_enabled']),
+            alert_nugget_threshold = record['alert_nugget_threshold'],
+            alert_rebirth_dm = bool(record['alert_rebirth_dm']),
             alert_rebirth_enabled = bool(record['alert_rebirth_enabled']),
             bot_enabled = bool(record['bot_enabled']),
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
@@ -340,6 +364,12 @@ async def _update_user(user: User, **kwargs) -> None:
     ---------
     user_id: int
     kwargs (column=value):
+        alert_captcha_dm: bool
+        alert_captcha_enabled: bool
+        alert_nugget_dm: bool
+        alert_nugget_enabled: bool
+        alert_nugget_threshold: bool
+        alert_rebirth_dm: bool
         alert_rebirth_enabled: bool
         bot_enabled: bool
         dnd_mode_enabled: bool

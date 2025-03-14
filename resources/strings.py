@@ -289,3 +289,11 @@ SKIN_EASTER = 'skin_easter'
 SKIN_HALLOWEEN = 'skin_halloween'
 SKIN_XMAS = 'skin_xmas'
 SKIN_PHOENIX = 'skin_phoenix'
+
+NUGGETS = {
+    'Wooden': emojis.NUGGET_WOODEN,
+    'Copper': emojis.NUGGET_COPPER,
+    'Silver': emojis.NUGGET_SILVER,
+    'Golden': emojis.NUGGET_GOLDEN,
+    'Diamond': emojis.NUGGET_DIAMOND,
+}
