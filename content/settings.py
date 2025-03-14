@@ -319,14 +319,16 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
     """Helper settings embed"""
     helpers = (
         f'{emojis.BP} **Context commands**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
-        f'{emojis.DETAIL} _Shows some helpful slash commands depending on context._\n'
+        f'{emojis.DETAIL} _Shows helpful slash commands depending on context._\n'
         f'{emojis.BP} **Fusion level summary**: {await functions.bool_to_text(user_settings.helper_fusion_enabled)}\n'
-        f'{emojis.DETAIL} _Shows your bee levels after a queen bee fusion._\n'
+        f'{emojis.DETAIL} _Shows your bee levels after a fusion._\n'
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
-        f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} or {strings.SLASH_COMMANDS["stats"]} to start tracking.**_\n'
         f'{emojis.BP} **Rebirth alert**: {await functions.bool_to_text(user_settings.alert_rebirth_enabled)}\n'
         f'{emojis.DETAIL} _Notifies you when you reach your rebirth level._\n'
+        f'{emojis.BP} **Rebirth summary**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
+        f'{emojis.DETAIL2} _Shows a summary of your last rebirth after rebirth._\n'
+        f'{emojis.DETAIL} _**Only works with slash {strings.SLASH_COMMANDS["rebirth"]}!**_\n'
     )
     if user_settings.helper_prune_progress_bar_color == 'random':
         color = '`Make it random!`'

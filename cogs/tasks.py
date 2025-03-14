@@ -2,7 +2,7 @@
 """Contains task related stuff"""
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import timedelta
 from humanfriendly import format_timespan
 import sqlite3
 from typing import List
@@ -13,7 +13,7 @@ from discord.ext import commands, tasks
 
 from cache import messages
 from database import errors, reminders, tracking, users
-from resources import emojis, exceptions, functions, logs, settings, strings
+from resources import exceptions, functions, logs, settings, strings
 
 
 running_tasks = {}

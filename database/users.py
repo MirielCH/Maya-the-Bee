@@ -27,6 +27,7 @@ class User():
     helper_fusion_enabled: bool
     helper_prune_enabled: bool
     helper_prune_progress_bar_color: str
+    helper_rebirth_enabled: bool
     last_rebirth: datetime
     league_beta: bool
     level: int
@@ -67,6 +68,7 @@ class User():
         self.helper_fusion_enabled = new_settings.helper_fusion_enabled
         self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.helper_prune_progress_bar_color = new_settings.helper_prune_progress_bar_color
+        self.helper_rebirth_enabled = new_settings.helper_rebirth_enabled
         self.last_rebirth = new_settings.last_rebirth
         self.league_beta = new_settings.league_beta
         self.level = new_settings.level
@@ -110,6 +112,7 @@ class User():
             helper_fusion_enabled: bool
             helper_prune_enabled: bool
             helper_prune_progress_bar_color: str
+            helper_rebirth_enabled: bool
             last_rebirth: datetime UTC aware
             league_beta: bool
             level: int
@@ -182,6 +185,7 @@ async def _dict_to_user(record: dict) -> User:
             helper_fusion_enabled = bool(record['helper_fusion_enabled']),
             helper_prune_enabled = bool(record['helper_prune_enabled']),
             helper_prune_progress_bar_color = record['helper_prune_progress_bar_color'],
+            helper_rebirth_enabled = bool(record['helper_rebirth_enabled']),
             level = record['level'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
             queen_bee_level = record['queen_bee_level'],
@@ -344,6 +348,7 @@ async def _update_user(user: User, **kwargs) -> None:
         helper_fusion_enabled: bool
         helper_prune_enabled: bool
         helper_prune_progress_bar_color: str
+        helper_rebirth_enabled: bool
         last_rebirth: datetime UTC aware
         league_beta: bool
         level: int

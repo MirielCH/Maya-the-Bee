@@ -193,6 +193,7 @@ class SettingsHelpersView(discord.ui.View):
             'Fusion level summary': 'helper_fusion_enabled',
             'Level XP popup': 'helper_prune_enabled',
             'Rebirth alert': 'alert_rebirth_enabled',
+            'Rebirth summary': 'helper_rebirth_enabled',
         }
         self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
         self.add_item(components.SetProgressBarColorSelect(self))

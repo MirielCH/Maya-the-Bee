@@ -434,6 +434,13 @@ def encode_message_with_fields_non_async(bot_message: discord.Message) -> str:
 
 
 # Miscellaneous
+async def calculate_percentage(item_amount: int, total_amount: int) -> float:
+        try:
+            percentage = round(item_amount / total_amount * 100, 2)
+        except ZeroDivisionError:
+            percentage = 0
+        return percentage
+
 async def call_ready_command(bot: commands.Bot, message: discord.Message, user: discord.User) -> None:
     """Calls the ready command as a reply to the current message"""
     command = bot.get_application_command(name='ready')
