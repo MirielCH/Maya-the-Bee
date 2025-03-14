@@ -68,5 +68,6 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, interac
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
-        asyncio.ensure_future(rebirth.command_rebirth_guide(message, interaction_user))
+        miri_mode = True if 'miri' in user_command_message.content.lower() else False
+        asyncio.ensure_future(rebirth.command_rebirth_guide(message, interaction_user, miri_mode))
     return add_reaction

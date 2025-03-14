@@ -13,7 +13,7 @@ from resources import emojis, functions, settings, strings
 # --- Commands ---
 async def command_rebirth_guide(
     ctx_or_message: Union[discord.ApplicationContext, discord.Message],
-    user: discord.User,
+    user: discord.User, miri_mode: bool,
     bot: Optional[discord.Bot] = None
 ) -> None:
     """Rebirth guide command"""
@@ -52,7 +52,7 @@ async def command_rebirth_guide(
     inventory_data['sweet_apple'] = await functions.get_inventory_item(inventory, 'sweet_apple')
     inventory_data['water_bottle'] = await functions.get_inventory_item(inventory, 'waterbottle')
     inventory_data['wooden_nugget'] = await functions.get_inventory_item(inventory, 'woodennugget')
-    embed = await embed_rebirth_guide(ctx_or_message, inventory_data, user, user_settings)
+    embed = await embed_rebirth_guide(ctx_or_message, inventory_data, user, miri_mode, user_settings)
     if isinstance(ctx_or_message, discord.ApplicationContext):
         await ctx_or_message.respond(embed=embed)
     else:
@@ -61,7 +61,7 @@ async def command_rebirth_guide(
 
 # --- Embeds ---
 async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, discord.Message],
-                              inventory_data: Dict, user: discord.User, user_settings: users.User) -> discord.Embed:
+                              inventory_data: Dict, user: discord.User, miri_mode: bool, user_settings: users.User) -> discord.Embed:
     """Rebirth guide embed"""
     copper_nuggets = inventory_data['copper_nugget'] + (inventory_data['silver_nugget'] * 8)
     wooden_nuggets = inventory_data['wooden_nugget']
@@ -111,22 +111,22 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     )
 
     craft_dismantle = ''
-    if inventory_data['silver_nugget'] > 0:
+    if inventory_data['silver_nugget'] > 0 and not miri_mode:
         craft_dismantle = (
             f'{emojis.NUGGET_SILVER} {strings.SLASH_COMMANDS["dismantle"]} `all` silver nuggets'
         )
-    if copper_nuggets_dismantled > 0:
+    if copper_nuggets_dismantled > 0 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
             f'{emojis.NUGGET_COPPER} {strings.SLASH_COMMANDS["dismantle"]} `{copper_nuggets_dismantled:,}` copper nuggets'
         )
-    if copper_nuggets_crafted > 0:
+    if copper_nuggets_crafted > 0 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
             f'{emojis.NUGGET_COPPER} {strings.SLASH_COMMANDS["craft"]} `{copper_nuggets_crafted:,}` copper nuggets'
         )
         
-    if insecticides_crafted > 0:
+    if insecticides_crafted > 0 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
             f'{emojis.INSECTICIDE} {strings.SLASH_COMMANDS["craft"]} `all` insecticides'
@@ -155,7 +155,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{craft_dismantle}\n'
             f'{emojis.WATER_BOTTLE} {strings.SLASH_COMMANDS["craft"]} `all` water bottles'
         )
-    if honey >= 10:
+    if honey >= 10 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
             f'{emojis.HONEY_POT} {strings.SLASH_COMMANDS["craft"]} `all` honey pots'
@@ -192,21 +192,21 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         use = f'{emojis.ENABLED} All done!'
     
     sell = ''
-    if inventory_data['golden_nugget'] > 0:
+    if inventory_data['golden_nugget'] > 0 and not miri_mode:
         sell = (
             f'{emojis.NUGGET_GOLDEN} {strings.SLASH_COMMANDS["sell"]} `all` golden nuggets'
         )
-    if copper_nuggets > 0:
+    if copper_nuggets > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.NUGGET_COPPER} {strings.SLASH_COMMANDS["sell"]} `all` copper nuggets'
         )
-    if inventory_data['insecticide'] > 0 or insecticides_crafted > 0:
+    if (inventory_data['insecticide'] > 0 or insecticides_crafted > 0) and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.INSECTICIDE} {strings.SLASH_COMMANDS["sell"]} `all` insecticides'
         )
-    if inventory_data['epic_potion'] > 0 or epic_potions_crafted > 0:
+    if (inventory_data['epic_potion'] > 0 or epic_potions_crafted > 0) and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.EPIC_POTION} {strings.SLASH_COMMANDS["sell"]} `all` epic potions'
@@ -221,7 +221,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{sell}\n'
             f'{emojis.LEAF_CHESTNUT} {strings.SLASH_COMMANDS["sell"]} `all` chestnut leaves'
         )
-    if inventory_data['energy_drink'] > 0:
+    if inventory_data['energy_drink'] > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.ENERGY_DRINK} {strings.SLASH_COMMANDS["sell"]} `all` energy drinks'
@@ -231,12 +231,12 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{sell}\n'
             f'{emojis.WATER_BOTTLE} {strings.SLASH_COMMANDS["sell"]} `all` water bottles'
         )
-    if inventory_data['honey_pot'] > 0 or honey_pots_crafted > 0:
+    if inventory_data['honey_pot'] > 0 or honey_pots_crafted > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.HONEY_POT} {strings.SLASH_COMMANDS["sell"]} `all` honey pots'
         )
-    if leaves > 0:
+    if leaves > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.LEAF} {strings.SLASH_COMMANDS["sell"]} `all` leaves'
@@ -246,7 +246,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{sell}\n'
             f'{emojis.HONEY} {strings.SLASH_COMMANDS["sell"]} `all` honey'
         )
-    if apples > 0:
+    if apples > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.APPLE} {strings.SLASH_COMMANDS["sell"]} `all` apples'
@@ -258,7 +258,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         color = settings.EMBED_COLOR,
         title = f'{user.global_name}\'s rebirth guide',
     )
-    embed.add_field(name='1. Resources', value=resources, inline=False)
+    if not miri_mode: embed.add_field(name='1. Resources', value=resources, inline=False)
     embed.add_field(name='2. Craft & Dismantle', value=craft_dismantle.strip(), inline=False)
     embed.add_field(name='3. Use', value=use.strip(), inline=False)
     embed.add_field(name='4. Sell', value=sell.strip(), inline=False)

@@ -70,27 +70,27 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             nugget_golden_match = re.search(r'goldennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
             nugget_diamond_match = re.search(r'diamondnugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
             if nugget_wooden_match:
-                nugget_wooden_amount = int(re.sub('\D', '', nugget_wooden_match.group(1)))
+                nugget_wooden_amount = int(re.sub(r'\D', '', nugget_wooden_match.group(1)))
                 league_beta = True if nugget_wooden_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
                                                 nugget_wooden_amount)
             if nugget_copper_match:
-                nugget_copper_amount = int(re.sub('\D', '', nugget_copper_match.group(1)))
+                nugget_copper_amount = int(re.sub(r'\D', '', nugget_copper_match.group(1)))
                 league_beta = True if nugget_copper_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'copper-nugget', current_time,
                                                 nugget_copper_amount)
             if nugget_silver_match:
-                nugget_silver_amount = int(re.sub('\D', '', nugget_silver_match.group(1)))
+                nugget_silver_amount = int(re.sub(r'\D', '', nugget_silver_match.group(1)))
                 league_beta = True if nugget_silver_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'silver-nugget', current_time,
                                                 nugget_silver_amount)
             if nugget_golden_match:
-                nugget_golden_amount = int(re.sub('\D', '', nugget_golden_match.group(1)))
+                nugget_golden_amount = int(re.sub(r'\D', '', nugget_golden_match.group(1)))
                 league_beta = True if nugget_golden_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
                                                 nugget_golden_amount)
             if nugget_diamond_match:
-                nugget_diamond_amount = int(re.sub('\D', '', nugget_diamond_match.group(1)))
+                nugget_diamond_amount = int(re.sub(r'\D', '', nugget_diamond_match.group(1)))
                 league_beta = True if nugget_diamond_amount > 1 else False
                 await tracking.insert_log_entry(user.id, message.guild.id, 'diamond-nugget', current_time,
                                                 nugget_diamond_amount)
@@ -121,7 +121,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         message_content = embed = None
         if user_settings.level > 0 and user_settings.xp_target > 0:
             xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
-            xp_gain = int(re.sub('\D', '', xp_gain_match.group(1)))
+            xp_gain = int(re.sub(r'\D', '', xp_gain_match.group(1)))
             if user_settings.league_beta: xp_gain = ceil(xp_gain * 1.33)
             if user_settings.xp_gain_average > 0:
                 xp_gain_average = (
@@ -193,7 +193,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 embed = discord.Embed(
                     title = progress_bar,
                     description = (
-                        f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1}**\n'
+                        f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1:,}**\n'
                         f'➜ **{prunes_until_level_up}** prunes at **{xp_gain_average:,}** '
                         f'{emojis.XP} average\n'
                     )
