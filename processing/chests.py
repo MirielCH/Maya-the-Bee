@@ -92,7 +92,7 @@ async def call_context_helper_on_chest_open(message: discord.Message, embed_data
                 if nuggets_found:
                     if user_settings.alert_nugget_dm:
                         asyncio.ensure_future(user.send(
-                            f'**Nuggets found!**\n'
+                            f'Bzzt! **Nuggets** found!\n'
                             f'{nuggets_found.strip()}\n'
                             f'➜ {message.jump_url}'
                         ))

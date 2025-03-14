@@ -504,9 +504,9 @@ class SetAlertSettingsSelect(discord.ui.Select):
     """Select to change the alert settings"""
     def __init__(self, view: discord.ui.View, row: Optional[int] = None):
         options = []
-        alert_captcha_mode = 'Ping' if view.user_settings.alert_captcha_dm else 'DM'
-        alert_nugget_mode = 'Ping' if view.user_settings.alert_nugget_dm else 'DM'
-        alert_rebirth_mode = 'Ping' if view.user_settings.alert_rebirth_dm else 'DM'
+        alert_captcha_mode = 'ping' if view.user_settings.alert_captcha_dm else 'DM'
+        alert_nugget_mode = 'ping' if view.user_settings.alert_nugget_dm else 'DM'
+        alert_rebirth_mode = 'ping' if view.user_settings.alert_rebirth_dm else 'DM'
         options.append(discord.SelectOption(label=f'Send captcha alerts as {alert_captcha_mode}', value='alert_captcha_dm'))
         options.append(discord.SelectOption(label=f'Send nugget alerts as {alert_nugget_mode}', value='alert_nugget_dm'))
         options.append(discord.SelectOption(label=f'Send rebirth alerts as {alert_rebirth_mode}', value='alert_rebirth_dm'))

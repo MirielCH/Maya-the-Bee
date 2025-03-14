@@ -70,16 +70,17 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                 user2_settings = None
         fusion_summary_embeds = []
         if user1_settings is not None:
-            if user1_settings.bot_enabled and user1_settings.reminder_fusion.enabled:
-                user_command = await functions.get_game_command(user1_settings, 'fusion')
-                time_left = await functions.calculate_time_left_from_cooldown(message, user1_settings, 'fusion')
-                if time_left < timedelta(0): return add_reaction
-                reminder_message = user1_settings.reminder_fusion.message.replace('{command}', user_command)
-                reminder: reminders.Reminder = (
-                    await reminders.insert_reminder(user1.id, 'fusion', time_left,
-                                                    message.channel.id, reminder_message)
-                )
-                if user1_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+            if user1_settings.bot_enabled:
+                if user1_settings.reminder_fusion.enabled:
+                    user_command = await functions.get_game_command(user1_settings, 'fusion')
+                    time_left = await functions.calculate_time_left_from_cooldown(message, user1_settings, 'fusion')
+                    if time_left < timedelta(0): return add_reaction
+                    reminder_message = user1_settings.reminder_fusion.message.replace('{command}', user_command)
+                    reminder: reminders.Reminder = (
+                        await reminders.insert_reminder(user1.id, 'fusion', time_left,
+                                                        message.channel.id, reminder_message)
+                    )
+                    if user1_settings.reactions_enabled and reminder.record_exists: add_reaction = True
                 if '** got a level **' in fusion_users[0]:
                     await user1_settings.update(queen_bee_level = user1_settings.queen_bee_level + 1)
                 if user1_settings.helper_fusion_enabled:
@@ -98,16 +99,17 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                         )
                     fusion_summary_embeds.append(embed)
         if user2_settings is not None:
-            if user2_settings.bot_enabled and user2_settings.reminder_fusion.enabled:
-                user_command = await functions.get_game_command(user2_settings, 'fusion')
-                time_left = await functions.calculate_time_left_from_cooldown(message, user2_settings, 'fusion')
-                if time_left < timedelta(0): return add_reaction
-                reminder_message = user2_settings.reminder_fusion.message.replace('{command}', user_command)
-                reminder: reminders.Reminder = (
-                    await reminders.insert_reminder(user2.id, 'fusion', time_left,
-                                                    message.channel.id, reminder_message)
-                )
-                if user2_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+            if user2_settings.bot_enabled:
+                if user2_settings.reminder_fusion.enabled:
+                    user_command = await functions.get_game_command(user2_settings, 'fusion')
+                    time_left = await functions.calculate_time_left_from_cooldown(message, user2_settings, 'fusion')
+                    if time_left < timedelta(0): return add_reaction
+                    reminder_message = user2_settings.reminder_fusion.message.replace('{command}', user_command)
+                    reminder: reminders.Reminder = (
+                        await reminders.insert_reminder(user2.id, 'fusion', time_left,
+                                                        message.channel.id, reminder_message)
+                    )
+                    if user2_settings.reactions_enabled and reminder.record_exists: add_reaction = True
                 if '** got a level **' in fusion_users[1]:
                     await user2_settings.update(queen_bee_level = user2_settings.queen_bee_level + 1)
                 if user2_settings.helper_fusion_enabled:
