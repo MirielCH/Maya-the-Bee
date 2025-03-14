@@ -80,8 +80,8 @@ MSG_INTERACTION_ERRORS =  [
 
 # --- Internal error messages ---
 INTERNAL_ERROR_NO_DATA_FOUND = 'No data found in database.\nTable: {table}\nFunction: {function}\nSQL: {sql}'
-INTERNAL_ERROR_SQLITE3 = 'Error executing SQL.\nError: {error}\nTable: {table}\nFunction: {function}\SQL: {sql}'
-INTERNAL_ERROR_LOOKUP = 'Error assigning values.\nError: {error}\nTable: {table}\nFunction: {function}\Records: {record}'
+INTERNAL_ERROR_SQLITE3 = 'Error executing SQL.\nError: {error}\nTable: {table}\nFunction: {function}\nSQL: {sql}'
+INTERNAL_ERROR_LOOKUP = 'Error assigning values.\nError: {error}\nTable: {table}\nFunction: {function}\nRecords: {record}'
 INTERNAL_ERROR_NO_ARGUMENTS = 'You need to specify at least one keyword argument.\nTable: {table}\nFunction: {function}'
 INTERNAL_ERROR_DICT_TO_OBJECT = 'Error converting record into object\nFunction: {function}\nRecord: {record}\n'
 
@@ -126,7 +126,7 @@ MSG_ERROR = 'Whoops, something went wrong here. You should probably tell Miriel#
 ACTIVITIES_BOOSTS_EMOJIS = {
     'drop-chance-boost': emojis.BOOST_DROP_CHANCE,
     'insecticide': emojis.INSECTICIDE,
-    'queen-bee-boost': emojis.QUEEN_BEE,
+    'queen-bee-boost': emojis.QUEEN_BEE_S,
     'raid-shield': emojis.BOOST_RAID_SHIELD,
     'spooky-boost': emojis.PUMPKIN,
     'sweet-apple': emojis.SWEET_APPLE,
@@ -233,6 +233,7 @@ ACTIVITIES_NAME_BOOSTS = {
 }
 
 SLASH_COMMANDS = {
+    'bees': '</bees:976919525415071825>',
     'chests': '</chests:1027309977104285697>',
     'chips show': '</chips show:1076966047351046186>',
     'chips fusion': '</chips fusion:1076966047351046186>',

@@ -190,8 +190,9 @@ class SettingsHelpersView(discord.ui.View):
         self.embed_function = embed_function
         toggled_settings = {
             'Context commands': 'helper_context_enabled',
+            'Fusion level summary': 'helper_fusion_enabled',
             'Level XP popup': 'helper_prune_enabled',
-            'Rebirth notification': 'helper_rebirth_enabled',
+            'Rebirth alert': 'alert_rebirth_enabled',
         }
         self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
         self.add_item(components.SetProgressBarColorSelect(self))

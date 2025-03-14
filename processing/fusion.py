@@ -8,7 +8,7 @@ import discord
 
 from cache import messages
 from database import reminders, users
-from resources import emojis, exceptions, functions, regex
+from resources import emojis, exceptions, functions, regex, settings, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -68,6 +68,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                 user2_settings: users.User = await users.get_user(user2.id)
             except exceptions.FirstTimeUserError:
                 user2_settings = None
+        fusion_summary_embeds = []
         if user1_settings is not None:
             if user1_settings.bot_enabled and user1_settings.reminder_fusion.enabled:
                 user_command = await functions.get_game_command(user1_settings, 'fusion')
@@ -79,6 +80,20 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                                                     message.channel.id, reminder_message)
                 )
                 if user1_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+                if '** got a level **' in fusion_users[0]:
+                    await user1_settings.update(queen_bee_level = user1_settings.queen_bee_level + 1)
+                if user1_settings.helper_fusion_enabled:
+                    embed = discord.Embed(
+                        color = settings.EMBED_COLOR,
+                        title = f'{user1.global_name}\'s bee levels',
+                        description = (
+                            f'{emojis.QUEEN_BEE_A} **Queen bee level**: `{user1_settings.queen_bee_level:,}` '
+                            f'/ `{10 + user1_settings.rebirth * 2:,}`\n'
+                            f'{emojis.SOLDIER_BEE} **Soldier bee level**: `{user1_settings.soldier_bee_level:,}` '
+                            f'/ `{user1_settings.queen_bee_level * 10:,}`\n'
+                        )
+                    )
+                    fusion_summary_embeds.append(embed)
         if user2_settings is not None:
             if user2_settings.bot_enabled and user2_settings.reminder_fusion.enabled:
                 user_command = await functions.get_game_command(user2_settings, 'fusion')
@@ -90,7 +105,25 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                                                     message.channel.id, reminder_message)
                 )
                 if user2_settings.reactions_enabled and reminder.record_exists: add_reaction = True
-
-        if add_reaction and '** got a level **' in embed_data['field0']['value'].lower():
+                if '** got a level **' in fusion_users[1]:
+                    await user2_settings.update(queen_bee_level = user2_settings.queen_bee_level + 1)
+                if user2_settings.helper_fusion_enabled:
+                    embed = discord.Embed(
+                        color = settings.EMBED_COLOR,
+                        title = f'{user2.global_name}\'s bee levels',
+                    )
+                    if user2_settings.queen_bee_level == 0 or user2_settings.soldier_bee_level == 0:
+                        embed.description = f'_I don\'t know the level of your bees. Use {strings.SLASH_COMMANDS["bees"]} to update them._'
+                    else:
+                        embed.description = (
+                            f'{emojis.QUEEN_BEE_A} **Queen bee level**: `{user2_settings.queen_bee_level:,}` '
+                            f'/ `{10 + user2_settings.rebirth * 2:,}`\n'
+                            f'{emojis.SOLDIER_BEE} **Soldier bee level**: `{user2_settings.soldier_bee_level:,}` '
+                            f'/ `{user2_settings.queen_bee_level * 10:,}`\n'
+                        )
+                    fusion_summary_embeds.append(embed)
+        if fusion_summary_embeds:
+            await message.reply(embeds=fusion_summary_embeds)
+        if add_reaction and     '** got a level **' in embed_data['field0']['value'].lower():
             await message.add_reaction(emojis.PAN_HAPPY)
     return add_reaction

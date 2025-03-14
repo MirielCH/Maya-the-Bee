@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, inventory, laboratory, patreon
+from processing import bees, bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, inventory, laboratory, patreon
 from processing import profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
@@ -77,6 +77,10 @@ class DetectionCog(commands.Cog):
         reminder_upgrade_enabled = getattr(getattr(user_settings, 'reminder_upgrade', None), 'enabled', True)
         reminder_vote_enabled = getattr(getattr(user_settings, 'reminder_vote', None), 'enabled', True)
         tracking_enabled = getattr(user_settings, 'tracking_enabled', True)
+
+        # Bees
+        add_reaction = await bees.process_message(message, embed_data, interaction_user, user_settings)
+        return_values.append(add_reaction)
 
         # Bonuses
         if reminder_boosts_enabled:

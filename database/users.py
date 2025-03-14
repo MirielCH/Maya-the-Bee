@@ -19,17 +19,19 @@ class UserReminder(NamedTuple):
 @dataclass()
 class User():
     """Object that represents a record from table "user"."""
+    alert_rebirth_enabled: bool
     bot_enabled: bool
     dnd_mode_enabled: bool
     donor_tier: int
     helper_context_enabled: bool
+    helper_fusion_enabled: bool
     helper_prune_enabled: bool
     helper_prune_progress_bar_color: str
-    helper_rebirth_enabled: bool
     last_rebirth: datetime
     league_beta: bool
     level: int
     pruner_type: str
+    queen_bee_level: int
     reactions_enabled: bool
     rebirth: int
     reminder_boosts: UserReminder
@@ -45,6 +47,7 @@ class User():
     reminder_vote: UserReminder
     reminders_slash_enabled: bool
     research_time: int
+    soldier_bee_level: int
     streak_vote: int
     tracking_enabled: bool
     user_id: int
@@ -56,17 +59,19 @@ class User():
     async def refresh(self) -> None:
         """Refreshes user data from the database."""
         new_settings: User = await get_user(self.user_id)
+        self.alert_rebirth_enabled = new_settings.alert_rebirth_enabled
         self.bot_enabled = new_settings.bot_enabled
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
         self.helper_context_enabled = new_settings.helper_context_enabled
+        self.helper_fusion_enabled = new_settings.helper_fusion_enabled
         self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.helper_prune_progress_bar_color = new_settings.helper_prune_progress_bar_color
-        self.helper_rebirth_enabled = new_settings.helper_rebirth_enabled
         self.last_rebirth = new_settings.last_rebirth
         self.league_beta = new_settings.league_beta
         self.level = new_settings.level
         self.pruner_type = new_settings.pruner_type
+        self.queen_bee_level = new_settings.queen_bee_level
         self.reactions_enabled = new_settings.reactions_enabled
         self.rebirth = new_settings.rebirth
         self.reminder_boosts = new_settings.reminder_boosts
@@ -82,6 +87,7 @@ class User():
         self.reminder_vote = new_settings.reminder_vote
         self.reminders_slash_enabled = new_settings.reminders_slash_enabled
         self.research_time = new_settings.research_time
+        self.soldier_bee_level = new_settings.soldier_bee_level
         self.streak_vote = new_settings.streak_vote
         self.tracking_enabled = new_settings.tracking_enabled
         self.xp = new_settings.xp
@@ -96,17 +102,19 @@ class User():
         Arguments
         ---------
         kwargs (column=value):
+            alert_rebirth_enabled: bool
             bot_enabled: bool
             dnd_mode_enabled: bool
             donor_tier: int
             helper_context_enabled: bool
+            helper_fusion_enabled: bool
             helper_prune_enabled: bool
             helper_prune_progress_bar_color: str
-            helper_rebirth_enabled: bool
             last_rebirth: datetime UTC aware
             league_beta: bool
             level: int
             pruner_type: str
+            queen_bee_level: int
             reactions_enabled: bool
             rebirth: int
             reminder_boosts_enabled: bool
@@ -133,6 +141,7 @@ class User():
             reminder_vote_message: str
             reminders_slash_enabled: bool
             research_time: int
+            soldier_bee_level: int
             streak_vote: int
             tracking_enabled: bool
             xp: int
@@ -163,17 +172,19 @@ async def _dict_to_user(record: dict) -> User:
     function_name = '_dict_to_user'
     try:
         user = User(
+            alert_rebirth_enabled = bool(record['alert_rebirth_enabled']),
             bot_enabled = bool(record['bot_enabled']),
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
             donor_tier = record['donor_tier'],
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
             league_beta = bool(record['league_beta']),
             helper_context_enabled = bool(record['helper_context_enabled']),
+            helper_fusion_enabled = bool(record['helper_fusion_enabled']),
             helper_prune_enabled = bool(record['helper_prune_enabled']),
             helper_prune_progress_bar_color = record['helper_prune_progress_bar_color'],
-            helper_rebirth_enabled = bool(record['helper_rebirth_enabled']),
             level = record['level'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
+            queen_bee_level = record['queen_bee_level'],
             reactions_enabled = bool(record['reactions_enabled']),
             rebirth = record['rebirth'],
             reminder_boosts = UserReminder(enabled=bool(record['reminder_boosts_enabled']),
@@ -200,6 +211,7 @@ async def _dict_to_user(record: dict) -> User:
                                          message=record['reminder_vote_message']),
             reminders_slash_enabled = bool(record['reminders_slash_enabled']),
             research_time = record['research_time'],
+            soldier_bee_level = record['soldier_bee_level'],
             streak_vote = record['streak_vote'],
             tracking_enabled = bool(record['tracking_enabled']),
             xp = record['xp'],
@@ -324,17 +336,19 @@ async def _update_user(user: User, **kwargs) -> None:
     ---------
     user_id: int
     kwargs (column=value):
+        alert_rebirth_enabled: bool
         bot_enabled: bool
         dnd_mode_enabled: bool
         donor_tier: int
         helper_context_enabled: bool
+        helper_fusion_enabled: bool
         helper_prune_enabled: bool
         helper_prune_progress_bar_color: str
-        helper_rebirth_enabled: bool
         last_rebirth: datetime UTC aware
         league_beta: bool
         level: int
         pruner_type: str
+        queen_bee_level: int
         reactions_enabled: bool
         rebirth: int
         reminder_boosts_enabled: bool
@@ -361,6 +375,7 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_vote_message: str
         reminders_slash_enabled: bool
         research_time: int
+        soldier_bee_level: int
         streak_vote: int
         tracking_enabled: bool
         xp: int

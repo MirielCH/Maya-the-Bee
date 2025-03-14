@@ -147,7 +147,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 current_level = user_settings.level
                 await user_settings.update(xp_gain_average=0, xp=xp_left * -1, xp_prune_count=0, xp_target=new_xp_target,
                                            level=next_level)
-                if user_settings.helper_rebirth_enabled and current_level < level_target and next_level >= level_target:
+                if user_settings.alert_rebirth_enabled and current_level < level_target and next_level >= level_target:
                     message_content = f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
                     message_content = f'**{user.global_name}** {message_content}' if user_settings.dnd_mode_enabled else f'{user.mention} {message_content}'
                     await asyncio.sleep(1)

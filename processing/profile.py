@@ -108,11 +108,11 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
 
             elif 'level:' in line.lower():
                 level_match = re.search(r'\) (.+?)\*\*', line.lower())
-                level = int(re.sub('\D', '', level_match.group(1)))
+                level = int(re.sub(r'\D', '', level_match.group(1)))
             elif 'exp:' in line.lower():
                 xp_match = re.search(r'\) (.+?)\*\*\/\*\*(.+?)\*\*', line.lower())
-                xp = int(re.sub('\D', '', xp_match.group(1)))
-                xp_target = int(re.sub('\D', '', xp_match.group(2)))
+                xp = int(re.sub(r'\D', '', xp_match.group(1)))
+                xp_target = int(re.sub(r'\D', '', xp_match.group(2)))
             elif 'rebirths:' in line.lower():
                 rebirth_match = re.search(r'\) (\d+?)\*\*', line.lower())
                 rebirth = int(rebirth_match.group(1))

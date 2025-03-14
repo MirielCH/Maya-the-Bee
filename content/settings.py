@@ -320,10 +320,12 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
     helpers = (
         f'{emojis.BP} **Context commands**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
         f'{emojis.DETAIL} _Shows some helpful slash commands depending on context._\n'
+        f'{emojis.BP} **Fusion level summary**: {await functions.bool_to_text(user_settings.helper_fusion_enabled)}\n'
+        f'{emojis.DETAIL} _Shows your bee levels after a queen bee fusion._\n'
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
         f'{emojis.DETAIL} _**Use {strings.SLASH_COMMANDS["profile"]} or {strings.SLASH_COMMANDS["stats"]} to start tracking.**_\n'
-        f'{emojis.BP} **Rebirth notification**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
+        f'{emojis.BP} **Rebirth alert**: {await functions.bool_to_text(user_settings.alert_rebirth_enabled)}\n'
         f'{emojis.DETAIL} _Notifies you when you reach your rebirth level._\n'
     )
     if user_settings.helper_prune_progress_bar_color == 'random':
@@ -381,7 +383,7 @@ async def embed_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCont
             title = title if embed_no < 2 else None
         )
         allowed_placeholders = ''
-        for placeholder_match in re.finditer('\{(.+?)\}', strings.DEFAULT_MESSAGES[activity]):
+        for placeholder_match in re.finditer(r'\{(.+?)\}', strings.DEFAULT_MESSAGES[activity]):
             placeholder = placeholder_match.group(1)
             placeholder_description = strings.PLACEHOLDER_DESCRIPTIONS.get(placeholder, '')
             allowed_placeholders = (
@@ -450,7 +452,7 @@ async def embed_settings_user(bot: discord.Bot, ctx: discord.ApplicationContext,
     donor_tier_emoji = strings.DONOR_TIERS_EMOJIS[donor_tier]
     donor_tier = f'{donor_tier_emoji} `{donor_tier}`'
 
-    bot = (
+    bot_settings = (
         f'{emojis.BP} **Bot**: {await functions.bool_to_text(user_settings.bot_enabled)}\n'
         f'{emojis.DETAIL} _You can toggle this with {await functions.get_maya_slash_command(bot, "on")} '
         f'and {await functions.get_maya_slash_command(bot, "off")}._\n'
@@ -472,7 +474,7 @@ async def embed_settings_user(bot: discord.Bot, ctx: discord.ApplicationContext,
         color = settings.EMBED_COLOR,
         title = f'{ctx.author.global_name}\'s user settings',
     )
-    embed.add_field(name='Main', value=bot, inline=False)
+    embed.add_field(name='Main', value=bot_settings, inline=False)
     embed.add_field(name='Reminder behaviour', value=behaviour, inline=False)
     embed.add_field(name='Tracking', value=tracking, inline=False)
     return embed

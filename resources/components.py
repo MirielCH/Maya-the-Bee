@@ -219,11 +219,11 @@ class SetReminderMessageButton(discord.ui.Button):
                 )
                 await followup_message.delete(delay=5)
                 return
-            for placeholder in re.finditer('\{(.+?)\}', new_message):
+            for placeholder in re.finditer(r'\{(.+?)\}', new_message):
                 placeholder_str = placeholder.group(1)
                 if placeholder_str not in strings.DEFAULT_MESSAGES[self.view.activity]:
                     allowed_placeholders = ''
-                    for placeholder in re.finditer('\{(.+?)\}', strings.DEFAULT_MESSAGES[self.view.activity]):
+                    for placeholder in re.finditer(r'\{(.+?)\}', strings.DEFAULT_MESSAGES[self.view.activity]):
                         allowed_placeholders = (
                             f'{allowed_placeholders}\n'
                             f'{emojis.BP} {{{placeholder.group(1)}}}'
@@ -482,7 +482,7 @@ class SetProgressBarColorSelect(discord.ui.Select):
         for color in strings.PROGRESS_BAR_COLORS:
             options.append(discord.SelectOption(label=color, value=color.lower()))
         options.append(discord.SelectOption(label='Make it random!', value='random'))
-        super().__init__(placeholder='Change progress bar color', min_values=1, max_values=1, options=options, row=row,
+        super().__init__(placeholder='Change XP progress bar color', min_values=1, max_values=1, options=options, row=row,
                          custom_id='set_progress_color')
 
     async def callback(self, interaction: discord.Interaction):
