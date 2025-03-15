@@ -130,14 +130,14 @@ async def track_rebirth_and_show_summary(message: discord.Message, embed_data: D
             report: tracking.LogReport = await tracking.get_log_report(user.id, current_time - user_settings.last_rebirth)
             embed = discord.Embed(
                 color = settings.EMBED_COLOR,
-                title = f'{user.global_name}\'s rebirth summary',
+                title = 'Rebirth summary',
             )
             progress = (
-                f'{emojis.BP} Rebirth reached: `{rebirth:,}`\n'
-                f'{emojis.BP} Level required to rebirth again: `{level_target:,}`\n'
+                f'{emojis.BP} Rebirth reached: **{rebirth:,}**\n'
+                f'{emojis.BP} Level required for next rebirth: **{level_target:,}**\n'
             )
             last_rebirth_stats = (
-                f'{emojis.BP} Started {utils.format_dt(user_settings.last_rebirth, "R")}\n'
+                f'{emojis.BP} Started on {utils.format_dt(user_settings.last_rebirth)}\n'
                 f'{emojis.BP} `prune`: {report.prune_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.NUGGET_WOODEN} {report.nugget_wooden_amount:,} '
                 f'({await functions.calculate_percentage(report.nugget_wooden_amount, report.prune_amount):g}%)\n'

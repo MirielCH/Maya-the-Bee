@@ -87,7 +87,7 @@ async def call_context_helper_on_chest_open(message: discord.Message, embed_data
                     if nugget_names.index(name) >= threshold_index:
                         nuggets_found = (
                             f'{nuggets_found}\n'
-                            f'{amount:,} {strings.NUGGETS[name]} {name} nuggets'
+                            f'**{amount:,}** {strings.NUGGETS[name]} {name} nuggets'
                         )
                 if nuggets_found:
                     if user_settings.alert_nugget_dm:

@@ -23,7 +23,7 @@ class RebirthCog(commands.Cog):
     @cmd_rebirth.command()
     async def guide(self, ctx: discord.ApplicationContext) -> None:
         """Rebirth guide"""
-        await rebirth.command_rebirth_guide(ctx, ctx.author, self.bot)
+        await rebirth.command_rebirth_guide(ctx, ctx.author, False, self.bot)
 
 # Initialization
 def setup(bot):

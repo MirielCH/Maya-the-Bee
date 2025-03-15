@@ -81,8 +81,10 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                                                         message.channel.id, reminder_message)
                     )
                     if user1_settings.reactions_enabled and reminder.record_exists: add_reaction = True
-                if '** got a level **' in fusion_users[0]:
-                    await user1_settings.update(queen_bee_level = user1_settings.queen_bee_level + 1)
+                user1_new_level_match = re.search(r'level \*\*(.+?)\*\*', fusion_users[0].lower())
+                if user1_new_level_match:
+                    new_level = int(re.sub(r'\D', '', user1_new_level_match.group(1)))
+                    await user1_settings.update(queen_bee_level=new_level)
                 if user1_settings.helper_fusion_enabled:
                     embed = discord.Embed(
                         color = settings.EMBED_COLOR,
@@ -92,10 +94,10 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                         embed.description = f'_I don\'t know the level of your bees. Use {strings.SLASH_COMMANDS["bees"]} to update them._'
                     else:
                         embed.description = (
-                            f'{emojis.QUEEN_BEE_A} **Queen bee level**: `{user1_settings.queen_bee_level:,}` '
-                            f'/ `{10 + user1_settings.rebirth * 2:,}`\n'
-                            f'{emojis.SOLDIER_BEE} **Soldier bee level**: `{user1_settings.soldier_bee_level:,}` '
-                            f'/ `{user1_settings.queen_bee_level * 10:,}`\n'
+                            f'{emojis.QUEEN_BEE_A} Queen bee level: **{user1_settings.queen_bee_level:,} '
+                            f'/ {10 + user1_settings.rebirth * 2:,}**\n'
+                            f'{emojis.SOLDIER_BEE} Soldier bee level: **{user1_settings.soldier_bee_level:,} '
+                            f'/ {user1_settings.queen_bee_level * 10:,}**\n'
                         )
                     fusion_summary_embeds.append(embed)
         if user2_settings is not None:
@@ -110,8 +112,10 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                                                         message.channel.id, reminder_message)
                     )
                     if user2_settings.reactions_enabled and reminder.record_exists: add_reaction = True
-                if '** got a level **' in fusion_users[1]:
-                    await user2_settings.update(queen_bee_level = user2_settings.queen_bee_level + 1)
+                user2_new_level_match = re.search(r'level \*\*(.+?)\*\*', fusion_users[1].lower())
+                if user2_new_level_match:
+                    new_level = int(re.sub(r'\D', '', user2_new_level_match.group(1)))
+                    await user2_settings.update(queen_bee_level=new_level)
                 if user2_settings.helper_fusion_enabled:
                     embed = discord.Embed(
                         color = settings.EMBED_COLOR,
@@ -121,10 +125,10 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                         embed.description = f'_I don\'t know the level of your bees. Use {strings.SLASH_COMMANDS["bees"]} to update them._'
                     else:
                         embed.description = (
-                            f'{emojis.QUEEN_BEE_A} **Queen bee level**: `{user2_settings.queen_bee_level:,}` '
-                            f'/ `{10 + user2_settings.rebirth * 2:,}`\n'
-                            f'{emojis.SOLDIER_BEE} **Soldier bee level**: `{user2_settings.soldier_bee_level:,}` '
-                            f'/ `{user2_settings.queen_bee_level * 10:,}`\n'
+                            f'{emojis.QUEEN_BEE_A} Queen bee level: **{user2_settings.queen_bee_level:,} '
+                            f'/ {10 + user2_settings.rebirth * 2:,}**\n'
+                            f'{emojis.SOLDIER_BEE} Soldier bee level: **{user2_settings.soldier_bee_level:,} '
+                            f'/ {user2_settings.queen_bee_level * 10:,}**\n'
                         )
                     fusion_summary_embeds.append(embed)
         if fusion_summary_embeds:

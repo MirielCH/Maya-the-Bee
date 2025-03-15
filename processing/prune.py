@@ -223,7 +223,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                     if nugget_names.index(name) >= threshold_index:
                         nuggets_found = (
                             f'{nuggets_found}\n'
-                            f'{amount:,} {strings.NUGGETS[name]} {name} nuggets'
+                            f'**{amount:,}** {strings.NUGGETS[name]} {name} nuggets'
                         )
                 if nuggets_found:
                     if user_settings.alert_nugget_dm:
