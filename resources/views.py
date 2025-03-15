@@ -243,6 +243,7 @@ class SettingsHelpersView(discord.ui.View):
             'Fusion level summary': 'helper_fusion_enabled',
             'Level XP popup': 'helper_prune_enabled',
             'Rebirth summary': 'helper_rebirth_enabled',
+            'Trophy progress popup': 'helper_trophies_enabled',
         }
         self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
         self.add_item(components.SetProgressBarColorSelect(self))

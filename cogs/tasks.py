@@ -99,6 +99,7 @@ class TasksCog(commands.Cog):
         self.schedule_tasks.start()
         self.consolidate_tracking_log.start()
         self.delete_old_messages_from_cache.start()
+        self.season_reset.start()
 
     # Tasks
     @tasks.loop(seconds=0.5)
@@ -176,6 +177,19 @@ class TasksCog(commands.Cog):
             end_time = utils.utcnow().replace(microsecond=0)
             time_passed = end_time - start_time
             logs.logger.info(f'Consolidated {log_entry_count:,} log entries in {format_timespan(time_passed)}.')
+
+    @tasks.loop(seconds=60)
+    async def season_reset(self) -> None:
+        """Task that resets trophies and converts diamond trophies to diamond rings"""
+        start_time = utils.utcnow().replace(microsecond=0)
+        if start_time.day in (14, 28) and start_time.hour == 5 and start_time.minute == 0:
+            all_users = await users.get_all_users()
+            for user_settings in all_users:
+                diamond_rings = user_settings.diamond_rings + user_settings.diamond_trophies
+                if diamond_rings > user_settings.diamond_rings_cap: diamond_rings = user_settings.diamond_rings_cap
+                await user_settings.update(trophies=0, diamond_trophies=0, diamond_rings=diamond_rings, league_beta=False)
+            time_passed = utils.utcnow().replace(microsecond=0) - start_time
+            logs.logger.info(f'Reset trophies for all users in {format_timespan(time_passed)}.')
 
     @tasks.loop(minutes=10)
     async def delete_old_messages_from_cache(self) -> None:

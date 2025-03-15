@@ -59,15 +59,29 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, interac
         else:
             embed_users.append(embed_data['embed_user'])
         if interaction_user not in embed_users: return add_reaction
-        rebirth_guide_match = re.search(regex.COMMAND_REBIRTH_GUIDE, user_command_message.content.lower())
-        if not rebirth_guide_match:
-            return add_reaction
         if user_settings is None:
             try:
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
-        miri_mode = True if 'miri' in user_command_message.content.lower() else False
-        asyncio.ensure_future(rebirth.command_rebirth_guide(message, interaction_user, miri_mode))
+
+        field_items = ''
+        for embed_element, element_data in embed_data.items():
+            if not embed_element.startswith('field'):
+                continue
+            if element_data['name'] == 'Items':
+                field_items = element_data['value']
+                break
+            
+        diamond_rings_match = re.search(r'\s(.+?)`\*\* <:diamondring:', field_items)
+        if diamond_rings_match:
+            diamond_rings = int(re.sub(r'\D', '', diamond_rings_match.group(1)))
+            await user_settings.update(diamond_rings=diamond_rings)
+            
+        rebirth_guide_match = re.search(regex.COMMAND_REBIRTH_GUIDE, user_command_message.content.lower())
+        if rebirth_guide_match:
+            miri_mode = True if 'miri' in user_command_message.content.lower() else False
+            asyncio.ensure_future(rebirth.command_rebirth_guide(message, interaction_user, miri_mode))
+
     return add_reaction

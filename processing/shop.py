@@ -23,11 +23,13 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     """
     return_values = []
     return_values.append(await create_reminder_on_buying_boost(message, embed_data, user, user_settings))
+    return_values.append(await reduce_diamond_rings_on_seasonal_purchase(message, embed_data, user, user_settings))
+    return_values.append(await update_status_on_buying_beta_pass(message, embed_data, user, user_settings))
     return any(return_values)
 
 
 async def create_reminder_on_buying_boost(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
-                                         user_settings: Optional[users.User]) -> bool:
+                                          user_settings: Optional[users.User]) -> bool:
     """Create a reminder when a boost is bought.
 
     Returns
@@ -88,4 +90,93 @@ async def create_reminder_on_buying_boost(message: discord.Message, embed_data: 
                                             message.channel.id, reminder_message)
         )
         if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+    return add_reaction
+
+
+async def reduce_diamond_rings_on_seasonal_purchase(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                                    user_settings: Optional[users.User]) -> bool:
+    """Reduces diamond rings when buying seasonal items
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings = [
+        'purchase completed!', #English
+    ]
+    if (any(search_string in embed_data['title'].lower() for search_string in search_strings)
+        and 'diamondring' in embed_data['description'].lower()):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_SHOP,
+                                                user_name=embed_data['author']['name'])
+                )
+                if user_command_message is not None:
+                    user = user_command_message.author
+                else:
+                    embed_users = await functions.get_guild_member_by_name(message.guild, embed_data['author']['name'])
+                    if len(embed_users) == 1:
+                        user = embed_users[0]
+                    else:
+                        return add_reaction
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
+        
+        diamond_rings_spent_match = re.search(r'for \*\*\[(.+?)\]', embed_data['description'].lower()) 
+        diamond_rings_spent = int(re.sub(r'\D', '', diamond_rings_spent_match.group(1)))
+        diamond_rings = user_settings.diamond_rings - diamond_rings_spent
+        if diamond_rings < 0: diamond_rings = 0
+        await user_settings.update(diamond_rings=diamond_rings)
+        
+    return add_reaction
+
+
+async def update_status_on_buying_beta_pass(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                              user_settings: Optional[users.User]) -> bool:
+    """Update beta status when a beta pass is bought.
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings = [
+        'promoted to **league beta**!', #English
+    ]
+    if any(search_string in embed_data['title'].lower() for search_string in search_strings):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_SHOP,
+                                                user_name=embed_data['author']['name'])
+                )
+                if user_command_message is not None:
+                    user = user_command_message.author
+                else:
+                    embed_users = await functions.get_guild_member_by_name(message.guild, embed_data['author']['name'])
+                    if len(embed_users) == 1:
+                        user = embed_users[0]
+                    else:
+                        return add_reaction
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
+        await user_settings.update(league_beta=True, beta_pass_available=1)
     return add_reaction

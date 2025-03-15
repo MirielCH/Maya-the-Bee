@@ -389,10 +389,12 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
         f'{emojis.BP} **Fusion level summary**: {await functions.bool_to_text(user_settings.helper_fusion_enabled)}\n'
         f'{emojis.DETAIL} _Shows your bee levels after a fusion._\n'
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
-        f'{emojis.DETAIL} _Shows XP to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
+        f'{emojis.DETAIL} _Shows XP progress to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
         f'{emojis.BP} **Rebirth summary**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
         f'{emojis.DETAIL2} _Shows a summary of your last rebirth after rebirth._\n'
         f'{emojis.DETAIL} _**Only works with slash {strings.SLASH_COMMANDS["rebirth"]}!**_\n'
+        f'{emojis.BP} **Trophy progress popup**: {await functions.bool_to_text(user_settings.helper_trophies_enabled)}\n'
+        f'{emojis.DETAIL} _Shows your trophy progress after every raid and in `tree league`._\n'
     )
     if user_settings.helper_prune_progress_bar_color == 'random':
         color = '`Make it random!`'

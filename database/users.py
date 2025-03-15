@@ -26,7 +26,11 @@ class User():
     alert_nugget_threshold: str
     alert_rebirth_dm: bool
     alert_rebirth_enabled: bool
+    beta_pass_available: int
     bot_enabled: bool
+    diamond_rings: int
+    diamond_rings_cap: int
+    diamond_trophies: int
     dnd_mode_enabled: bool
     donor_tier: int
     helper_context_enabled: bool
@@ -34,6 +38,7 @@ class User():
     helper_prune_enabled: bool
     helper_prune_progress_bar_color: str
     helper_rebirth_enabled: bool
+    helper_trophies_enabled: bool
     last_rebirth: datetime
     league_beta: bool
     level: int
@@ -57,6 +62,7 @@ class User():
     soldier_bee_level: int
     streak_vote: int
     tracking_enabled: bool
+    trophies: int
     user_id: int
     xp: int
     xp_gain_average: float
@@ -73,7 +79,11 @@ class User():
         self.alert_nugget_threshold = new_settings.alert_nugget_threshold
         self.alert_rebirth_dm = new_settings.alert_rebirth_dm
         self.alert_rebirth_enabled = new_settings.alert_rebirth_enabled
+        self.beta_pass_available = new_settings.beta_pass_available
         self.bot_enabled = new_settings.bot_enabled
+        self.diamond_rings = new_settings.diamond_rings
+        self.diamond_rings_cap = new_settings.diamond_rings_cap
+        self.diamond_trophies = new_settings.diamond_trophies
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
         self.helper_context_enabled = new_settings.helper_context_enabled
@@ -81,6 +91,7 @@ class User():
         self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.helper_prune_progress_bar_color = new_settings.helper_prune_progress_bar_color
         self.helper_rebirth_enabled = new_settings.helper_rebirth_enabled
+        self.helper_trophies_enabled = new_settings.helper_trophies_enabled
         self.last_rebirth = new_settings.last_rebirth
         self.league_beta = new_settings.league_beta
         self.level = new_settings.level
@@ -104,6 +115,7 @@ class User():
         self.soldier_bee_level = new_settings.soldier_bee_level
         self.streak_vote = new_settings.streak_vote
         self.tracking_enabled = new_settings.tracking_enabled
+        self.trophies = new_settings.trophies
         self.xp = new_settings.xp
         self.xp_gain_average = new_settings.xp_gain_average
         self.xp_prune_count = new_settings.xp_prune_count
@@ -123,7 +135,11 @@ class User():
             alert_nugget_threshold: str
             alert_rebirth_dm: bool
             alert_rebirth_enabled: bool
+            beta_pass_available: int
             bot_enabled: bool
+            diamond_rings: int
+            diamond_rings_cap: int
+            diamond_trophies: int
             dnd_mode_enabled: bool
             donor_tier: int
             helper_context_enabled: bool
@@ -131,6 +147,7 @@ class User():
             helper_prune_enabled: bool
             helper_prune_progress_bar_color: str
             helper_rebirth_enabled: bool
+            helper_trophies_enabled: bool
             last_rebirth: datetime UTC aware
             league_beta: bool
             level: int
@@ -165,6 +182,7 @@ class User():
             soldier_bee_level: int
             streak_vote: int
             tracking_enabled: bool
+            trophies: int
             xp: int
             xp_gain_average: float
             xp_prune_count: int
@@ -200,7 +218,11 @@ async def _dict_to_user(record: dict) -> User:
             alert_nugget_threshold = record['alert_nugget_threshold'],
             alert_rebirth_dm = bool(record['alert_rebirth_dm']),
             alert_rebirth_enabled = bool(record['alert_rebirth_enabled']),
+            beta_pass_available = record['beta_pass_available'],
             bot_enabled = bool(record['bot_enabled']),
+            diamond_rings = record['diamond_rings'],
+            diamond_rings_cap = record['diamond_rings_cap'],
+            diamond_trophies = record['diamond_trophies'],
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
             donor_tier = record['donor_tier'],
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
@@ -210,6 +232,7 @@ async def _dict_to_user(record: dict) -> User:
             helper_prune_enabled = bool(record['helper_prune_enabled']),
             helper_prune_progress_bar_color = record['helper_prune_progress_bar_color'],
             helper_rebirth_enabled = bool(record['helper_rebirth_enabled']),
+            helper_trophies_enabled = bool(record['helper_trophies_enabled']),
             level = record['level'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
             queen_bee_level = record['queen_bee_level'],
@@ -242,6 +265,7 @@ async def _dict_to_user(record: dict) -> User:
             soldier_bee_level = record['soldier_bee_level'],
             streak_vote = record['streak_vote'],
             tracking_enabled = bool(record['tracking_enabled']),
+            trophies = record['trophies'],
             xp = record['xp'],
             xp_gain_average = float(record['xp_gain_average']),
             xp_prune_count = record['xp_prune_count'],
@@ -371,7 +395,11 @@ async def _update_user(user: User, **kwargs) -> None:
         alert_nugget_threshold: bool
         alert_rebirth_dm: bool
         alert_rebirth_enabled: bool
+        beta_pass_available: int
         bot_enabled: bool
+        diamond_rings: int
+        diamond_rings_cap: int
+        diamond_trophies: int
         dnd_mode_enabled: bool
         donor_tier: int
         helper_context_enabled: bool
@@ -379,6 +407,7 @@ async def _update_user(user: User, **kwargs) -> None:
         helper_prune_enabled: bool
         helper_prune_progress_bar_color: str
         helper_rebirth_enabled: bool
+        helper_trophies_enabled: bool
         last_rebirth: datetime UTC aware
         league_beta: bool
         level: int
@@ -413,6 +442,7 @@ async def _update_user(user: User, **kwargs) -> None:
         soldier_bee_level: int
         streak_vote: int
         tracking_enabled: bool
+        trophies: int
         xp: int
         xp_gain_average: float
         xp_prune_count: int

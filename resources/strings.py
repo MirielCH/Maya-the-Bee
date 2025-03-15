@@ -297,3 +297,19 @@ NUGGETS = {
     'Golden': emojis.NUGGET_GOLDEN,
     'Diamond': emojis.NUGGET_DIAMOND,
 }
+
+LEAGUES = {
+    0: ('1', emojis.LEAGUE_1),
+    1_001: ('2', emojis.LEAGUE_2),
+    2_001: ('3', emojis.LEAGUE_3),
+    4_001: ('4', emojis.LEAGUE_4),
+    6_001: ('5', emojis.LEAGUE_5),
+    10_001: ('6', emojis.LEAGUE_6),
+    14_001: ('7', emojis.LEAGUE_7),
+    22_001: ('7', emojis.LEAGUE_8),
+    30_001: ('7', emojis.LEAGUE_9),
+    40_001: ('X', emojis.LEAGUE_X),
+    52_001: ('Y', emojis.LEAGUE_Y),
+    62_001: ('Z', emojis.LEAGUE_Z),
+    74_001: ('Alpha', emojis.LEAGUE_ALPHA),
+} # Beta is missing on purpose

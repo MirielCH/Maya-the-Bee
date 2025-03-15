@@ -650,3 +650,61 @@ async def wait_for_inventory_message(bot: commands.Bot, ctx: discord.Application
                                                            timeout = settings.ABORT_TIMEOUT))
     result = await get_result_from_tasks(ctx, [message_task, message_edit_task])
     return result[1] if isinstance(result, tuple) else result
+
+
+async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
+    """Design and returns a tropy summary embed"""
+
+    embed = discord.Embed(
+        color = settings.EMBED_COLOR
+    )
+
+    trophy_amount_next_league = 0
+    
+    if user_settings.trophies >= 86_000 and user_settings.league_beta:
+        league_name = 'Beta'
+        league_emoji = emojis.LEAGUE_BETA
+    else:
+        for trophy_amount, league_data in strings.LEAGUES.items():
+            if user_settings.trophies >= trophy_amount:
+                league_name, league_emoji = league_data
+            else:
+                trophy_amount_next_league = trophy_amount
+                break
+
+    if user_settings.trophies >= 86_000 and not user_settings.league_beta and user_settings.diamond_rings >= 1_350:
+        embed.description = (
+            f'⚠️ **Beta pass not active!** Go buy one in {strings.SLASH_COMMANDS["shop"]}!'
+        )
+        
+    progress = (
+        f'{league_emoji} League: **{league_name}**\n'
+        f'{emojis.TROPHY} Trophies: **{user_settings.trophies:,}**'
+    )
+    if trophy_amount_next_league > 0:
+        progress = (
+            f'{progress} (**{trophy_amount_next_league - user_settings.trophies:,}** until next league)'
+        )
+
+    embed.add_field(name='Progress', value=progress, inline=False)
+
+    if user_settings.trophies > 74_000:
+        left_until_cap = user_settings.diamond_rings_cap - user_settings.diamond_rings - user_settings.diamond_trophies
+        if left_until_cap <= 0:
+            left_until_cap_str = 'cap reached!'
+        else:
+            left_until_cap_str = f'**{left_until_cap:,}** until cap'
+        
+        diamond = (
+            f'{emojis.DIAMOND_TROPHY} Diamond trophies: **{user_settings.diamond_trophies:,}** ({left_until_cap_str})'
+            
+        )
+        if user_settings.diamond_rings > 0:
+            diamond = (
+                f'{diamond}\n'
+                f'{emojis.DIAMOND_RING} Diamond rings in inventory: **{user_settings.diamond_rings:,}**'
+            )
+        
+        embed.add_field(name='Diamond trophies', value=diamond, inline=False)
+
+    return embed
