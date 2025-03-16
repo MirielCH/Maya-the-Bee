@@ -138,6 +138,7 @@ async def track_rebirth_and_show_summary(message: discord.Message, embed_data: D
             )
             last_rebirth_stats = (
                 f'{emojis.BP} Started on {utils.format_dt(user_settings.last_rebirth)}\n'
+                f'{emojis.BP} Time spent: {format_timespan(current_time - user_settings.last_rebirth.replace(microsecond=0))}\n'
                 f'{emojis.BP} `prune`: {report.prune_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.NUGGET_WOODEN} {report.nugget_wooden_amount:,} '
                 f'({await functions.calculate_percentage(report.nugget_wooden_amount, report.prune_amount):g}%)\n'
@@ -153,7 +154,7 @@ async def track_rebirth_and_show_summary(message: discord.Message, embed_data: D
                 f'{emojis.BP} `captcha`: {report.captcha_amount:,}\n'
             )
             embed.add_field(name = 'Progress', value = progress, inline=False)
-            embed.add_field(name = 'Last rebirth', value = last_rebirth_stats, inline=False)
+            embed.add_field(name = f'Rebirth {rebirth - 1:,} recap', value = last_rebirth_stats, inline=False)
             await message.reply(embed=embed)
             
         await user_settings.update(level=1, xp=0, xp_gain_average=0, xp_prune_count=0, xp_target=150, rebirth=rebirth,

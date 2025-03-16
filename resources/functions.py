@@ -2,12 +2,14 @@
 
 import asyncio
 from datetime import timedelta
+from math import ceil
 import re
 from typing import Any, Coroutine, List, Optional, Union
 
 import discord
 from discord.ext import commands
 from discord import utils
+from humanfriendly import format_timespan
 
 from database import cooldowns, errors, reminders, users
 from resources import emojis, exceptions, functions, regex, settings, strings, views
@@ -655,11 +657,10 @@ async def wait_for_inventory_message(bot: commands.Bot, ctx: discord.Application
 async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
     """Design and returns a tropy summary embed"""
 
-    embed = discord.Embed(
-        color = settings.EMBED_COLOR
-    )
-
+    embed = discord.Embed()
+    
     trophy_amount_next_league = 0
+    next_league = ''
     
     if user_settings.trophies >= 86_000 and user_settings.league_beta:
         league_name = 'Beta'
@@ -669,42 +670,63 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
             if user_settings.trophies >= trophy_amount:
                 league_name, league_emoji = league_data
             else:
+                next_league, _ = league_data
+                if next_league == 'Beta' and user_settings.beta_pass_available == 0 and user_settings.diamond_rings < 1_350:
+                    break
                 trophy_amount_next_league = trophy_amount
                 break
+    
+    embed.title = f'{league_emoji} League {league_name} • {emojis.TROPHY} {user_settings.trophies:,}'
+    embed_description = ''
 
-    if user_settings.trophies >= 86_000 and not user_settings.league_beta and user_settings.diamond_rings >= 1_350:
-        embed.description = (
-            f'⚠️ **Beta pass not active!** Go buy one in {strings.SLASH_COMMANDS["shop"]}!'
-        )
-        
-    progress = (
-        f'{league_emoji} League: **{league_name}**\n'
-        f'{emojis.TROPHY} Trophies: **{user_settings.trophies:,}**'
-    )
     if trophy_amount_next_league > 0:
-        progress = (
-            f'{progress} (**{trophy_amount_next_league - user_settings.trophies:,}** until next league)'
+        trophies_left = trophy_amount_next_league - user_settings.trophies
+        embed_description = (
+            f'**{trophy_amount_next_league - user_settings.trophies:,}** {emojis.TROPHY} until League {next_league}'
         )
-
-    embed.add_field(name='Progress', value=progress, inline=False)
+        if user_settings.trophies_gain_average > 0:
+            raids_until_next_league = ceil(trophies_left / user_settings.trophies_gain_average)
+            embed_description = (
+                f'{embed_description}\n'
+                f'➜ **{raids_until_next_league:,}** raids at **{round(user_settings.trophies_gain_average):,}** {emojis.TROPHY} average'
+            )
 
     if user_settings.trophies > 74_000:
-        left_until_cap = user_settings.diamond_rings_cap - user_settings.diamond_rings - user_settings.diamond_trophies
-        if left_until_cap <= 0:
-            left_until_cap_str = 'cap reached!'
+        embed.title = f'{embed.title} • {emojis.DIAMOND_TROPHY} {user_settings.diamond_trophies:,}'
+        diamond_trophies_left = user_settings.diamond_rings_cap - user_settings.diamond_rings - user_settings.diamond_trophies
+        if diamond_trophies_left <= 0:
+            left_until_cap_str = 'Diamond ring cap reached.'
         else:
-            left_until_cap_str = f'**{left_until_cap:,}** until cap'
-        
-        diamond = (
-            f'{emojis.DIAMOND_TROPHY} Diamond trophies: **{user_settings.diamond_trophies:,}** ({left_until_cap_str})'
-            
+            left_until_cap_str = f'**{diamond_trophies_left:,}** {emojis.DIAMOND_TROPHY} until ring cap'
+        embed_description = (
+            f'{embed_description}\n\n'
+            f'{left_until_cap_str} (**{user_settings.diamond_rings:,}** {emojis.DIAMOND_RING} in inventory)'
         )
-        if user_settings.diamond_rings > 0:
-            diamond = (
-                f'{diamond}\n'
-                f'{emojis.DIAMOND_RING} Diamond rings in inventory: **{user_settings.diamond_rings:,}**'
+        if user_settings.diamond_trophies_gain_average > 0:
+            raids_until_ring_cap = ceil(diamond_trophies_left / user_settings.diamond_trophies_gain_average)
+            embed_description = (
+                f'{embed_description}\n'
+                f'➜ **{raids_until_ring_cap:,}** raids at **{round(user_settings.diamond_trophies_gain_average):,}** '
+                f'{emojis.DIAMOND_TROPHY} average'
             )
-        
-        embed.add_field(name='Diamond trophies', value=diamond, inline=False)
+        if user_settings.trophies >= 86_000 and not user_settings.league_beta and user_settings.diamond_rings >= 1_350:
+            embed_description = (
+                f'{embed_description}\n\n'
+                f'⚠️ **Beta pass not active!** Go buy one in {strings.SLASH_COMMANDS["shop"]}!'
+            )
 
+    if embed_description:
+        embed.description = embed_description.strip()    
+
+    current_time = utils.utcnow().replace(microsecond=0)
+    reset_day = 28 if 14 <= current_time.day < 28 else 14
+    reset_month = current_time.month + 1 if reset_day == 14 and current_time.day >= 28 else current_time.month
+    if reset_month > 12:
+        reset_month = 1
+        reset_year = current_time.year + 1
+    else:
+        reset_year = current_time.year
+    reset_date = utils.utcnow().replace(year=reset_year, month=reset_month, day=reset_day, hour=5, minute=0, microsecond=0)
+    embed.set_footer(text=f'Next reset in {format_timespan(reset_date - current_time)}')
+            
     return embed

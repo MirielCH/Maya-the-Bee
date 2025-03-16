@@ -31,6 +31,8 @@ class User():
     diamond_rings: int
     diamond_rings_cap: int
     diamond_trophies: int
+    diamond_trophies_gain_average: float
+    diamond_trophies_raid_count: int
     dnd_mode_enabled: bool
     donor_tier: int
     helper_context_enabled: bool
@@ -63,6 +65,8 @@ class User():
     streak_vote: int
     tracking_enabled: bool
     trophies: int
+    trophies_gain_average: float
+    trophies_raid_count: int
     user_id: int
     xp: int
     xp_gain_average: float
@@ -84,6 +88,8 @@ class User():
         self.diamond_rings = new_settings.diamond_rings
         self.diamond_rings_cap = new_settings.diamond_rings_cap
         self.diamond_trophies = new_settings.diamond_trophies
+        self.diamond_trophies_gain_average = new_settings.diamond_trophies_gain_average
+        self.diamond_trophies_raid_count = new_settings.diamond_trophies_raid_count
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
         self.helper_context_enabled = new_settings.helper_context_enabled
@@ -116,6 +122,8 @@ class User():
         self.streak_vote = new_settings.streak_vote
         self.tracking_enabled = new_settings.tracking_enabled
         self.trophies = new_settings.trophies
+        self.trophies_gain_average = new_settings.trophies_gain_average
+        self.trophies_raid_count = new_settings.trophies_raid_count
         self.xp = new_settings.xp
         self.xp_gain_average = new_settings.xp_gain_average
         self.xp_prune_count = new_settings.xp_prune_count
@@ -140,6 +148,8 @@ class User():
             diamond_rings: int
             diamond_rings_cap: int
             diamond_trophies: int
+            diamond_trophies_gain_average: float
+            diamond_trophies_raid_count: int
             dnd_mode_enabled: bool
             donor_tier: int
             helper_context_enabled: bool
@@ -183,6 +193,8 @@ class User():
             streak_vote: int
             tracking_enabled: bool
             trophies: int
+            trophies_gain_average: float
+            trophies_raid_count: int
             xp: int
             xp_gain_average: float
             xp_prune_count: int
@@ -223,6 +235,8 @@ async def _dict_to_user(record: dict) -> User:
             diamond_rings = record['diamond_rings'],
             diamond_rings_cap = record['diamond_rings_cap'],
             diamond_trophies = record['diamond_trophies'],
+            diamond_trophies_gain_average = float(record['diamond_trophies_gain_average']),
+            diamond_trophies_raid_count = record['diamond_trophies_raid_count'],
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
             donor_tier = record['donor_tier'],
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
@@ -266,6 +280,8 @@ async def _dict_to_user(record: dict) -> User:
             streak_vote = record['streak_vote'],
             tracking_enabled = bool(record['tracking_enabled']),
             trophies = record['trophies'],
+            trophies_gain_average = float(record['trophies_gain_average']),
+            trophies_raid_count = record['trophies_raid_count'],
             xp = record['xp'],
             xp_gain_average = float(record['xp_gain_average']),
             xp_prune_count = record['xp_prune_count'],
@@ -400,6 +416,8 @@ async def _update_user(user: User, **kwargs) -> None:
         diamond_rings: int
         diamond_rings_cap: int
         diamond_trophies: int
+        diamond_trophies_gain_average: float
+        diamond_trophies_raid_count: int
         dnd_mode_enabled: bool
         donor_tier: int
         helper_context_enabled: bool
@@ -443,6 +461,8 @@ async def _update_user(user: User, **kwargs) -> None:
         streak_vote: int
         tracking_enabled: bool
         trophies: int
+        trophies_gain_average: float
+        trophies_raid_count: int
         xp: int
         xp_gain_average: float
         xp_prune_count: int

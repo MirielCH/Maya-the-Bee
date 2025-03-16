@@ -312,4 +312,5 @@ LEAGUES = {
     52_001: ('Y', emojis.LEAGUE_Y),
     62_001: ('Z', emojis.LEAGUE_Z),
     74_001: ('Alpha', emojis.LEAGUE_ALPHA),
-} # Beta is missing on purpose
+    86_000: ('Beta', emojis.LEAGUE_BETA),
+}

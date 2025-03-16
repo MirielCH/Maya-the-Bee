@@ -1,15 +1,13 @@
 # league.py
 
-import asyncio
 import re
 from typing import Dict, Optional
 
 import discord
 
 from cache import messages
-from content import rebirth
 from database import users
-from resources import exceptions, functions, regex
+from resources import exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -81,8 +79,35 @@ async def update_progress_and_call_helper(message: discord.Message, embed_data: 
         beta_pass_match = re.search(r'beta passes available: \*\*(.+?)\*\*\/', embed_data['field1']['value'], re.IGNORECASE)
         beta_pass_available = int(re.sub(r'\D', '', beta_pass_match.group(1)))
 
-        await user_settings.update(trophies=trophies, diamond_rings=diamond_rings, diamond_rings_cap=diamond_rings_cap,
-                                   rebirth=rebirth, beta_pass_available=beta_pass_available, league_beta=league_beta)
+        kwargs = {}
+        kwargs['trophies'] = trophies
+        kwargs['diamond_rings'] = diamond_rings
+        kwargs['diamond_rings_cap'] = diamond_rings_cap
+        kwargs['rebirth'] = rebirth
+        kwargs['beta_pass_available'] = beta_pass_available
+        kwargs['league_beta'] = league_beta
+
+        current_league = ''
+        for trophy_amount, league_data in strings.LEAGUES.items():
+            if user_settings.trophies >= trophy_amount:
+                current_league, _ = league_data
+            else:
+                break 
+
+        new_league = ''
+        for trophy_amount, league_data in strings.LEAGUES.items():
+            if trophies >= trophy_amount:
+                new_league, _ = league_data
+            else:
+                break
+
+        if current_league != new_league:
+            kwargs['trophies_gain_average'] = 0
+            kwargs['trophies_raid_count'] = 0
+            kwargs['diamond_trophies_gain_average'] = 0
+            kwargs['diamond_trophies_raid_count'] = 0
+
+        await user_settings.update(**kwargs)
 
         if user_settings.helper_trophies_enabled:
             embed = await functions.design_trophy_summary(user_settings)

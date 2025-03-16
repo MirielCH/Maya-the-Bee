@@ -122,14 +122,52 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
         if not user_settings.bot_enabled: return add_reaction
 
         kwargs = {}
-        diamond_trophies_gained = 0
+        diamond_trophies_gained = diamond_trophies_gain_average = 0
         trophies_gained_match = re.search(r'\[trophies:\].+\*\*([\d-]+)\*\*\n', embed_data['field0']['value'],
                                         re.IGNORECASE)
         trophies_gained = int(trophies_gained_match.group(1).replace(',',''))
+
+        current_league = ''
+        for trophy_amount, league_data in strings.LEAGUES.items():
+            if user_settings.trophies >= trophy_amount:
+                current_league, _ = league_data
+            else:
+                break
+
+        new_league = ''
+        for trophy_amount, league_data in strings.LEAGUES.items():
+            if user_settings.trophies + trophies_gained >= trophy_amount:
+                new_league, _ = league_data
+            else:
+                break
+
+        if current_league != new_league:
+            await user_settings.update(trophies_gain_average=0, trophies_raid_count=0, diamond_trophies_gain_average=0,
+                                       diamond_trophies_raid_count=0)
+        
+        if user_settings.trophies_gain_average > 0:
+            trophies_gain_average = (
+                (user_settings.trophies_raid_count * user_settings.trophies_gain_average + trophies_gained)
+                / (user_settings.trophies_raid_count + 1)
+            )
+        else:
+            trophies_gain_average = trophies_gained
+        kwargs['trophies_gain_average'] = round(trophies_gain_average, 5)
+        kwargs['trophies_raid_count'] = user_settings.trophies_raid_count + 1
+        
         diamond_trophies_gained_match = re.search(r'\[diamond trophies:\].+\*\*([\d-]+)\*\*\n', embed_data['field0']['value'],
                                                re.IGNORECASE)
         if diamond_trophies_gained_match:
             diamond_trophies_gained = int(diamond_trophies_gained_match.group(1).replace(',',''))
+            if user_settings.diamond_trophies_gain_average > 0:
+                diamond_trophies_gain_average = (
+                    (user_settings.diamond_trophies_raid_count * user_settings.diamond_trophies_gain_average + diamond_trophies_gained)
+                    / (user_settings.diamond_trophies_raid_count + 1)
+                )
+            else:
+                diamond_trophies_gain_average = diamond_trophies_gained
+            kwargs['diamond_trophies_gain_average'] = round(diamond_trophies_gain_average, 5)
+            kwargs['diamond_trophies_raid_count'] = user_settings.diamond_trophies_raid_count + 1
 
         trophies = user_settings.trophies + trophies_gained
         diamond_trophies = user_settings.diamond_trophies + diamond_trophies_gained
@@ -148,9 +186,9 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
         if user_settings.helper_trophies_enabled:
             embed = await functions.design_trophy_summary(user_settings)
         if user_settings.helper_context_enabled:
-            answer = f"➜ {strings.SLASH_COMMANDS['raid']}"
+            message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
             if 'chest' in embed_data['field0']['value'].lower():
-                answer = f"➜ {strings.SLASH_COMMANDS['chests']}\n{answer}"
+                message_content = f"➜ {strings.SLASH_COMMANDS['chests']}\n{message_content}"
         if message_content or embed:
             await message.reply(content=message_content, embed=embed)
     return add_reaction
@@ -226,8 +264,31 @@ async def update_trophies_on_raid_start(message: discord.Message, embed_data: Di
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
 
+        kwargs = {}
         trophies_match = re.search(r'trophies: (.+?)$', embed_data['title'], re.IGNORECASE)
-        trophies = int(re.sub(r'\D', '', trophies_match.group(1)))            
-        await user_settings.update(trophies=trophies)
+        trophies = int(re.sub(r'\D', '', trophies_match.group(1)))
+        kwargs['trophies'] = trophies
+        
+        current_league = ''
+        for trophy_amount, league_data in strings.LEAGUES.items():
+            if user_settings.trophies >= trophy_amount:
+                current_league, _ = league_data
+            else:
+                break
+
+        new_league = ''
+        for trophy_amount, league_data in strings.LEAGUES.items():
+            if trophies >= trophy_amount:
+                new_league, _ = league_data
+            else:
+                break
+
+        if current_league != new_league:
+            kwargs['trophies_gain_average'] = 0
+            kwargs['trophies_raid_count'] = 0
+            kwargs['diamond_trophies_gain_average'] = 0
+            kwargs['diamond_trophies_raid_count'] = 0
+            
+        await user_settings.update(**kwargs)
         
     return add_reaction

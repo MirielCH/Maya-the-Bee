@@ -187,7 +187,9 @@ class TasksCog(commands.Cog):
             for user_settings in all_users:
                 diamond_rings = user_settings.diamond_rings + user_settings.diamond_trophies
                 if diamond_rings > user_settings.diamond_rings_cap: diamond_rings = user_settings.diamond_rings_cap
-                await user_settings.update(trophies=0, diamond_trophies=0, diamond_rings=diamond_rings, league_beta=False)
+                await user_settings.update(trophies=0, diamond_trophies=0, diamond_rings=diamond_rings, league_beta=False,
+                                           trophies_gain_average=0, trophies_raid_count=0, diamond_trophies_gain_average=0,
+                                           diamond_trophies_raid_count=0)
             time_passed = utils.utcnow().replace(microsecond=0) - start_time
             logs.logger.info(f'Reset trophies for all users in {format_timespan(time_passed)}.')
 
