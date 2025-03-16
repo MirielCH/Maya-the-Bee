@@ -40,7 +40,9 @@ class User():
     helper_prune_enabled: bool
     helper_prune_progress_bar_color: str
     helper_rebirth_enabled: bool
+    helper_trophies_diamond_progress_bar_color: str
     helper_trophies_enabled: bool
+    helper_trophies_trophy_progress_bar_color: str
     last_rebirth: datetime
     league_beta: bool
     level: int
@@ -97,7 +99,9 @@ class User():
         self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.helper_prune_progress_bar_color = new_settings.helper_prune_progress_bar_color
         self.helper_rebirth_enabled = new_settings.helper_rebirth_enabled
+        self.helper_trophies_diamond_progress_bar_color = new_settings.helper_trophies_diamond_progress_bar_color
         self.helper_trophies_enabled = new_settings.helper_trophies_enabled
+        self.helper_trophies_trophy_progress_bar_color = new_settings.helper_trophies_trophy_progress_bar_color
         self.last_rebirth = new_settings.last_rebirth
         self.league_beta = new_settings.league_beta
         self.level = new_settings.level
@@ -157,7 +161,9 @@ class User():
             helper_prune_enabled: bool
             helper_prune_progress_bar_color: str
             helper_rebirth_enabled: bool
+            helper_trophies_diamond_progress_bar_color: str
             helper_trophies_enabled: bool
+            helper_trophies_trophy_progress_bar_color: str
             last_rebirth: datetime UTC aware
             league_beta: bool
             level: int
@@ -246,7 +252,9 @@ async def _dict_to_user(record: dict) -> User:
             helper_prune_enabled = bool(record['helper_prune_enabled']),
             helper_prune_progress_bar_color = record['helper_prune_progress_bar_color'],
             helper_rebirth_enabled = bool(record['helper_rebirth_enabled']),
+            helper_trophies_diamond_progress_bar_color = record['helper_trophies_diamond_progress_bar_color'],
             helper_trophies_enabled = bool(record['helper_trophies_enabled']),
+            helper_trophies_trophy_progress_bar_color = record['helper_trophies_trophy_progress_bar_color'],
             level = record['level'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
             queen_bee_level = record['queen_bee_level'],
@@ -425,7 +433,9 @@ async def _update_user(user: User, **kwargs) -> None:
         helper_prune_enabled: bool
         helper_prune_progress_bar_color: str
         helper_rebirth_enabled: bool
+        helper_trophies_diamond_progress_bar_color: str
         helper_trophies_enabled: bool
+        helper_trophies_trophy_progress_bar_color: str
         last_rebirth: datetime UTC aware
         league_beta: bool
         level: int

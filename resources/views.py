@@ -246,7 +246,18 @@ class SettingsHelpersView(discord.ui.View):
             'Trophy progress popup': 'helper_trophies_enabled',
         }
         self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
-        self.add_item(components.SetProgressBarColorSelect(self))
+        self.add_item(
+            components.SetProgressBarColorSelect(self, 'helper_prune_progress_bar_color',
+                                                      'Change XP progress bar color')
+        )
+        self.add_item(
+            components.SetProgressBarColorSelect(self, 'helper_trophies_trophy_progress_bar_color',
+                                                      'Change trophy progress bar color')
+        )
+        self.add_item(
+            components.SetProgressBarColorSelect(self, 'helper_trophies_diamond_progress_bar_color',
+                                                      'Change diamond trophy progress bar color')
+        )
         self.add_item(components.SwitchSettingsSelect(self, commands_settings))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:

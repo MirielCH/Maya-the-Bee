@@ -356,11 +356,6 @@ async def embed_settings_alerts(bot: discord.Bot, ctx: discord.ApplicationContex
         f'{emojis.BP} **Rebirth alert**: {await functions.bool_to_text(user_settings.alert_rebirth_enabled)}\n'
         f'{emojis.DETAIL} _Notifies you when you reach your rebirth level._\n'
     )
-    if user_settings.helper_prune_progress_bar_color == 'random':
-        color = '`Make it random!`'
-    else:
-        progress_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_prune_progress_bar_color.upper()}', '')
-        color = f'{progress_color_emoji} `{user_settings.helper_prune_progress_bar_color.capitalize()}`'
     alert_captcha_mode = 'Direct Message' if user_settings.alert_captcha_dm else 'Ping'
     alert_nugget_mode = 'Direct Message' if user_settings.alert_nugget_dm else 'Ping'
     alert_rebirth_mode = 'Direct Message' if user_settings.alert_rebirth_dm else 'Ping'
@@ -397,12 +392,25 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
         f'{emojis.DETAIL} _Shows your trophy progress after every raid and in `tree league`._\n'
     )
     if user_settings.helper_prune_progress_bar_color == 'random':
-        color = '`Make it random!`'
+        progress_bar_prune_color = '`Make it random!`'
     else:
-        progress_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_prune_progress_bar_color.upper()}', '')
-        color = f'{progress_color_emoji} `{user_settings.helper_prune_progress_bar_color.capitalize()}`'
+        progress_bar_prune_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_prune_progress_bar_color.upper()}', '')
+        progress_bar_prune_color = f'{progress_bar_prune_color_emoji} `{user_settings.helper_prune_progress_bar_color.capitalize()}`'
+    if user_settings.helper_trophies_trophy_progress_bar_color == 'random':
+        progress_bar_trophy_color = '`Make it random!`'
+    else:
+        progress_bar_trophy_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_trophies_trophy_progress_bar_color.upper()}', '')
+        progress_bar_trophy_color = f'{progress_bar_trophy_color_emoji} `{user_settings.helper_trophies_trophy_progress_bar_color.capitalize()}`'
+    if user_settings.helper_trophies_diamond_progress_bar_color == 'random':
+        progress_bar_diamond_color = '`Make it random!`'
+    else:
+        progress_bar_diamond_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_trophies_diamond_progress_bar_color.upper()}', '')
+        progress_bar_diamond_color = f'{progress_bar_diamond_color_emoji} `{user_settings.helper_trophies_diamond_progress_bar_color.capitalize()}`'
     helper_settings = (
-        f'{emojis.BP} **Level XP progress bar color**: {color}\n'
+        f'{emojis.BP} **Level XP progress bar color**: {progress_bar_prune_color}\n'
+        f'{emojis.BP} **Trophy progress bar colors**:\n'
+        f'{emojis.DETAIL2} Trophy bar: {progress_bar_trophy_color}\n'
+        f'{emojis.DETAIL} Diamond trophy bar: {progress_bar_diamond_color}\n'
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,

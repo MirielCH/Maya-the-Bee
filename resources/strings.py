@@ -266,12 +266,14 @@ SLASH_COMMANDS = {
 PROGRESS_BAR_COLORS = [
     'Aqua',
     'Blue',
+    'Diamond',
     'Green',
     'Grey',
     'Maya',
     'Purple',
     'Red',
-    'Rose'
+    'Rose',
+    'Yellow',
 ]
 
 SKIN_DEFAULT = 'skin_default'

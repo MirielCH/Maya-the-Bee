@@ -477,22 +477,24 @@ class ManageEventReductionsSelect(discord.ui.Select):
 
 class SetProgressBarColorSelect(discord.ui.Select):
     """Select to change the prune XP progress bar color"""
-    def __init__(self, view: discord.ui.View, row: Optional[int] = None):
+    def __init__(self, view: discord.ui.View, setting: str, placeholder: str, row: Optional[int] = None):
         options = []
+        self.setting = setting
         for color in strings.PROGRESS_BAR_COLORS:
-            options.append(discord.SelectOption(label=color, value=color.lower()))
+            options.append(discord.SelectOption(label=color, value=color.lower(),
+                                                emoji=getattr(emojis, f'PROGRESS_100_{color.upper()}', None)))
         options.append(discord.SelectOption(label='Make it random!', value='random'))
-        super().__init__(placeholder='Change XP progress bar color', min_values=1, max_values=1, options=options, row=row,
-                         custom_id='set_progress_color')
+        super().__init__(placeholder=placeholder, min_values=1, max_values=1, options=options, row=row,
+                         custom_id=placeholder)
 
     async def callback(self, interaction: discord.Interaction):
         select_value = self.values[0]
-        await self.view.user_settings.update(helper_prune_progress_bar_color=select_value)
+        await self.view.user_settings.update(**{self.setting: select_value})
         for child in self.view.children.copy():
             if isinstance(child, SetProgressBarColorSelect):
+                if child.custom_id != self.custom_id: continue
                 self.view.remove_item(child)
-                self.view.add_item(SetProgressBarColorSelect(self.view))
-                break
+                self.view.add_item(SetProgressBarColorSelect(self.view, self.setting, self.placeholder))
         embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
         if interaction.response.is_done():
             await interaction.message.edit(embed=embed, view=self.view)

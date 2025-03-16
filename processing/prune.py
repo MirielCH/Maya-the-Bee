@@ -167,34 +167,8 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                                            xp_prune_count=(user_settings.xp_prune_count + 1))
             if user_settings.helper_prune_enabled:
                 xp_percentage = user_settings.xp / user_settings.xp_target * 100
-                progress = 6 / 100 * xp_percentage
-                progress_fractional = progress % 1
-                progress_emojis_full = floor(progress)
-                progress_emojis_empty = 6 - progress_emojis_full - 1
-                if user_settings.helper_prune_progress_bar_color == 'random':
-                    color25 = color50 = color75 = color100 = random.choice(strings.PROGRESS_BAR_COLORS)
-                else:
-                    color25 = color50 = color75 = color100 = user_settings.helper_prune_progress_bar_color
-                progress_25_emoji = getattr(emojis,f'PROGRESS_25_{color25.upper()}', emojis.PROGRESS_25_GREEN)
-                progress_50_emoji = getattr(emojis, f'PROGRESS_50_{color50.upper()}', emojis.PROGRESS_50_GREEN)
-                progress_75_emoji = getattr(emojis, f'PROGRESS_75_{color75.upper()}', emojis.PROGRESS_75_GREEN)
-                progress_100_emoji = getattr(emojis, f'PROGRESS_100_{color100.upper()}', emojis.PROGRESS_100_GREEN)
-                if 0 <= progress_fractional < 0.25:
-                    progress_emoji_fractional = emojis.PROGRESS_0
-                elif 0.25 <= progress_fractional < 0.5:
-                    progress_emoji_fractional = progress_25_emoji
-                elif 0.5 <= progress_fractional < 0.75:
-                    progress_emoji_fractional = progress_50_emoji
-                elif 0.75 <= progress_fractional < 1:
-                    progress_emoji_fractional = progress_75_emoji
-                else:
-                    progress_emoji_fractional = progress_100_emoji
-                progress_bar = ''
-                for x in range(progress_emojis_full):
-                    progress_bar = f'{progress_bar}{progress_100_emoji}'
-                progress_bar = f'{progress_bar}{progress_emoji_fractional}'
-                for x in range(progress_emojis_empty):
-                    progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
+                progress_bar = await functions.get_progress_bar(xp_percentage, 
+                                                                user_settings.helper_prune_progress_bar_color)
                 xp_left = user_settings.xp_target - user_settings.xp
                 xp_gain_average = floor(user_settings.xp_gain_average) if user_settings.xp_gain_average > 0 else xp_gain
                 try:

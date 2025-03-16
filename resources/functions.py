@@ -2,7 +2,8 @@
 
 import asyncio
 from datetime import timedelta
-from math import ceil
+from math import ceil, floor
+import random
 import re
 from typing import Any, Coroutine, List, Optional, Union
 
@@ -659,8 +660,8 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
 
     embed = discord.Embed()
     
-    trophy_amount_next_league = 0
-    next_league = ''
+    trophy_amount_next_league = last_league_amount = 0
+    next_league = next_league_emoji = ''
     
     if user_settings.trophies >= 86_000 and user_settings.league_beta:
         league_name = 'Beta'
@@ -670,7 +671,12 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
             if user_settings.trophies >= trophy_amount:
                 league_name, league_emoji = league_data
             else:
-                next_league, _ = league_data
+                next_league, next_league_emoji = league_data
+                league_index = list(strings.LEAGUES.keys()).index(trophy_amount)
+                if league_index > 0:
+                    last_league_amount = list(strings.LEAGUES.keys())[league_index - 1]
+                else:
+                    last_league_amount = 0
                 if next_league == 'Beta' and user_settings.beta_pass_available == 0 and user_settings.diamond_rings < 1_350:
                     break
                 trophy_amount_next_league = trophy_amount
@@ -681,7 +687,11 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
 
     if trophy_amount_next_league > 0:
         trophies_left = trophy_amount_next_league - user_settings.trophies
+        trophies_percentage = (trophy_amount_next_league - last_league_amount - trophies_left) / (trophy_amount_next_league - last_league_amount)* 100
+        trophies_progress_bar = await get_progress_bar(trophies_percentage, 
+                                                       user_settings.helper_trophies_trophy_progress_bar_color)
         embed_description = (
+            f'{trophies_progress_bar}\n'
             f'**{trophy_amount_next_league - user_settings.trophies:,}** {emojis.TROPHY} until League {next_league}'
         )
         if user_settings.trophies_gain_average > 0:
@@ -694,12 +704,16 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
     if user_settings.trophies > 74_000:
         embed.title = f'{embed.title} • {emojis.DIAMOND_TROPHY} {user_settings.diamond_trophies:,}'
         diamond_trophies_left = user_settings.diamond_rings_cap - user_settings.diamond_rings - user_settings.diamond_trophies
+        diamond_trophies_percentage = (user_settings.diamond_trophies + user_settings.diamond_rings) / user_settings.diamond_rings_cap * 100
+        diamond_trophies_progress_bar = await get_progress_bar(diamond_trophies_percentage,
+                                                               user_settings.helper_trophies_diamond_progress_bar_color)
         if diamond_trophies_left <= 0:
             left_until_cap_str = 'Diamond ring cap reached.'
         else:
             left_until_cap_str = f'**{diamond_trophies_left:,}** {emojis.DIAMOND_TROPHY} until ring cap'
         embed_description = (
             f'{embed_description}\n\n'
+            f'{diamond_trophies_progress_bar}\n'
             f'{left_until_cap_str} (**{user_settings.diamond_rings:,}** {emojis.DIAMOND_RING} in inventory)'
         )
         if user_settings.diamond_trophies_gain_average > 0:
@@ -730,3 +744,36 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
     embed.set_footer(text=f'Next reset in {format_timespan(reset_date - current_time)}')
             
     return embed
+
+
+async def get_progress_bar(percentage: float, color: str) -> str:
+    """Returns a progress bar"""
+    if color == 'random':
+        color = random.choice(strings.PROGRESS_BAR_COLORS)
+    if percentage > 100: percentage = 100
+    progress = 6 / 100 * percentage
+    progress_fractional = progress % 1
+    progress_emojis_full = floor(progress)
+    progress_emojis_empty = 6 - progress_emojis_full - 1
+    progress_25_emoji = getattr(emojis,f'PROGRESS_25_{color.upper()}', emojis.PROGRESS_25_GREEN)
+    progress_50_emoji = getattr(emojis, f'PROGRESS_50_{color.upper()}', emojis.PROGRESS_50_GREEN)
+    progress_75_emoji = getattr(emojis, f'PROGRESS_75_{color.upper()}', emojis.PROGRESS_75_GREEN)
+    progress_100_emoji = getattr(emojis, f'PROGRESS_100_{color.upper()}', emojis.PROGRESS_100_GREEN)
+    if 0 <= progress_fractional < 0.25:
+        progress_emoji_fractional = emojis.PROGRESS_0
+    elif 0.25 <= progress_fractional < 0.5:
+        progress_emoji_fractional = progress_25_emoji
+    elif 0.5 <= progress_fractional < 0.75:
+        progress_emoji_fractional = progress_50_emoji
+    elif 0.75 <= progress_fractional < 1:
+        progress_emoji_fractional = progress_75_emoji
+    else:
+        progress_emoji_fractional = progress_100_emoji
+    progress_bar = ''
+    for x in range(progress_emojis_full):
+        progress_bar = f'{progress_bar}{progress_100_emoji}'
+    progress_bar = f'{progress_bar}{progress_emoji_fractional}'
+    for x in range(progress_emojis_empty):
+        progress_bar = f'{progress_bar}{emojis.PROGRESS_0}'
+
+    return progress_bar
