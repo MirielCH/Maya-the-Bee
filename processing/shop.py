@@ -9,7 +9,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, users
-from resources import exceptions, functions, regex, strings
+from resources import emojis, exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -137,6 +137,21 @@ async def reduce_diamond_rings_on_seasonal_purchase(message: discord.Message, em
         diamond_rings = user_settings.diamond_rings - diamond_rings_spent
         if diamond_rings < 0: diamond_rings = 0
         await user_settings.update(diamond_rings=diamond_rings)
+
+        if user_settings.helper_context_enabled:
+            message_content = (
+                f"You now have **{user_settings.diamond_rings:,}** {emojis.DIAMOND_RING} diamond rings."
+            )
+            if not user_settings.league_beta and user_settings.beta_pass_available == 0:
+                message_content = (
+                    f'{message_content}\n'
+                    f'⚠️ Make sure you keep at least **1,350** {emojis.DIAMOND_RING} to be able to reach League Beta!'
+                )
+            message_content = (
+                f"{message_content}\n\n"
+                f"➜ {strings.SLASH_COMMANDS['shop']}"
+            )            
+            await message.reply(content=message_content)
         
     return add_reaction
 

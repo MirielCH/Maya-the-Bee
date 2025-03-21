@@ -87,7 +87,12 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     apples = inventory_data['apple']
     honey = inventory_data['honey']
     honey_pots = inventory_data['honey_pot']
-    sweet_apples_crafted = min((honey + (honey_pots * 10)) // 30, apples // 10)
+    sweet_apples_crafted_without_crafting = min(honey // 10, honey_pots // 2)
+    honey_left_after_sweet_apples_craft = honey - (sweet_apples_crafted_without_crafting * 10)
+    if honey_left_after_sweet_apples_craft < 0: honey_left_after_sweet_apples_craft = 0
+    honey_pots_left_after_sweet_apples_craft = honey_pots - (sweet_apples_crafted_without_crafting * 2)
+    if honey_pots_left_after_sweet_apples_craft < 0: honey_pots_left_after_sweet_apples_craft = 0
+    sweet_apples_crafted = min((sweet_apples_crafted_without_crafting + (honey_left_after_sweet_apples_craft // 30)), apples // 10)
     apples = apples - (sweet_apples_crafted * 10)
     honey_pots_crafted = sweet_apples_crafted * 2 - honey_pots
     if honey_pots_crafted < 0: honey_pots_crafted = 0

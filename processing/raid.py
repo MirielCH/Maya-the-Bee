@@ -7,7 +7,7 @@ import discord
 
 from cache import messages
 from database import users
-from resources import exceptions, functions, regex, strings
+from resources import exceptions, functions, logs, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -142,32 +142,33 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
                 break
 
         if current_league != new_league:
-            await user_settings.update(trophies_gain_average=0, trophies_raid_count=0, diamond_trophies_gain_average=0,
-                                       diamond_trophies_raid_count=0)
-        
-        if user_settings.trophies_gain_average > 0:
+            await user_settings.update(trophies_raid_count=0, diamond_trophies_raid_count=0)
+
+        trophies_gain_average = user_settings.trophies_gain_average
+        if user_settings.trophies_raid_count > 1:
             trophies_gain_average = (
                 (user_settings.trophies_raid_count * user_settings.trophies_gain_average + trophies_gained)
                 / (user_settings.trophies_raid_count + 1)
             )
-        else:
+        elif user_settings.trophies_raid_count == 1:
             trophies_gain_average = trophies_gained
-        kwargs['trophies_gain_average'] = round(trophies_gain_average, 5)
         kwargs['trophies_raid_count'] = user_settings.trophies_raid_count + 1
+        kwargs['trophies_gain_average'] = round(trophies_gain_average, 5)
         
         diamond_trophies_gained_match = re.search(r'\[diamond trophies:\].+\*\*([\d-]+)\*\*\n', embed_data['field0']['value'],
                                                re.IGNORECASE)
         if diamond_trophies_gained_match:
             diamond_trophies_gained = int(diamond_trophies_gained_match.group(1).replace(',',''))
-            if user_settings.diamond_trophies_gain_average > 0:
+            diamond_trophies_gain_average = user_settings.diamond_trophies_gain_average
+            if user_settings.diamond_trophies_raid_count > 1:
                 diamond_trophies_gain_average = (
                     (user_settings.diamond_trophies_raid_count * user_settings.diamond_trophies_gain_average + diamond_trophies_gained)
                     / (user_settings.diamond_trophies_raid_count + 1)
                 )
-            else:
+            elif user_settings.diamond_trophies_raid_count == 1:
                 diamond_trophies_gain_average = diamond_trophies_gained
-            kwargs['diamond_trophies_gain_average'] = round(diamond_trophies_gain_average, 5)
             kwargs['diamond_trophies_raid_count'] = user_settings.diamond_trophies_raid_count + 1
+            kwargs['diamond_trophies_gain_average'] = round(diamond_trophies_gain_average, 5)
 
         trophies = user_settings.trophies + trophies_gained
         diamond_trophies = user_settings.diamond_trophies + diamond_trophies_gained
@@ -246,17 +247,13 @@ async def update_trophies_on_raid_start(message: discord.Message, embed_data: Di
     ]
     if any(search_string in embed_data['footer']['text'].lower() for search_string in search_strings):
         if user is None:
-            if embed_data['embed_user'] is not None:
-                user = embed_data['embed_user']
-                user_settings = embed_data['embed_user_settings']
-            else:
-                user_name_match = re.search(r'^(.+?),', embed_data['footer']['text'])
-                user_name = user_name_match.group(1)
-                user_command_message = (
-                    await messages.find_message(message.channel.id, regex.COMMAND_RAID, user_name=user_name)
-                )
-                if user_command_message is None: return add_reaction
-                user = user_command_message.author
+            user_name_match = re.search(r'^(.+?),', embed_data['footer']['text'])
+            user_name = user_name_match.group(1)
+            user_command_message = (
+                await messages.find_message(message.channel.id, regex.COMMAND_RAID, user_name=user_name)
+            )
+            if user_command_message is None: return add_reaction
+            user = user_command_message.author
         if user_settings is None:
             try:
                 user_settings: users.User = await users.get_user(user.id)
@@ -288,6 +285,12 @@ async def update_trophies_on_raid_start(message: discord.Message, embed_data: Di
             kwargs['trophies_raid_count'] = 0
             kwargs['diamond_trophies_gain_average'] = 0
             kwargs['diamond_trophies_raid_count'] = 0
+
+        if user_settings.trophies != trophies:    
+            logs.logger.info(
+                f'User {user_settings.user_id} had {user_settings.trophies:,} in the database, found {trophies:,} trophies.\n'
+                f'{embed_data}'
+            )
             
         await user_settings.update(**kwargs)
         

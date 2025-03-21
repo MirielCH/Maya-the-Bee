@@ -29,7 +29,7 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
 
 
 async def update_rebirth_on_summary(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
-                          user_settings: Optional[users.User]) -> bool:
+                                    user_settings: Optional[users.User]) -> bool:
     """Increase rebirth count on rebirth summary message
 
     Returns
@@ -62,8 +62,8 @@ async def update_rebirth_on_summary(message: discord.Message, embed_data: Dict, 
         await user_settings.update(rebirth=user_settings.rebirth + 1, 
                                    xp_prune_count=0)
         await message.reply(
-            f'➜ Use {strings.SLASH_COMMANDS["profile"]} or {strings.SLASH_COMMANDS["stats"]} to to start XP tracking '
-            f'after rebirthing!'
+            f':warning: Please don\'t use `tree rebirth`. It has been broken for years.\n'
+            f'To make sure all of my features work as expected, always use {strings.SLASH_COMMANDS["rebirth"]} instead.'
         )
     return add_reaction
 

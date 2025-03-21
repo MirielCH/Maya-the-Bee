@@ -66,8 +66,13 @@ async def update_progress_and_call_helper(message: discord.Message, embed_data: 
 
         league_beta = True if 'beta' in embed_data['title'].lower() else False
 
-        trophies_match = re.search(r' ([\d,]+)$', embed_data['title'])
+        trophies_match = re.search(r':trophy:\d+> ([\d,]+)\b', embed_data['title'])
         trophies = int(re.sub(r'\D', '', trophies_match.group(1)))
+        diamond_trophies_match = re.search(r':diamondtrophy:\d+> ([\d,]+)\b', embed_data['title'])
+        diamond_trophies = 0
+        if diamond_trophies_match:
+            diamond_trophies = int(re.sub(r'\D', '', diamond_trophies_match.group(1)))
+            
 
         diamond_rings_match = re.search(r'\*\*(.+?)\*\*\/(.+?)$', embed_data['field1']['value'].split('\n')[0])
         diamond_rings = int(re.sub(r'\D', '', diamond_rings_match.group(1)))
@@ -81,6 +86,7 @@ async def update_progress_and_call_helper(message: discord.Message, embed_data: 
 
         kwargs = {}
         kwargs['trophies'] = trophies
+        kwargs['diamond_trophies'] = diamond_trophies
         kwargs['diamond_rings'] = diamond_rings
         kwargs['diamond_rings_cap'] = diamond_rings_cap
         kwargs['rebirth'] = rebirth

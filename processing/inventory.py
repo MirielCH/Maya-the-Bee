@@ -73,11 +73,10 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, interac
             if element_data['name'] == 'Items':
                 field_items = element_data['value']
                 break
-            
-        diamond_rings_match = re.search(r'\s(.+?)`\*\* <:diamondring:', field_items)
-        if diamond_rings_match:
-            diamond_rings = int(re.sub(r'\D', '', diamond_rings_match.group(1)))
+        diamond_rings = await functions.get_inventory_item(field_items, 'diamondring')
+        if user_settings.diamond_rings != diamond_rings:
             await user_settings.update(diamond_rings=diamond_rings)
+        await user_settings.update(diamond_rings=diamond_rings)
             
         rebirth_guide_match = re.search(regex.COMMAND_REBIRTH_GUIDE, user_command_message.content.lower())
         if rebirth_guide_match:
