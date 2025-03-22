@@ -182,7 +182,7 @@ class TasksCog(commands.Cog):
     async def season_reset(self) -> None:
         """Task that resets trophies and converts diamond trophies to diamond rings"""
         start_time = utils.utcnow().replace(microsecond=0)
-        if start_time.day in (14, 28) and start_time.hour == 5 and start_time.minute == 0:
+        if start_time.day in (14, 28) and start_time.hour == 0 and start_time.minute == 0:
             all_users = await users.get_all_users()
             for user_settings in all_users:
                 diamond_rings = user_settings.diamond_rings + user_settings.diamond_trophies

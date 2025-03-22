@@ -145,6 +145,7 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
             await user_settings.update(trophies_raid_count=0, diamond_trophies_raid_count=0)
 
         trophies_gain_average = user_settings.trophies_gain_average
+        if trophies_gain_average == 0: trophies_gain_average = trophies_gained
         if user_settings.trophies_raid_count > 1:
             trophies_gain_average = (
                 (user_settings.trophies_raid_count * user_settings.trophies_gain_average + trophies_gained)
@@ -281,11 +282,14 @@ async def update_trophies_on_raid_start(message: discord.Message, embed_data: Di
                 break
 
         if current_league != new_league:
-            kwargs['trophies_gain_average'] = 0
             kwargs['trophies_raid_count'] = 0
-            kwargs['diamond_trophies_gain_average'] = 0
+            kwargs['trophies_gain_average'] = 0
             kwargs['diamond_trophies_raid_count'] = 0
+            kwargs['diamond_trophies_gain_average'] = 0
 
+        if trophies < 86_000:
+            kwargs['league_beta'] = False
+            
         if user_settings.trophies != trophies:    
             logs.logger.info(
                 f'User {user_settings.user_id} had {user_settings.trophies:,} in the database, found {trophies:,} trophies.\n'

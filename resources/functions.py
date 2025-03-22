@@ -695,7 +695,7 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
             f'**{trophy_amount_next_league - user_settings.trophies:,}** {emojis.TROPHY} until League {next_league}'
         )
         if user_settings.trophies_gain_average > 0:
-            raids_until_next_league = ceil(trophies_left / user_settings.trophies_gain_average)
+            raids_until_next_league = ceil(trophies_left / round(user_settings.trophies_gain_average))
             embed_description = (
                 f'{embed_description}\n'
                 f'➜ **{raids_until_next_league:,}** raids at **{round(user_settings.trophies_gain_average):,}** {emojis.TROPHY} average'
@@ -724,7 +724,7 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
             f'{left_until_cap_str} (**{user_settings.diamond_rings:,}** {emojis.DIAMOND_RING} in inventory)'
         )
         if user_settings.diamond_trophies_gain_average > 0 and diamond_trophies_left > 0:
-            raids_until_ring_cap = ceil(diamond_trophies_left / user_settings.diamond_trophies_gain_average)
+            raids_until_ring_cap = ceil(diamond_trophies_left / round(user_settings.diamond_trophies_gain_average))
             embed_description = (
                 f'{embed_description}\n'
                 f'➜ **{raids_until_ring_cap:,}** raids at **{round(user_settings.diamond_trophies_gain_average):,}** '
@@ -758,7 +758,7 @@ async def design_trophy_summary(user_settings: users.User) -> discord.Embed:
         reset_year = current_time.year + 1
     else:
         reset_year = current_time.year
-    reset_date = utils.utcnow().replace(year=reset_year, month=reset_month, day=reset_day, hour=5, minute=0, microsecond=0)
+    reset_date = utils.utcnow().replace(year=reset_year, month=reset_month, day=reset_day, hour=0, minute=0, microsecond=0)
     embed.set_footer(text=f'Next reset in {format_timespan(reset_date - current_time)}')
             
     return embed
