@@ -23,6 +23,7 @@ SKINS_NAMES = {
     'skin_phoenix': 'Phoenix',
     'skin_shinobi': 'Shinobi Skirmishes',
     'skin_silver': 'Silver',
+    'skin_valentine': 'Valentine Event',
     'skin_xmas': 'XMAS Event',
 }
 
@@ -41,6 +42,7 @@ SKINS_EMOJIS = {
     strings.SKIN_FASHALIN: emojis.SKIN_FASHALIN,
     strings.SKIN_SHINOBI: emojis.SKIN_SHINOBI,
     strings.SKIN_SILVER: emojis.SKIN_SILVER,
+    strings.SKIN_VALENTINE: emojis.SKIN_VALENTINE,
     strings.SKIN_XMAS: emojis.SKIN_XMAS,
 }
 
@@ -157,6 +159,10 @@ async def embed_skins(active_skin: str = 'skin_default') -> tuple[discord.Embed,
         case strings.SKIN_XMAS:
             source = (
                 f'Available in the event shop during the christmas event.\n'
+            )
+        case strings.SKIN_VALENTINE:
+            source = (
+                f'Available in the event shop during the valentine event.\n'
             )
         case strings.SKIN_PHOENIX:
             source = (

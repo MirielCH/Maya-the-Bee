@@ -57,7 +57,7 @@ async def call_context_helper_on_chips_fusion(message: discord.Message, embed_da
         await message.reply(
             f"➜ {strings.SLASH_COMMANDS['chips fusion']}\n"
             f"➜ {strings.SLASH_COMMANDS['chips show']}\n"
-            f"➜ {strings.SLASH_COMMANDS['hive equip']}\n"
+            f"➜ {strings.SLASH_COMMANDS['hive equip-chip']}\n"
         )
     return add_reaction
 
@@ -98,6 +98,6 @@ async def call_context_helper_on_chips_list(message: discord.Message, embed_data
         if not user_settings.bot_enabled or not user_settings.helper_context_enabled: return add_reaction
         await message.reply(
             f"➜ {strings.SLASH_COMMANDS['chips fusion']}\n"
-            f"➜ {strings.SLASH_COMMANDS['hive equip']}"
+            f"➜ {strings.SLASH_COMMANDS['hive equip-chip']}"
         )
     return add_reaction

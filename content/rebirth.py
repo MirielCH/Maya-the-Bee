@@ -172,8 +172,8 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     if inventory_data['epic_potion'] > 0 or epic_potions_crafted > 0:
         epic_potions = inventory_data['epic_potion'] + epic_potions_crafted
         use = (
-            f'{use}\n'
-            f'{emojis.EPIC_POTION} {strings.SLASH_COMMANDS["use"]} `{epic_potions:,}` epic potions\n'
+            f'{use}\n'  
+            f'{emojis.EPIC_POTION} {strings.SLASH_COMMANDS["use"]} `all` epic potions (you have `{epic_potions:,}`)\n'
             f'{emojis.DETAIL} _Only sell them if you are in dire need of money._'
         )
     if inventory_data['insecticide'] > 0 or insecticides_crafted > 0:

@@ -245,7 +245,7 @@ SLASH_COMMANDS = {
     'fusion': '</fusion:976919525415071826>',
     'hive claim energy': '</hive claim-energy:976919525415071824>',
     'hive claim honey': '</hive claim-honey:976919525415071824>',
-    'hive equip': '</hive equip:976919525415071824>',
+    'hive equip-chip': '</hive equip-chip:976919525415071824>',
     'hive show': '</hive show:976919525415071824>',
     'inventory': '</inventory:960947259627958292>',
     'laboratory': '</laboratory:960947259560820810>',
@@ -289,6 +289,7 @@ SKIN_SILVER = 'skin_silver'
 SKIN_GOLDEN = 'skin_golden'
 SKIN_EASTER = 'skin_easter'
 SKIN_HALLOWEEN = 'skin_halloween'
+SKIN_VALENTINE = 'skin_valentine'
 SKIN_XMAS = 'skin_xmas'
 SKIN_PHOENIX = 'skin_phoenix'
 

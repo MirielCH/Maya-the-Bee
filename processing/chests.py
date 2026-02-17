@@ -57,6 +57,10 @@ async def call_context_helper_on_chest_open(message: discord.Message, embed_data
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
         embeds = []
+        rebirth_match = re.search(r'`(.+?)`.+?\*\*rebirth \(no reset\)', embed_data['field0']['value'].lower())
+        if rebirth_match:
+            rebirth_amount = int(re.sub(r'\D', '', rebirth_match.group(1)))
+            await user_settings.update(rebirth=user_settings.rebirth + rebirth_amount)
         if user_settings.alert_nugget_enabled:
             dropped_nuggets = {}
             nugget_wooden_match = re.search(r'`(.+?)`.+?\*\*wooden nugget', embed_data['field0']['value'].lower())
