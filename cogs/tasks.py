@@ -41,6 +41,12 @@ class TasksCog(commands.Cog):
             user_settings = await users.get_user(user.id)
             message_no = 1
             messages = {message_no: ('', '')}
+            larvae_amount = 0
+            for reminder in reminders_list.copy():
+                if not reminder.activity.startswith('larva'): continue
+                larvae_amount += 1
+                if larvae_amount > 1:
+                    reminders_list.remove(reminder)
             for reminder in reminders_list:
                 if reminder.activity == 'custom':
                     reminder_message = strings.DEFAULT_MESSAGE_CUSTOM_REMINDER.format(message=reminder.message)
@@ -48,6 +54,12 @@ class TasksCog(commands.Cog):
                         message = f'**{user.global_name}** {reminder_message}\n'
                     else:
                         message = f'{user.mention} {reminder_message}\n'
+                elif reminder.activity.startswith('larva'):
+                    reminder_message = reminder.message
+                    if user_settings.dnd_mode_enabled:
+                        message = f'{reminder_message.replace("{name}", f"**{user.global_name}**").replace("{larva_amount}", str(larvae_amount))}\n'
+                    else:
+                        message = f'{reminder_message.replace("{name}", user.mention).replace("{larva_amount}", str(larvae_amount))}\n'
                 else:
                     reminder_message = reminder.message
                     if user_settings.dnd_mode_enabled:

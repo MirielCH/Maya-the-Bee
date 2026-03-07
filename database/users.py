@@ -36,7 +36,6 @@ class User():
     dnd_mode_enabled: bool
     donor_tier: int
     helper_context_enabled: bool
-    helper_fusion_enabled: bool
     helper_prune_enabled: bool
     helper_prune_progress_bar_color: str
     helper_rebirth_enabled: bool
@@ -47,7 +46,6 @@ class User():
     league_beta: bool
     level: int
     pruner_type: str
-    queen_bee_level: int
     reactions_enabled: bool
     rebirth: int
     reminder_boosts: UserReminder
@@ -56,6 +54,7 @@ class User():
     reminder_daily: UserReminder
     reminder_fusion: UserReminder
     reminder_hive_energy: UserReminder
+    reminder_larva: UserReminder
     reminder_prune: UserReminder
     reminder_quests: UserReminder
     reminder_research: UserReminder
@@ -63,7 +62,6 @@ class User():
     reminder_vote: UserReminder
     reminders_slash_enabled: bool
     research_time: int
-    soldier_bee_level: int
     streak_vote: int
     tracking_enabled: bool
     trophies: int
@@ -95,7 +93,6 @@ class User():
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
         self.helper_context_enabled = new_settings.helper_context_enabled
-        self.helper_fusion_enabled = new_settings.helper_fusion_enabled
         self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.helper_prune_progress_bar_color = new_settings.helper_prune_progress_bar_color
         self.helper_rebirth_enabled = new_settings.helper_rebirth_enabled
@@ -106,7 +103,6 @@ class User():
         self.league_beta = new_settings.league_beta
         self.level = new_settings.level
         self.pruner_type = new_settings.pruner_type
-        self.queen_bee_level = new_settings.queen_bee_level
         self.reactions_enabled = new_settings.reactions_enabled
         self.rebirth = new_settings.rebirth
         self.reminder_boosts = new_settings.reminder_boosts
@@ -115,14 +111,13 @@ class User():
         self.reminder_daily = new_settings.reminder_daily
         self.reminder_fusion = new_settings.reminder_fusion
         self.reminder_hive_energy = new_settings.reminder_hive_energy
-        self.reminder_prune = new_settings.reminder_prune
+        self.reminder_larva = new_settings.reminder_larva
         self.reminder_quests = new_settings.reminder_quests
         self.reminder_research = new_settings.reminder_research
         self.reminder_upgrade = new_settings.reminder_upgrade
         self.reminder_vote = new_settings.reminder_vote
         self.reminders_slash_enabled = new_settings.reminders_slash_enabled
         self.research_time = new_settings.research_time
-        self.soldier_bee_level = new_settings.soldier_bee_level
         self.streak_vote = new_settings.streak_vote
         self.tracking_enabled = new_settings.tracking_enabled
         self.trophies = new_settings.trophies
@@ -157,7 +152,6 @@ class User():
             dnd_mode_enabled: bool
             donor_tier: int
             helper_context_enabled: bool
-            helper_fusion_enabled: bool
             helper_prune_enabled: bool
             helper_prune_progress_bar_color: str
             helper_rebirth_enabled: bool
@@ -168,7 +162,6 @@ class User():
             league_beta: bool
             level: int
             pruner_type: str
-            queen_bee_level: int
             reactions_enabled: bool
             rebirth: int
             reminder_boosts_enabled: bool
@@ -183,6 +176,8 @@ class User():
             reminder_fusion_message: str
             reminder_hive_energy_enabled: bool
             reminder_hive_energy_message: str
+            reminder_larva_enabled: bool
+            reminder_larva_message: str
             reminder_prune_enabled: bool
             reminder_prune_message: str
             reminder_quests_enabled: bool
@@ -195,7 +190,6 @@ class User():
             reminder_vote_message: str
             reminders_slash_enabled: bool
             research_time: int
-            soldier_bee_level: int
             streak_vote: int
             tracking_enabled: bool
             trophies: int
@@ -248,7 +242,6 @@ async def _dict_to_user(record: dict) -> User:
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
             league_beta = bool(record['league_beta']),
             helper_context_enabled = bool(record['helper_context_enabled']),
-            helper_fusion_enabled = bool(record['helper_fusion_enabled']),
             helper_prune_enabled = bool(record['helper_prune_enabled']),
             helper_prune_progress_bar_color = record['helper_prune_progress_bar_color'],
             helper_rebirth_enabled = bool(record['helper_rebirth_enabled']),
@@ -257,7 +250,6 @@ async def _dict_to_user(record: dict) -> User:
             helper_trophies_trophy_progress_bar_color = record['helper_trophies_trophy_progress_bar_color'],
             level = record['level'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
-            queen_bee_level = record['queen_bee_level'],
             reactions_enabled = bool(record['reactions_enabled']),
             rebirth = record['rebirth'],
             reminder_boosts = UserReminder(enabled=bool(record['reminder_boosts_enabled']),
@@ -272,6 +264,8 @@ async def _dict_to_user(record: dict) -> User:
                                            message=record['reminder_fusion_message']),
             reminder_hive_energy = UserReminder(enabled=bool(record['reminder_hive_energy_enabled']),
                                                 message=record['reminder_hive_energy_message']),
+            reminder_larva = UserReminder(enabled=bool(record['reminder_larva_enabled']),
+                                          message=record['reminder_larva_message']),
             reminder_prune = UserReminder(enabled=bool(record['reminder_prune_enabled']),
                                           message=record['reminder_prune_message']),
             reminder_quests = UserReminder(enabled=bool(record['reminder_quests_enabled']),
@@ -284,7 +278,6 @@ async def _dict_to_user(record: dict) -> User:
                                          message=record['reminder_vote_message']),
             reminders_slash_enabled = bool(record['reminders_slash_enabled']),
             research_time = record['research_time'],
-            soldier_bee_level = record['soldier_bee_level'],
             streak_vote = record['streak_vote'],
             tracking_enabled = bool(record['tracking_enabled']),
             trophies = record['trophies'],
@@ -429,7 +422,6 @@ async def _update_user(user: User, **kwargs) -> None:
         dnd_mode_enabled: bool
         donor_tier: int
         helper_context_enabled: bool
-        helper_fusion_enabled: bool
         helper_prune_enabled: bool
         helper_prune_progress_bar_color: str
         helper_rebirth_enabled: bool
@@ -440,7 +432,6 @@ async def _update_user(user: User, **kwargs) -> None:
         league_beta: bool
         level: int
         pruner_type: str
-        queen_bee_level: int
         reactions_enabled: bool
         rebirth: int
         reminder_boosts_enabled: bool
@@ -455,6 +446,8 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_fusion_message: str
         reminder_hive_energy_enabled: bool
         reminder_hive_energy_message: str
+        reminder_larva_enabled: bool
+        reminder_larva_message: str
         reminder_prune_enabled: bool
         reminder_prune_message: str
         reminder_quests_enabled: bool
@@ -467,7 +460,6 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_vote_message: str
         reminders_slash_enabled: bool
         research_time: int
-        soldier_bee_level: int
         streak_vote: int
         tracking_enabled: bool
         trophies: int

@@ -381,8 +381,6 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
     helpers = (
         f'{emojis.BP} **Context commands**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
         f'{emojis.DETAIL} _Shows helpful slash commands depending on context._\n'
-        f'{emojis.BP} **Fusion level summary**: {await functions.bool_to_text(user_settings.helper_fusion_enabled)}\n'
-        f'{emojis.DETAIL} _Shows your bee levels after a fusion._\n'
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP progress to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
         f'{emojis.BP} **Rebirth summary**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
@@ -487,6 +485,7 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
         f'{emojis.BP} **Daily**: {await functions.bool_to_text(user_settings.reminder_daily.enabled)}\n'
         f'{emojis.BP} **Fusion**: {await functions.bool_to_text(user_settings.reminder_fusion.enabled)}\n'
         f'{emojis.BP} **Hive energy**: {await functions.bool_to_text(user_settings.reminder_hive_energy.enabled)}\n'
+        f'{emojis.BP} **Larva growing**: {await functions.bool_to_text(user_settings.reminder_larva.enabled)}\n'
     )
     command_reminders2 = (
         f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.reminder_prune.enabled)}\n'

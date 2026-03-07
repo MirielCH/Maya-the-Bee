@@ -1,6 +1,7 @@
 # reminders_lists.py
 """Contains reminder list commands"""
 
+import re
 from typing import List, Optional, Union
 
 import discord
@@ -54,14 +55,18 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
     reminders_commands_list = []
     reminders_chests_list = []
     reminders_quests_list = []
+    reminders_incubator_list = []
     reminders_tool_list = []
     reminders_boosts_list = []
     reminders_custom_list = []
     for reminder in user_reminders:
+        if reminder.end_time < current_time: continue
         if reminder.activity == 'custom':
             reminders_custom_list.append(reminder)
         elif reminder.activity.startswith('chest'):
             reminders_chests_list.append(reminder)
+        elif reminder.activity.startswith('larva'):
+            reminders_incubator_list.append(reminder)
         elif reminder.activity.startswith('quest'):
             reminders_quests_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_TOOL:
@@ -147,6 +152,34 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 f'{emoji} **{activity}** • {reminder_time}'
             )
         embed.add_field(name='Chests', value=field_chests_reminders.strip(), inline=False)
+    if reminders_incubator_list:
+        field_incubator_reminders = ''
+        for reminder in reminders_incubator_list:
+            if show_timestamps:
+                flag = 'T' if reminder.end_time.day == current_time.day else 'f'
+                reminder_time = utils.format_dt(reminder.end_time, style=flag)
+            else:
+                time_left = reminder.end_time - current_time
+                timestring = await functions.parse_timedelta_to_timestring(time_left)
+                reminder_time = f'**`{timestring}`**'
+            if 'queen' in reminder.activity:
+                emoji = emojis.LARVA_QUEEN
+                activity = 'Queen Larva'
+            elif 'soldier' in reminder.activity:
+                emoji = emojis.LARVA_SOLDIER
+                activity = 'Soldier Larva'
+            elif 'worker' in reminder.activity:
+                emoji = emojis.LARVA_WORKER
+                activity = 'Worker Larva'
+            else:
+                emoji = ''
+                activity = reminder.activity.capitalize().replace('-',' ')
+            slot_match = re.search(r'(\d+)', reminder.activity)
+            field_incubator_reminders = (
+                f'{field_incubator_reminders}\n'
+                f'{emoji} **{activity}** (`slot {slot_match.group(1)}`) • {reminder_time}'
+            )
+        embed.add_field(name='Incubator', value=field_incubator_reminders.strip(), inline=False)
     if reminders_tool_list:
         field_tool_reminders = ''
         for reminder in reminders_tool_list:

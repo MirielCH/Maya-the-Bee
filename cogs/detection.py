@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from database import users
-from processing import bees, bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, inventory, laboratory, league
+from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, incubator, inventory, laboratory, league
 from processing import patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
@@ -71,16 +71,12 @@ class DetectionCog(commands.Cog):
         reminder_daily_enabled = getattr(getattr(user_settings, 'reminder_daily', None), 'enabled', True)
         reminder_fusion_enabled = getattr(getattr(user_settings, 'reminder_fusion', None), 'enabled', True)
         reminder_hive_enabled = getattr(getattr(user_settings, 'reminder_hive_energy', None), 'enabled', True)
-        reminder_prune_enabled = getattr(getattr(user_settings, 'reminder_prune', None), 'enabled', True)
+        reminder_incubator_enabled = getattr(getattr(user_settings, 'reminder_incubator', None), 'enabled', True)
         reminder_quests_enabled = getattr(getattr(user_settings, 'reminder_quests', None), 'enabled', True)
         reminder_research_enabled = getattr(getattr(user_settings, 'reminder_research', None), 'enabled', True)
         reminder_upgrade_enabled = getattr(getattr(user_settings, 'reminder_upgrade', None), 'enabled', True)
         reminder_vote_enabled = getattr(getattr(user_settings, 'reminder_vote', None), 'enabled', True)
         tracking_enabled = getattr(user_settings, 'tracking_enabled', True)
-
-        # Bees
-        add_reaction = await bees.process_message(message, embed_data, interaction_user, user_settings)
-        return_values.append(add_reaction)
 
         # Bonuses
         if reminder_boosts_enabled:
@@ -121,6 +117,11 @@ class DetectionCog(commands.Cog):
             add_reaction = await hive.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
             
+        # Incubator
+        if reminder_incubator_enabled:
+            add_reaction = await incubator.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
+        
         # Inventory
         add_reaction = await inventory.process_message(message, embed_data, interaction_user, user_settings)
         return_values.append(add_reaction)

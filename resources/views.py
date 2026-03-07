@@ -240,7 +240,6 @@ class SettingsHelpersView(discord.ui.View):
         self.embed_function = embed_function
         toggled_settings = {
             'Context commands': 'helper_context_enabled',
-            'Fusion level summary': 'helper_fusion_enabled',
             'Level XP popup': 'helper_prune_enabled',
             'Rebirth summary': 'helper_rebirth_enabled',
             'Trophy progress popup': 'helper_trophies_enabled',
@@ -368,6 +367,7 @@ class SettingsRemindersView(discord.ui.View):
             'Daily': 'reminder_daily',
             'Fusion': 'reminder_fusion',
             'Hive energy': 'reminder_hive_energy',
+            'Larva growing': 'reminder_larva',
             'Prune': 'reminder_prune',
             'Quests': 'reminder_quests',
             'Research': 'reminder_research',

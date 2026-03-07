@@ -103,6 +103,7 @@ DEFAULT_MESSAGES = {
     'daily': '{name} Bzzt! Time for your {command} rewards!',
     'fusion': '{name} Bzzt! The queen bee is ready for a {command}!',
     'hive-energy': '{name} Bzzt! Time to {command} and do some raids!',
+    'larva': '{name} Bzzt! **{larva_amount}** larva(e) finished growing! Use {command} to claim.',
     'prune': '{name} Bzzt! Time to {command}! {pruner_emoji}',
     'quests': '{name} Bzzt! Time for some {command}! The {quest_type} quest is ready!',
     'research': '{name} Bzzt! Research in your {command} is finished!',
@@ -117,6 +118,7 @@ PLACEHOLDER_DESCRIPTIONS = {
     'command': 'The command you get reminded for',
     'chest_emoji': 'The emoji of the chest',
     'chest_type': 'The type of the chest (wooden, silver, golden)',
+    'larva_amount': 'The amount of larvae ready to claim',
     'quest_type': 'The type of the quest (daily, weekly, monthly)',
     'pruner_emoji': 'The emoji of your current pruner',
 }
@@ -149,6 +151,7 @@ ACTIVITIES = (
     'daily',
     'fusion',
     'hive-energy',
+    'larva',
     'prune',
     'quests',
     'research',
@@ -168,6 +171,7 @@ ACTIVITIES_COMMANDS = (
     'daily',
     'fusion',
     'hive-energy',
+    'larva',
     'prune',
     'quest-daily',
     'quest-monthly',
@@ -195,6 +199,7 @@ ACTIVITIES_SLASH_COMMANDS = {
     'chest-2': 'chests',
     'chest-3': 'chests',
     'hive-energy': 'hive claim energy',
+    'larva': 'incubator claim',
     'quest-daily': 'quests',
     'quest-monthly': 'quests',
     'quest-weekly': 'quests',
@@ -212,6 +217,7 @@ ACTIVITIES_COLUMNS = {
     'daily': 'reminder_daily',
     'fusion': 'reminder_fusion',
     'hive-energy': 'reminder_hive_energy',
+    'larva': 'reminder_larva',
     'prune': 'reminder_prune',
     'quest-daily': 'reminder_quests',
     'quest-monthly': 'reminder_quests',
@@ -247,6 +253,7 @@ SLASH_COMMANDS = {
     'hive claim honey': '</hive claim-honey:976919525415071824>',
     'hive equip-chip': '</hive equip-chip:976919525415071824>',
     'hive show': '</hive show:976919525415071824>',
+    'incubator claim': '</incubator claim:0>', # TODO: Add correct command ID
     'inventory': '</inventory:960947259627958292>',
     'laboratory': '</laboratory:960947259560820810>',
     'patreon': '</patreon:989564333308661773>',
@@ -299,6 +306,12 @@ NUGGETS = {
     'Silver': emojis.NUGGET_SILVER,
     'Golden': emojis.NUGGET_GOLDEN,
     'Diamond': emojis.NUGGET_DIAMOND,
+}
+
+LARVAE_EMOJIS = {
+    'queen': emojis.LARVA_QUEEN,
+    'soldier': emojis.LARVA_SOLDIER,
+    'worker': emojis.LARVA_WORKER,
 }
 
 LEAGUES = {
