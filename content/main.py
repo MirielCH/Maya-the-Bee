@@ -163,7 +163,7 @@ async def embed_about(bot: commands.Bot, api_latency: datetime) -> discord.Embed
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = 'Hi! I\'m Maya the Bee!',
-        description = '_There\'s an old bee saying: "Don\'t make clubs with strange bugs."_'
+        description = '_I\'m kind of a big dill._'
     )
     embed.add_field(name='Bot stats', value=general, inline=False)
     embed.add_field(name='Creator', value=creator, inline=False)

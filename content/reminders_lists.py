@@ -65,7 +65,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             reminders_custom_list.append(reminder)
         elif reminder.activity.startswith('chest'):
             reminders_chests_list.append(reminder)
-        elif reminder.activity.startswith('larva'):
+        elif reminder.activity.startswith('larva') or reminder.activity.startswith('incubator'):
             reminders_incubator_list.append(reminder)
         elif reminder.activity.startswith('quest'):
             reminders_quests_list.append(reminder)
@@ -172,12 +172,11 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 emoji = emojis.LARVA_WORKER
                 activity = 'Worker Larva'
             else:
-                emoji = ''
-                activity = reminder.activity.capitalize().replace('-',' ')
-            slot_match = re.search(r'(\d+)', reminder.activity)
+                emoji = emojis.INCUBATOR
+                activity = reminder.activity.replace('incubator-','').replace('-',' ').title()
             field_incubator_reminders = (
                 f'{field_incubator_reminders}\n'
-                f'{emoji} **{activity}** (`slot {slot_match.group(1)}`) • {reminder_time}'
+                f'{emoji} **{activity}** • {reminder_time}'
             )
         embed.add_field(name='Incubator', value=field_incubator_reminders.strip(), inline=False)
     if reminders_tool_list:
@@ -190,7 +189,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
                 reminder_time = f'**`{timestring}`**'
-            activity = reminder.activity.replace('-',' ').title()
+            activity = reminder.activity.replace('pruner-','').replace('-',' ').title()
             field_tool_reminders = (
                 f'{field_tool_reminders}\n'
                 f'{emojis.LABORATORY} **{activity}** • {reminder_time}'
@@ -199,7 +198,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
         else:
             pruner_emoji = ''
-        embed.add_field(name=f'Tool {pruner_emoji}', value=field_tool_reminders.strip(), inline=False)
+        embed.add_field(name=f'Pruner {pruner_emoji}', value=field_tool_reminders.strip(), inline=False)
     if reminders_boosts_list:
         field_boosts_reminders = ''
         for reminder in reminders_boosts_list:

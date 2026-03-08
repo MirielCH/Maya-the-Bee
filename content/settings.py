@@ -432,11 +432,11 @@ async def embed_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCont
             title = f'{ctx.author.global_name}\'s reminder messages'
             activity_column = strings.ACTIVITIES_COLUMNS[activity]
             alert = getattr(user_settings, activity_column)
+            activity = activity.replace('-',' ').title()
             alert_message = (
-                f'{emojis.BP} **{activity.replace("-"," ").capitalize()}**\n'
+                f'{emojis.BP} **{activity}**\n'
                 f'{emojis.DETAIL} {alert.message}'
             )
-            activity = activity.replace('-',' ').capitalize()
             if len(embed_descriptions[embed_no]) + len(alert_message) > 4096:
                 embed_no += 1
                 embed_descriptions[embed_no] = ''
@@ -451,7 +451,7 @@ async def embed_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCont
     else:
         activity_column = strings.ACTIVITIES_COLUMNS[activity]
         alert = getattr(user_settings, activity_column)
-        title = f'{activity.replace("-"," ").capitalize()} reminder message'
+        title = f'{activity.replace('-',' ').title()} reminder message'
         embed = discord.Embed(
             color = settings.EMBED_COLOR,
             title = title if embed_no < 2 else None
@@ -484,14 +484,15 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
         f'{emojis.BP} **Clean**: {await functions.bool_to_text(user_settings.reminder_clean.enabled)}\n'
         f'{emojis.BP} **Daily**: {await functions.bool_to_text(user_settings.reminder_daily.enabled)}\n'
         f'{emojis.BP} **Fusion**: {await functions.bool_to_text(user_settings.reminder_fusion.enabled)}\n'
-        f'{emojis.BP} **Hive energy**: {await functions.bool_to_text(user_settings.reminder_hive_energy.enabled)}\n'
-        f'{emojis.BP} **Larva growing**: {await functions.bool_to_text(user_settings.reminder_larva.enabled)}\n'
+        f'{emojis.BP} **Hive Energy**: {await functions.bool_to_text(user_settings.reminder_hive_energy.enabled)}\n'
+        f'{emojis.BP} **Incubator Upgrade**: {await functions.bool_to_text(user_settings.reminder_incubator_upgrade.enabled)}\n'
     )
     command_reminders2 = (
+        f'{emojis.BP} **Larva Growing**: {await functions.bool_to_text(user_settings.reminder_larva.enabled)}\n'
         f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.reminder_prune.enabled)}\n'
+        f'{emojis.BP} **Pruner Research**: {await functions.bool_to_text(user_settings.reminder_research.enabled)}\n'
+        f'{emojis.BP} **Pruner Upgrade**: {await functions.bool_to_text(user_settings.reminder_upgrade.enabled)}\n'
         f'{emojis.BP} **Quests**: {await functions.bool_to_text(user_settings.reminder_quests.enabled)}\n'
-        f'{emojis.BP} **Research**: {await functions.bool_to_text(user_settings.reminder_research.enabled)}\n'
-        f'{emojis.BP} **Upgrade**: {await functions.bool_to_text(user_settings.reminder_upgrade.enabled)}\n'
         f'{emojis.BP} **Vote**: {await functions.bool_to_text(user_settings.reminder_vote.enabled)}\n'
     )
     embed = discord.Embed(

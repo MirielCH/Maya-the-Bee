@@ -103,11 +103,12 @@ DEFAULT_MESSAGES = {
     'daily': '{name} Bzzt! Time for your {command} rewards!',
     'fusion': '{name} Bzzt! The queen bee is ready for a {command}!',
     'hive-energy': '{name} Bzzt! Time to {command} and do some raids!',
+    'incubator-upgrade': '{name} Bzzt! Your {command} is ready!',
     'larva': '{name} Bzzt! **{larva_amount}** larva(e) finished growing! Use {command} to claim.',
     'prune': '{name} Bzzt! Time to {command}! {pruner_emoji}',
+    'pruner-research': '{name} Bzzt! Research in your {command} is finished!',
+    'pruner-upgrade': '{name} Bzzt! Your {command} upgrade is finished!',
     'quests': '{name} Bzzt! Time for some {command}! The {quest_type} quest is ready!',
-    'research': '{name} Bzzt! Research in your {command} is finished!',
-    'upgrade': '{name} Bzzt! Your {command} upgrade is finished!',
     'vote': '{name} Bzzt! Time to {command} for the bot!',
 }
 
@@ -151,11 +152,12 @@ ACTIVITIES = (
     'daily',
     'fusion',
     'hive-energy',
+    'incubator-upgrade',
     'larva',
     'prune',
+    'pruner-research',
+    'pruner-upgrade',
     'quests',
-    'research',
-    'upgrade',
     'vote',
 )
 
@@ -171,6 +173,7 @@ ACTIVITIES_COMMANDS = (
     'daily',
     'fusion',
     'hive-energy',
+    'incubator-upgrade',
     'larva',
     'prune',
     'quest-daily',
@@ -190,8 +193,8 @@ ACTIVITIES_BOOSTS = (
 )
 
 ACTIVITIES_TOOL = (
-    'research',
-    'upgrade',
+    'pruner-research',
+    'pruner-upgrade',
 )
 
 ACTIVITIES_SLASH_COMMANDS = {
@@ -200,11 +203,12 @@ ACTIVITIES_SLASH_COMMANDS = {
     'chest-3': 'chests',
     'hive-energy': 'hive claim energy',
     'larva': 'incubator claim',
+    'incubator-upgrade': 'incubator upgrade',
+    'pruner-research': 'laboratory',
+    'pruner-upgrade': 'tool',
     'quest-daily': 'quests',
     'quest-monthly': 'quests',
     'quest-weekly': 'quests',
-    'research': 'laboratory',
-    'upgrade': 'tool',
 }
 
 ACTIVITIES_COLUMNS = {
@@ -217,14 +221,15 @@ ACTIVITIES_COLUMNS = {
     'daily': 'reminder_daily',
     'fusion': 'reminder_fusion',
     'hive-energy': 'reminder_hive_energy',
+    'incubator-upgrade': 'reminder_incubator_upgrade',
     'larva': 'reminder_larva',
     'prune': 'reminder_prune',
+    'pruner-research': 'reminder_research',
+    'pruner-upgrade': 'reminder_upgrade',
     'quest-daily': 'reminder_quests',
     'quest-monthly': 'reminder_quests',
     'quest-weekly': 'reminder_quests',
     'quests': 'reminder_quests',
-    'research': 'reminder_research',
-    'upgrade': 'reminder_upgrade',
     'vote': 'reminder_vote',
 }
 
@@ -254,6 +259,7 @@ SLASH_COMMANDS = {
     'hive equip-chip': '</hive equip-chip:976919525415071824>',
     'hive show': '</hive show:976919525415071824>',
     'incubator claim': '</incubator claim:0>', # TODO: Add correct command ID
+    'incubator upgrade': '</incubator upgrade:0>', # TODO: Add correct command ID
     'inventory': '</inventory:960947259627958292>',
     'laboratory': '</laboratory:960947259560820810>',
     'patreon': '</patreon:989564333308661773>',

@@ -366,12 +366,13 @@ class SettingsRemindersView(discord.ui.View):
             'Clean': 'reminder_clean',
             'Daily': 'reminder_daily',
             'Fusion': 'reminder_fusion',
-            'Hive energy': 'reminder_hive_energy',
-            'Larva growing': 'reminder_larva',
+            'Hive Energy': 'reminder_hive_energy',
+            'Larva Growing': 'reminder_larva',
+            'Incubator Upgrade': 'reminder_incubator_upgrade',
             'Prune': 'reminder_prune',
+            'Pruner Research': 'reminder_research',
+            'Pruner Upgrade': 'reminder_upgrade',
             'Quests': 'reminder_quests',
-            'Research': 'reminder_research',
-            'Upgrade': 'reminder_upgrade',
             'Vote': 'reminder_vote',
         }
 

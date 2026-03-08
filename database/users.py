@@ -54,6 +54,7 @@ class User():
     reminder_daily: UserReminder
     reminder_fusion: UserReminder
     reminder_hive_energy: UserReminder
+    reminder_incubator_upgrade: UserReminder
     reminder_larva: UserReminder
     reminder_prune: UserReminder
     reminder_quests: UserReminder
@@ -111,7 +112,9 @@ class User():
         self.reminder_daily = new_settings.reminder_daily
         self.reminder_fusion = new_settings.reminder_fusion
         self.reminder_hive_energy = new_settings.reminder_hive_energy
+        self.reminder_incubator_upgrade = new_settings.reminder_incubator_upgrade
         self.reminder_larva = new_settings.reminder_larva
+        self.reminder_prune = new_settings.reminder_prune
         self.reminder_quests = new_settings.reminder_quests
         self.reminder_research = new_settings.reminder_research
         self.reminder_upgrade = new_settings.reminder_upgrade
@@ -176,6 +179,8 @@ class User():
             reminder_fusion_message: str
             reminder_hive_energy_enabled: bool
             reminder_hive_energy_message: str
+            reminder_incubator_upgrade_enabled: bool
+            reminder_incubator_upgrade_message: str
             reminder_larva_enabled: bool
             reminder_larva_message: str
             reminder_prune_enabled: bool
@@ -264,6 +269,8 @@ async def _dict_to_user(record: dict) -> User:
                                            message=record['reminder_fusion_message']),
             reminder_hive_energy = UserReminder(enabled=bool(record['reminder_hive_energy_enabled']),
                                                 message=record['reminder_hive_energy_message']),
+            reminder_incubator_upgrade = UserReminder(enabled=bool(record['reminder_incubator_upgrade_enabled']),
+                                                      message=record['reminder_incubator_upgrade_message']),
             reminder_larva = UserReminder(enabled=bool(record['reminder_larva_enabled']),
                                           message=record['reminder_larva_message']),
             reminder_prune = UserReminder(enabled=bool(record['reminder_prune_enabled']),
@@ -446,6 +453,8 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_fusion_message: str
         reminder_hive_energy_enabled: bool
         reminder_hive_energy_message: str
+        reminder_incubator_upgrade_enabled: bool
+        reminder_incubator_upgrade_message: str
         reminder_larva_enabled: bool
         reminder_larva_message: str
         reminder_prune_enabled: bool

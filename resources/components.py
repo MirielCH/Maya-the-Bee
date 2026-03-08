@@ -114,7 +114,7 @@ class ReminderMessageSelect(discord.ui.Select):
         options = []
         options.append(discord.SelectOption(label='All', value='all', emoji=None))
         for activity in activities:
-            options.append(discord.SelectOption(label=activity.replace('-',' ').capitalize(), value=activity, emoji=None))
+            options.append(discord.SelectOption(label=activity.replace('-',' ').title(), value=activity, emoji=None))
         super().__init__(placeholder=placeholder, min_values=1, max_values=1, options=options, row=row,
                          custom_id=custom_id)
 

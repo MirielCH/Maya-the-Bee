@@ -71,6 +71,11 @@ async def create_reminder_on_command_cooldown(message: discord.Message, embed_da
             activity = 'daily'
             user_command = await functions.get_game_command(user_settings, activity)
             reminder_message = user_settings.reminder_daily.message.replace('{command}', user_command)
+        elif (re.search(regex.COMMAND_INCUBATOR, user_command.lower() or user_command == 'incubator')
+            and user_settings.reminder_incubator_upgrade.enabled):
+            activity = 'incubator-upgrade'
+            user_command = await functions.get_game_command(user_settings, 'incubator upgrade')
+            reminder_message = user_settings.reminder_incubator_upgrade.message.replace('{command}', user_command)
         elif (re.search(regex.COMMAND_PRUNE, user_command.lower() or user_command == 'prune')
             and user_settings.reminder_prune.enabled):
             activity = 'prune'
@@ -230,17 +235,17 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'laboratory')
                 reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
-                cooldowns.append(['research', timestring_match.group(1).lower(), reminder_message])
+                cooldowns.append(['pruner-research', timestring_match.group(1).lower(), reminder_message])
             else:
-                ready_commands.append('research')
+                ready_commands.append('pruner-research')
         if user_settings.reminder_upgrade.enabled:
             timestring_match = re.search(r"upgrading: \*\*`(.+?)`\*\* remaining", embed_field_tool.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'tool')
                 reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
-                cooldowns.append(['upgrade', timestring_match.group(1).lower(), reminder_message])
+                cooldowns.append(['pruner-upgrade', timestring_match.group(1).lower(), reminder_message])
             else:
-                ready_commands.append('upgrade')
+                ready_commands.append('pruner-upgrade')
         if user_settings.reminder_vote.enabled:
             timestring_match = re.search(r"vote\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:

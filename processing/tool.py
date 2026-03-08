@@ -116,7 +116,7 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
         if time_left < timedelta(0): return add_reaction
         reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
         reminder: reminders.Reminder = (
-            await reminders.insert_reminder(interaction_user.id, 'upgrade', time_left,
+            await reminders.insert_reminder(interaction_user.id, 'pruner-upgrade', time_left,
                                             message.channel.id, reminder_message)
         )
         if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
@@ -146,7 +146,7 @@ async def delete_reminder_on_cancel(message: discord.Message, embed_data: Dict, 
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
         try:
-            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'upgrade')
+            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-upgrade')
             await reminder.delete()
         except exceptions.NoDataFoundError:
             return add_reaction
@@ -194,7 +194,7 @@ async def delete_reminder_on_skip(message: discord.Message, embed_data: Dict, us
                 return add_reaction
         if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
         try:
-            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'upgrade')
+            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-upgrade')
             await reminder.delete()
         except exceptions.NoDataFoundError:
             return add_reaction

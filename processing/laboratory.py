@@ -104,7 +104,7 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
         time_left = timedelta(seconds=user_settings.research_time)
         reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
         reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, 'research', time_left,
+            await reminders.insert_reminder(user.id, 'pruner-research', time_left,
                                             message.channel.id, reminder_message)
         )
         if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
@@ -158,7 +158,7 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
         if time_left < timedelta(0): return add_reaction
         reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
         reminder: reminders.Reminder = (
-            await reminders.insert_reminder(interaction_user.id, 'research', time_left,
+            await reminders.insert_reminder(interaction_user.id, 'pruner-research', time_left,
                                             message.channel.id, reminder_message)
         )
         if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
@@ -188,7 +188,7 @@ async def delete_reminder_on_cancel(message: discord.Message, embed_data: Dict, 
                 return add_reaction
         if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
         try:
-            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'research')
+            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-research')
             await reminder.delete()
         except exceptions.NoDataFoundError:
             return add_reaction
@@ -228,7 +228,7 @@ async def delete_reminder_on_skip(message: discord.Message, embed_data: Dict, us
                 return add_reaction
         if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
         try:
-            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'research')
+            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-research')
             await reminder.delete()
         except exceptions.NoDataFoundError:
             return add_reaction

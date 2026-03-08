@@ -151,9 +151,9 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                     reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
                     time_left = await functions.calculate_time_left_from_timestring(message,
                                                                                     timestring_match.group(1).lower())
-                    cooldowns.append(['research', time_left, reminder_message])
+                    cooldowns.append(['pruner-research', time_left, reminder_message])
                 else:
-                    ready_commands.append('research')
+                    ready_commands.append('pruner-research')
             if user_settings.reminder_upgrade.enabled:
                 timestring_match = re.search(r"upgrading: `(.+?)` remaining", embed_data['field3']['value'].lower())
                 if timestring_match:
@@ -161,9 +161,9 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                     reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
                     time_left = await functions.calculate_time_left_from_timestring(message,
                                                                                     timestring_match.group(1).lower())
-                    cooldowns.append(['upgrade', time_left, reminder_message])
+                    cooldowns.append(['pruner-upgrade', time_left, reminder_message])
                 else:
-                    ready_commands.append('upgrade')
+                    ready_commands.append('pruner-upgrade')
 
         for cooldown in cooldowns:
             cd_activity = cooldown[0]
