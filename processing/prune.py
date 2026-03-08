@@ -70,6 +70,8 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         nugget_silver_match = re.search(r'silvernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_golden_match = re.search(r'goldennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_diamond_match = re.search(r'diamondnugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        bee_bread_match = re.search(r'beebread:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        royal_jelly_match = re.search(r'royaljelly:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         if nugget_wooden_match:
             nugget_wooden_amount = int(re.sub(r'\D', '', nugget_wooden_match.group(1)))
             league_beta = True if nugget_wooden_amount > 1 else False
@@ -105,6 +107,16 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await tracking.insert_log_entry(user.id, message.guild.id, 'diamond-nugget', current_time,
                                                 nugget_diamond_amount)
             dropped_nuggets['Diamond'] = nugget_diamond_amount
+        if bee_bread_match:
+            bee_bread_amount = int(re.sub(r'\D', '', bee_bread_match.group(1)))
+            if user_settings.tracking_enabled:
+                await tracking.insert_log_entry(user.id, message.guild.id, 'bee-bread', current_time,
+                                                bee_bread_amount)
+        if nugget_diamond_match:
+            royal_jelly_amount = int(re.sub(r'\D', '', royal_jelly_match.group(1)))
+            if user_settings.tracking_enabled:
+                await tracking.insert_log_entry(user.id, message.guild.id, 'royal-jelly', current_time,
+                                                royal_jelly_amount)
         if league_beta is not None and user_settings.tracking_enabled:
             if (league_beta and not user_settings.league_beta) or (not league_beta and user_settings.league_beta):
                 await user_settings.update(league_beta=league_beta)

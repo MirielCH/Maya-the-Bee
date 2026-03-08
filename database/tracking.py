@@ -73,6 +73,7 @@ class LogEntry():
 
 class LogReport(NamedTuple):
     """Object that represents a report based on a certain amount of log entries."""
+    bee_bread_amount: int
     captcha_amount: int
     clean_amount: int
     prune_amount: int
@@ -82,6 +83,7 @@ class LogReport(NamedTuple):
     nugget_silver_amount: int
     nugget_wooden_amount: int
     guild_id: int # Set to None if not given
+    royal_jelly_amount: int
     timeframe: timedelta
     user_id: int
 
@@ -338,11 +340,13 @@ async def get_log_report(user_id: int, timeframe: timedelta,
         )
         raise
     records_data = {
+        'bee-bread': 0,
         'captcha': 0,
         'clean': 0,
         'copper-nugget': 0,
         'diamond-nugget': 0,
         'golden-nugget': 0,
+        'royal-jelly': 0,
         'silver-nugget': 0,
         'wooden-nugget': 0,
         'prune': 0,
@@ -351,6 +355,7 @@ async def get_log_report(user_id: int, timeframe: timedelta,
         record = dict(record)
         records_data[record['command_or_drop']] = record['SUM(amount)']
     log_report = LogReport(
+        bee_bread_amount = records_data['bee-bread'],
         captcha_amount = records_data['captcha'],
         clean_amount = records_data['clean'],
         nugget_copper_amount = records_data['copper-nugget'],
@@ -359,6 +364,7 @@ async def get_log_report(user_id: int, timeframe: timedelta,
         nugget_silver_amount = records_data['silver-nugget'],
         nugget_wooden_amount = records_data['wooden-nugget'],
         prune_amount = records_data['prune'],
+        royal_jelly_amount = records_data['royal-jelly'],
         guild_id = guild_id,
         timeframe = timeframe,
         user_id = user_id
