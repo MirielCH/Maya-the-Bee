@@ -258,8 +258,8 @@ SLASH_COMMANDS = {
     'hive claim honey': '</hive claim-honey:976919525415071824>',
     'hive equip-chip': '</hive equip-chip:976919525415071824>',
     'hive show': '</hive show:976919525415071824>',
-    'incubator claim': '</incubator claim:0>', # TODO: Add correct command ID
-    'incubator upgrade': '</incubator upgrade:0>', # TODO: Add correct command ID
+    'incubator claim': '</incubator claim:1482481237070450748>',
+    'incubator upgrade': '</incubator upgrade:1482481237070450748>',
     'inventory': '</inventory:960947259627958292>',
     'laboratory': '</laboratory:960947259560820810>',
     'patreon': '</patreon:989564333308661773>',

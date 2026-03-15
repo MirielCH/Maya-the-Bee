@@ -112,7 +112,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'bee-bread', current_time,
                                                 bee_bread_amount)
-        if nugget_diamond_match:
+        if royal_jelly_match:
             royal_jelly_amount = int(re.sub(r'\D', '', royal_jelly_match.group(1)))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'royal-jelly', current_time,

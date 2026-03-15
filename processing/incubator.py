@@ -131,30 +131,44 @@ async def create_larva_reminders_from_overview(message: discord.Message, embed_d
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_larva.enabled: return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
 
-        for field in message.embeds[0].fields:
-            if not 'loading' in field.value.lower(): continue
-            slot_match = re.search(r"`slot\s(\d+?)`", field.name.lower())
-            timestring_match = re.search(r"`(.+?)`", field.value.lower())
-            
-            if 'queen' in field.value.lower():
-                larva_type = 'queen'
-            elif 'soldier' in field.value.lower():
-                larva_type = 'soldier'  
-            elif 'worker' in field.value.lower():
-                larva_type = 'worker'  
+        if user_settings.reminder_larva.enabled:
+            for field in message.embeds[0].fields:
+                if not 'loading' in field.value.lower(): continue
+                slot_match = re.search(r"`slot\s(\d+?)`", field.name.lower())
+                timestring_match = re.search(r"`(.+?)`", field.value.lower())
                 
-            user_command = await functions.get_game_command(user_settings, 'incubator claim')
-            time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
-            if time_left < timedelta(0): continue
-            activity = f'larva-{larva_type}-{slot_match.group(1)}'
-            reminder_message = user_settings.reminder_larva.message.replace('{command}', user_command)
-            reminder: reminders.Reminder = (
-                await reminders.insert_reminder(user.id, activity, time_left,
-                                                message.channel.id, reminder_message)
-            )
-            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+                if 'queen' in field.value.lower():
+                    larva_type = 'queen'
+                elif 'soldier' in field.value.lower():
+                    larva_type = 'soldier'  
+                elif 'worker' in field.value.lower():
+                    larva_type = 'worker'  
+                    
+                user_command = await functions.get_game_command(user_settings, 'incubator claim')
+                time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
+                if time_left < timedelta(0): continue
+                activity = f'larva-{larva_type}-{slot_match.group(1)}'
+                reminder_message = user_settings.reminder_larva.message.replace('{command}', user_command)
+                reminder: reminders.Reminder = (
+                    await reminders.insert_reminder(user.id, activity, time_left,
+                                                    message.channel.id, reminder_message)
+                )
+                if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+
+        if user_settings.reminder_incubator_upgrade.enabled:
+            incubator_upgrade_match = re.search(r"cooldown:.+`(.+?)`", embed_data['description'].lower())
+            if incubator_upgrade_match:
+                user_command = await functions.get_game_command(user_settings, 'incubator upgrade')
+                time_left = await functions.calculate_time_left_from_timestring(message, incubator_upgrade_match.group(1))
+                if time_left <= timedelta(0): return add_reaction
+                reminder_message = user_settings.reminder_incubator_upgrade.message.replace('{command}', user_command)
+                reminder: reminders.Reminder = (
+                    await reminders.insert_reminder(user.id, 'incubator-upgrade', time_left,
+                                                    message.channel.id, reminder_message)
+                )
+                if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
     
     return add_reaction
 
