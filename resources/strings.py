@@ -104,7 +104,7 @@ DEFAULT_MESSAGES = {
     'fusion': '{name} Bzzt! The queen bee is ready for a {command}!',
     'hive-energy': '{name} Bzzt! Time to {command} and do some raids!',
     'incubator-upgrade': '{name} Bzzt! Your {command} is ready!',
-    'larva': '{name} Bzzt! **{larva_amount}** larva(e) finished growing! Use {command} to claim.',
+    'larva': '{name} Bzzt! A {larva_emoji} {larva_name} finished growing! Use {command} to claim.',
     'prune': '{name} Bzzt! Time to {command}! {pruner_emoji}',
     'pruner-research': '{name} Bzzt! Research in your {command} is finished!',
     'pruner-upgrade': '{name} Bzzt! Your {command} upgrade is finished!',
@@ -119,7 +119,8 @@ PLACEHOLDER_DESCRIPTIONS = {
     'command': 'The command you get reminded for',
     'chest_emoji': 'The emoji of the chest',
     'chest_type': 'The type of the chest (wooden, silver, golden)',
-    'larva_amount': 'The amount of larvae ready to claim',
+    'larva_emoji': 'The emoji of the larva',
+    'larva_name': 'The name of the larva',
     'quest_type': 'The type of the quest (daily, weekly, monthly)',
     'pruner_emoji': 'The emoji of your current pruner',
 }

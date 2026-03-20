@@ -38,6 +38,17 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
     - True if a logo reaction should be added to the message
     - False otherwise
     """
+    def get_amount(amount_string) -> int:
+        
+        if amount_string.lower().endswith('k'):
+            return int(round(float(amount_string.lower().rstrip('k')) * 1_000))
+        elif amount_string.lower().endswith('m'):
+            return int(round(float(amount_string.lower().rstrip('m')) * 1_000_000))
+        elif amount_string.lower().endswith('b'):
+            return int(round(float(amount_string.lower().rstrip('b')) * 1_000_000_000 ))
+        else:
+            return int(re.sub(r'\D', '', amount_string))
+    
     add_reaction = False
     search_strings = [
         'you have pruned your tree', #English
@@ -64,7 +75,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         current_time = utils.utcnow().replace(microsecond=0)
         if user_settings.tracking_enabled:
             await tracking.insert_log_entry(user.id, message.guild.id, 'prune', current_time)
-        league_beta = None
         nugget_wooden_match = re.search(r'woodennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_copper_match = re.search(r'coppernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_silver_match = re.search(r'silvernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
@@ -73,53 +83,45 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         bee_bread_match = re.search(r'beebread:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         royal_jelly_match = re.search(r'royaljelly:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         if nugget_wooden_match:
-            nugget_wooden_amount = int(re.sub(r'\D', '', nugget_wooden_match.group(1)))
-            league_beta = True if nugget_wooden_amount > 1 else False
+            nugget_wooden_amount = get_amount(nugget_wooden_match.group(1))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
                                                 nugget_wooden_amount)
             dropped_nuggets['Wooden'] = nugget_wooden_amount
         if nugget_copper_match:
-            nugget_copper_amount = int(re.sub(r'\D', '', nugget_copper_match.group(1)))
-            league_beta = True if nugget_copper_amount > 1 else False
+            nugget_copper_amount = get_amount(nugget_copper_match.group(1))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'copper-nugget', current_time,
                                                 nugget_copper_amount)
             dropped_nuggets['Copper'] = nugget_copper_amount
         if nugget_silver_match:
-            nugget_silver_amount = int(re.sub(r'\D', '', nugget_silver_match.group(1)))
-            league_beta = True if nugget_silver_amount > 1 else False
+            nugget_silver_amount = get_amount(nugget_silver_match.group(1))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'silver-nugget', current_time,
                                                 nugget_silver_amount)
             dropped_nuggets['Silver'] = nugget_silver_amount
         if nugget_golden_match:
-            nugget_golden_amount = int(re.sub(r'\D', '', nugget_golden_match.group(1)))
-            league_beta = True if nugget_golden_amount > 1 else False
+            nugget_golden_amount = get_amount(nugget_golden_match.group(1))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
                                                 nugget_golden_amount)
             dropped_nuggets['Golden'] = nugget_golden_amount
         if nugget_diamond_match:
-            nugget_diamond_amount = int(re.sub(r'\D', '', nugget_diamond_match.group(1)))
-            league_beta = True if nugget_diamond_amount > 1 else False
+            nugget_diamond_amount = get_amount(nugget_diamond_match.group(1))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'diamond-nugget', current_time,
                                                 nugget_diamond_amount)
             dropped_nuggets['Diamond'] = nugget_diamond_amount
         if bee_bread_match:
-            bee_bread_amount = int(re.sub(r'\D', '', bee_bread_match.group(1)))
+            bee_bread_amount = get_amount(bee_bread_match.group(1))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'bee-bread', current_time,
                                                 bee_bread_amount)
         if royal_jelly_match:
-            royal_jelly_amount = int(re.sub(r'\D', '', royal_jelly_match.group(1)))
+            royal_jelly_amount = get_amount(royal_jelly_match.group(1))
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'royal-jelly', current_time,
                                                 royal_jelly_amount)
-        if league_beta is not None and user_settings.tracking_enabled:
-            if (league_beta and not user_settings.league_beta) or (not league_beta and user_settings.league_beta):
-                await user_settings.update(league_beta=league_beta)
         if user_settings.reminder_prune.enabled:
             user_command = await functions.get_game_command(user_settings, 'prune')
             pruner_type_match = re.search(r'> \*\*(.+?) pruner', message.content, re.IGNORECASE)
