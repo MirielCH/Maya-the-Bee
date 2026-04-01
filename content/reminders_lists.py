@@ -141,6 +141,9 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             elif 'valentine' in reminder.message:
                 emoji = emojis.CHEST_VALENTINE
                 activity = 'Valentine'
+            elif 'easter' in reminder.message:
+                emoji = emojis.CHEST_EASTER
+                activity = 'Easter'
             elif 'pumpkin' in reminder.message:
                 emoji = emojis.PUMPKIN
                 activity = 'Pumpkin'

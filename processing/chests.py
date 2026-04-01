@@ -170,6 +170,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             elif 'valentine' in button.emoji.name:
                 chest_type = 'valentine'
                 chest_emoji = emojis.CHEST_VALENTINE
+            elif 'easter' in button.emoji.name:
+                chest_type = 'easter'
+                chest_emoji = emojis.CHEST_EASTER
             else:
                 chest_type = 'wooden'
                 chest_emoji = emojis.CHEST_WOODEN
