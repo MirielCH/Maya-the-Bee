@@ -263,7 +263,7 @@ async def update_trophies_on_raid_start(message: discord.Message, embed_data: Di
         if not user_settings.bot_enabled: return add_reaction
 
         kwargs = {}
-        trophies_match = re.search(r'trophies: (.+?)$', embed_data['title'], re.IGNORECASE)
+        trophies_match = re.search(r'trophy:.+?\s(.+?)$', embed_data['title'], re.IGNORECASE)
         trophies = int(re.sub(r'\D', '', trophies_match.group(1)))
         kwargs['trophies'] = trophies
         

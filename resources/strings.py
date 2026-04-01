@@ -129,6 +129,7 @@ MSG_ERROR = 'Whoops, something went wrong here. You should probably tell Miriel#
 
 ACTIVITIES_BOOSTS_EMOJIS = {
     'drop-chance-boost': emojis.BOOST_DROP_CHANCE,
+    'easter-candy': emojis.CANDY,
     'insecticide': emojis.INSECTICIDE,
     'queen-bee-boost': emojis.QUEEN_BEE_S,
     'raid-shield': emojis.BOOST_RAID_SHIELD,
@@ -185,6 +186,7 @@ ACTIVITIES_COMMANDS = (
 
 ACTIVITIES_BOOSTS = (
     'drop-chance-boost',
+    'easter-candy',
     'insecticide',
     'queen-bee-boost',
     'raid-shield',
@@ -236,7 +238,9 @@ ACTIVITIES_COLUMNS = {
 
 ACTIVITIES_NAME_BOOSTS = {
     'drop chance boost': 'drop-chance-boost',
+    'easter candy': 'easter-candy',
     'insecticide': 'insecticide',
+    'drop chance boost': 'drop-chance-boost',
     'queen bee hp boost': 'queen-bee-boost',
     'raid shield': 'raid-shield',
     'spooky boost': 'spooky-boost',

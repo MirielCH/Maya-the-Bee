@@ -70,7 +70,7 @@ async def create_reminders(message: discord.Message, embed_data: Dict, interacti
         
         activity = ''
         boost_name = ''
-        boost_fields = f"{embed_data['field1']['value']}\n{embed_data['field2']['value']}"
+        boost_fields = f"{embed_data['field1']['value']}\n{embed_data['field2']['value']}\n{embed_data['field3']['value']}\n{embed_data['field4']['value']}".strip()
         for line in boost_fields.split('\n'):
             for boost_name in strings.ACTIVITIES_NAME_BOOSTS.keys():
                 if boost_name in line.lower():
