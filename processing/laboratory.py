@@ -272,7 +272,7 @@ async def store_research_time(message: discord.Message, embed_data: Dict, intera
         if not user_settings.bot_enabled: return
         for line in embed_data['field0']['value'].split('\n'):
             if not 'time needed' in line.lower(): continue
-            timestring_match = re.search('\)\*\* (.+?)$', line)
+            timestring_match = re.search(r'\)\*\* (.+?)$', line)
             research_time = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
             await user_settings.update(research_time=research_time.total_seconds())
     return False

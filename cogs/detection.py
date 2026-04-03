@@ -1,10 +1,12 @@
 # detection.py
 """Collects and parses Tree messages"""
 
+from datetime import datetime, timedelta, timezone
 import re
 from typing import Dict, Union
 
 import discord
+from discord import utils
 from discord.ext import commands
 
 from database import users
@@ -12,6 +14,7 @@ from processing import bonuses, easter, chests, chips, clean, cooldowns, daily, 
 from processing import laboratory, league, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
+seen_messages = {}  
 
 class DetectionCog(commands.Cog):
     """Cog that contains the detection events"""
@@ -22,6 +25,7 @@ class DetectionCog(commands.Cog):
     async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message) -> None:
         """Runs when a message is edited in a channel."""
         if message_after.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
+
         embed_data_before = await parse_embed(message_before)
         embed_data = await parse_embed(message_after)
         if (message_before.content == message_after.content and embed_data_before == embed_data
@@ -31,6 +35,7 @@ class DetectionCog(commands.Cog):
             await self.on_message(message_after)
             return
         if message_before.components and not message_after.components: return
+
         if await check_message_for_active_components(message_after):
             await self.on_message(message_after)
 
@@ -38,6 +43,30 @@ class DetectionCog(commands.Cog):
     async def on_message(self, message: discord.Message) -> None:
         """Runs when a message is sent in a channel."""
         if message.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
+
+        # Duplicate message handling
+        if (message.id, message.edited_at) in seen_messages:
+            old_message = seen_messages[(message.id, message.edited_at)]
+            print(
+                'Duplicate found.\n',
+                'Message ID:', old_message.id, 'Created at:', old_message.created_at, 'Edited at:', old_message.edited_at, 'Interaction metadata:', old_message.interaction_metadata, 'Content:', old_message.content, 'Nonce:', old_message.nonce, '\n',
+                'Message ID:', message.id, 'Created at:', message.created_at, 'Edited at:', message.edited_at, 'Interaction metadata:', message.interaction_metadata, 'Content:', message.content, 'Nonce:', message.nonce, '\n',
+            )
+        now = utils.utcnow()
+        message_timestamp = seen_messages.get((message.id, message.edited_at), datetime.fromtimestamp(0, tz=timezone.utc))
+        # difference = now - message_timestamp
+        """
+        if utils.utcnow() - seen_messages.get((message.id, message.edited_at), datetime.fromtimestamp(0, tz=timezone.utc)) < timedelta(milliseconds=50):
+            return
+        """
+        seen_messages[(message.id, message.edited_at)] = message
+        """
+        if len(seen_messages) > 100_000:
+            seen_messages.clear()
+        expired_message_keys = [seen_key for seen_key, seen_time in seen_messages.items() if utils.utcnow() - seen_time > timedelta(minutes=1)]
+        for seen_key in expired_message_keys:
+            del seen_messages[seen_key]
+        """
         user_settings = None
         embed_data = await parse_embed(message)
         embed_data['embed_user'] = None
@@ -279,7 +308,7 @@ async def check_message_for_active_components(message: discord.Message) -> Union
     if not message.components: return True
     active_component = False
     for row in message.components:
-        for component in row.children:
+        for component in getattr(row, 'children', []):
             if not component.disabled:
                 active_component = True
                 break

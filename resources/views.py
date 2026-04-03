@@ -12,7 +12,7 @@ from resources import components, functions, settings, strings
 
 
 # --- Miscellaneous ---
-class AbortView(discord.ui.View):
+class AbortView(discord.ui.DesignerView):
     """View with an abort button.
 
     Also needs the interaction of the response with the view, so do AbortView.interaction = await ctx.respond('foo').
@@ -28,12 +28,7 @@ class AbortView(discord.ui.View):
         self.value = None
         self.interaction = interaction
         self.user = ctx.author
-
-    @discord.ui.button(custom_id="abort", style=discord.ButtonStyle.grey, label='Abort')
-    async def button_abort(self, button: discord.ui.Button, interaction: discord.Interaction):
-        """Abort button"""
-        self.value = button.custom_id
-        self.stop()
+        self.add_item(discord.ui.ActionRow(components.AbortButton(custom_id='abort', label='Abort', emoji=None)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.user.id:
@@ -46,7 +41,7 @@ class AbortView(discord.ui.View):
         self.stop()
 
 
-class ConfirmCancelView(discord.ui.View):
+class ConfirmCancelView(discord.ui.DesignerView):
     """View with confirm and cancel button.
 
     Args: ctx, styles: Optional[List[discord.ButtonStyle]], labels: Optional[list[str]]
@@ -65,8 +60,12 @@ class ConfirmCancelView(discord.ui.View):
         self.value = None
         self.user = ctx.author
         self.interaction_message = interaction_message
-        self.add_item(components.CustomButton(style=styles[0], custom_id='confirm', label=labels[0]))
-        self.add_item(components.CustomButton(style=styles[1], custom_id='cancel', label=labels[1]))
+        self.add_item(
+            discord.ui.ActionRow(
+                components.CustomButton(style=styles[0], custom_id='confirm', label=labels[0]),
+                components.CustomButton(style=styles[1], custom_id='cancel', label=labels[1])
+            )
+        )
 
     async def interaction_check(self, interaction: discord.Interaction):
         if interaction.user != self.user:
@@ -77,7 +76,7 @@ class ConfirmCancelView(discord.ui.View):
         self.stop()
 
 
-class OneButtonView(discord.ui.View):
+class OneButtonView(discord.ui.DesignerView):
     """View with one button that returns the custom id of that button.
 
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
@@ -96,7 +95,7 @@ class OneButtonView(discord.ui.View):
         self.interaction_message = interaction_message
         self.ctx = ctx
         self.user = ctx.author
-        self.add_item(components.CustomButton(style=style, custom_id=custom_id, label=label, emoji=emoji))
+        self.add_item(discord.ui.ActionRow(components.CustomButton(style=style, custom_id=custom_id, label=label, emoji=emoji)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -114,7 +113,7 @@ class OneButtonView(discord.ui.View):
 
 
 # --- Reminder management ---
-class RemindersListView(discord.ui.View):
+class RemindersListView(discord.ui.DesignerView):
     """View with a select that deletes custom reminders.
 
     Also needs the message of the response with the view, so do view.interaction = await ctx.respond('foo').
@@ -139,9 +138,9 @@ class RemindersListView(discord.ui.View):
         self.user = user
         self.user_settings = user_settings
         self.show_timestamps = show_timestamps
-        self.add_item(components.ToggleTimestampsButton('Show end time'))
+        self.add_item(discord.ui.ActionRow(components.ToggleTimestampsButton('Show end time')))
         if custom_reminders:
-            self.add_item(components.DeleteCustomRemindersButton())
+            self.add_item(discord.ui.ActionRow(components.DeleteCustomRemindersButton()))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -159,7 +158,7 @@ class RemindersListView(discord.ui.View):
 
 
 # --- Settings ---
-class SettingsAlertsView(discord.ui.View):
+class SettingsAlertsView(discord.ui.DesignerView):
     """View with a all components to manage alert settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
 
@@ -193,10 +192,10 @@ class SettingsAlertsView(discord.ui.View):
             'Nugget alert': 'alert_nugget_enabled',
             'Rebirth alert': 'alert_rebirth_enabled',
         }
-        self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle alerts'))
-        self.add_item(components.SetAlertSettingsSelect(self))
-        self.add_item(components.SetAlertNuggetThresholdSelect(self))
-        self.add_item(components.SwitchSettingsSelect(self, commands_settings))
+        self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle alerts')))
+        self.add_item(discord.ui.ActionRow(components.SetAlertSettingsSelect(self)))
+        self.add_item(discord.ui.ActionRow(components.SetAlertNuggetThresholdSelect(self)))
+        self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -209,7 +208,7 @@ class SettingsAlertsView(discord.ui.View):
         self.stop()
 
         
-class SettingsHelpersView(discord.ui.View):
+class SettingsHelpersView(discord.ui.DesignerView):
     """View with a all components to manage helper settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
 
@@ -245,20 +244,26 @@ class SettingsHelpersView(discord.ui.View):
             'Rebirth summary': 'helper_rebirth_enabled',
             'Trophy progress popup': 'helper_trophies_enabled',
         }
-        self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers'))
+        self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers')))
         self.add_item(
-            components.SetProgressBarColorSelect(self, 'helper_prune_progress_bar_color',
+            discord.ui.ActionRow(
+                components.SetProgressBarColorSelect(self, 'helper_prune_progress_bar_color',
                                                       'Change XP progress bar color')
+            )
         )
         self.add_item(
-            components.SetProgressBarColorSelect(self, 'helper_trophies_trophy_progress_bar_color',
+            discord.ui.ActionRow(
+                components.SetProgressBarColorSelect(self, 'helper_trophies_trophy_progress_bar_color',
                                                       'Change trophy progress bar color')
+            )
         )
         self.add_item(
-            components.SetProgressBarColorSelect(self, 'helper_trophies_diamond_progress_bar_color',
+            discord.ui.ActionRow(
+                components.SetProgressBarColorSelect(self, 'helper_trophies_diamond_progress_bar_color',
                                                       'Change diamond trophy progress bar color')
+            )
         )
-        self.add_item(components.SwitchSettingsSelect(self, commands_settings))
+        self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -271,7 +276,7 @@ class SettingsHelpersView(discord.ui.View):
         self.stop()
 
 
-class SettingsMessagesView(discord.ui.View):
+class SettingsMessagesView(discord.ui.DesignerView):
     """View with a all components to change message reminders.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
 
@@ -305,20 +310,20 @@ class SettingsMessagesView(discord.ui.View):
         self.activity = activity
         self.commands_settings = commands_settings
         if activity == 'all':
-            self.add_item(components.SetReminderMessageButton(style=discord.ButtonStyle.red, custom_id='reset_all',
-                                                              label='Reset all messages'))
+            self.add_item(discord.ui.ActionRow(components.SetReminderMessageButton(style=discord.ButtonStyle.red, custom_id='reset_all',
+                                                              label='Reset all messages')))
         else:
-            self.add_item(components.SetReminderMessageButton(style=discord.ButtonStyle.blurple, custom_id='set_message',
-                                                              label='Change'))
-            self.add_item(components.SetReminderMessageButton(style=discord.ButtonStyle.red, custom_id='reset_message',
-                                                              label='Reset'))
+            self.add_item(discord.ui.ActionRow(components.SetReminderMessageButton(style=discord.ButtonStyle.blurple, custom_id='set_message',
+                                                              label='Change')))
+            self.add_item(discord.ui.ActionRow(components.SetReminderMessageButton(style=discord.ButtonStyle.red, custom_id='reset_message',
+                                                              label='Reset')))
         placeholder = 'Choose activity (1)' if len (strings.ACTIVITIES) > 24 else 'Choose activity'
-        self.add_item(components.ReminderMessageSelect(self, strings.ACTIVITIES[:24], placeholder,
-                                                       'select_message_activity_1', row=2))
+        self.add_item(discord.ui.ActionRow(components.ReminderMessageSelect(self, strings.ACTIVITIES[:24], placeholder,
+                                                       'select_message_activity_1')))
         if len(strings.ACTIVITIES) > 24:
-            self.add_item(components.ReminderMessageSelect(self, strings.ACTIVITIES[24:], 'Choose activity (2)',
-                                                           'select_message_activity_2', row=3))
-        self.add_item(components.SwitchSettingsSelect(self, commands_settings, row=4))
+            self.add_item(discord.ui.ActionRow(components.ReminderMessageSelect(self, strings.ACTIVITIES[24:], 'Choose activity (2)',
+                                                           'select_message_activity_2')))
+        self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -331,7 +336,7 @@ class SettingsMessagesView(discord.ui.View):
         self.stop()
 
 
-class SettingsRemindersView(discord.ui.View):
+class SettingsRemindersView(discord.ui.DesignerView):
     """View with a all components to manage reminder settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
 
@@ -377,9 +382,9 @@ class SettingsRemindersView(discord.ui.View):
             'Vote': 'reminder_vote',
         }
 
-        self.add_item(components.ToggleUserSettingsSelect(self, toggled_settings_commands, 'Toggle reminders',
-                                                          'toggle_command_reminders'))
-        self.add_item(components.SwitchSettingsSelect(self, commands_settings))
+        self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_commands, 'Toggle reminders',
+                                                          'toggle_command_reminders')))
+        self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -392,7 +397,7 @@ class SettingsRemindersView(discord.ui.View):
         self.stop()
 
 
-class SettingsServerView(discord.ui.View):
+class SettingsServerView(discord.ui.DesignerView):
     """View with a all components to manage server settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
 
@@ -421,7 +426,7 @@ class SettingsServerView(discord.ui.View):
         self.interaction = interaction
         self.user = ctx.author
         self.guild_settings = guild_settings
-        self.add_item(components.ManageServerSettingsSelect(self))
+        self.add_item(discord.ui.ActionRow(components.ManageServerSettingsSelect(self)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -434,7 +439,7 @@ class SettingsServerView(discord.ui.View):
         self.stop()
 
 
-class SettingsUserView(discord.ui.View):
+class SettingsUserView(discord.ui.DesignerView):
     """View with a all components to manage user settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
 
@@ -463,9 +468,9 @@ class SettingsUserView(discord.ui.View):
         self.user_settings = user_settings
         self.embed_function = embed_function
         self.commands_settings = commands_settings
-        self.add_item(components.SetDonorTierSelect(self, 'Change your donor tier', 'user'))
-        self.add_item(components.ManageUserSettingsSelect(self))
-        self.add_item(components.SwitchSettingsSelect(self, commands_settings))
+        self.add_item(discord.ui.ActionRow(components.SetDonorTierSelect(self, 'Change your donor tier', 'user')))
+        self.add_item(discord.ui.ActionRow(components.ManageUserSettingsSelect(self)))
+        self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -479,7 +484,7 @@ class SettingsUserView(discord.ui.View):
 
 
 # --- Tracking ---
-class StatsView(discord.ui.View):
+class StatsView(discord.ui.DesignerView):
     """View with a button to toggle command tracking.
 
     Also needs the message of the response with the view, so do AbortView.message = await message.reply('foo').
@@ -508,7 +513,7 @@ class StatsView(discord.ui.View):
             style = discord.ButtonStyle.grey
             custom_id = 'untrack'
             label = 'Stop tracking me!'
-        self.add_item(components.ToggleTrackingButton(style=style, custom_id=custom_id, label=label))
+        self.add_item(discord.ui.ActionRow(components.ToggleTrackingButton(style=style, custom_id=custom_id, label=label)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -527,7 +532,7 @@ class StatsView(discord.ui.View):
 
 
 # --- Dev ---
-class DevEventReductionsView(discord.ui.View):
+class DevEventReductionsView(discord.ui.DesignerView):
     """View with a all components to manage cooldown settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
 
@@ -554,12 +559,12 @@ class DevEventReductionsView(discord.ui.View):
         self.user = ctx.author
         self.all_cooldowns = all_cooldowns
         self.embed_function = embed_function
-        self.add_item(components.ManageEventReductionsSelect(self, all_cooldowns, 'slash'))
-        self.add_item(components.ManageEventReductionsSelect(self, all_cooldowns, 'text'))
-        self.add_item(components.CopyEventReductionsButton(discord.ButtonStyle.grey, 'copy_slash_text',
-                                                           'Copy slash > text'))
-        self.add_item(components.CopyEventReductionsButton(discord.ButtonStyle.grey, 'copy_text_slash',
-                                                           'Copy text > slash'))
+        self.add_item(discord.ui.ActionRow(components.ManageEventReductionsSelect(self, all_cooldowns, 'slash')))
+        self.add_item(discord.ui.ActionRow(components.ManageEventReductionsSelect(self, all_cooldowns, 'text')))
+        self.add_item(discord.ui.ActionRow(components.CopyEventReductionsButton(discord.ButtonStyle.grey, 'copy_slash_text',
+                                                                           'Copy slash > text')))
+        self.add_item(discord.ui.ActionRow(components.CopyEventReductionsButton(discord.ButtonStyle.grey, 'copy_text_slash',
+                                                                           'Copy text > slash')))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
