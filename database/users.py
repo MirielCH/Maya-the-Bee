@@ -35,6 +35,7 @@ class User():
     diamond_trophies_raid_count: int
     dnd_mode_enabled: bool
     donor_tier: int
+    helper_bunny_enabled: bool
     helper_context_enabled: bool
     helper_prune_enabled: bool
     helper_prune_progress_bar_color: str
@@ -42,6 +43,7 @@ class User():
     helper_trophies_diamond_progress_bar_color: str
     helper_trophies_enabled: bool
     helper_trophies_trophy_progress_bar_color: str
+    last_bunny_update: datetime | None
     last_rebirth: datetime
     league_beta: bool
     level: int
@@ -93,6 +95,7 @@ class User():
         self.diamond_trophies_raid_count = new_settings.diamond_trophies_raid_count
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
+        self.helper_bunny_enabled = new_settings.helper_bunny_enabled
         self.helper_context_enabled = new_settings.helper_context_enabled
         self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.helper_prune_progress_bar_color = new_settings.helper_prune_progress_bar_color
@@ -100,6 +103,7 @@ class User():
         self.helper_trophies_diamond_progress_bar_color = new_settings.helper_trophies_diamond_progress_bar_color
         self.helper_trophies_enabled = new_settings.helper_trophies_enabled
         self.helper_trophies_trophy_progress_bar_color = new_settings.helper_trophies_trophy_progress_bar_color
+        self.last_bunny_update = new_settings.last_bunny_update
         self.last_rebirth = new_settings.last_rebirth
         self.league_beta = new_settings.league_beta
         self.level = new_settings.level
@@ -154,6 +158,7 @@ class User():
             diamond_trophies_raid_count: int
             dnd_mode_enabled: bool
             donor_tier: int
+            helper_bunny_enabled: bool
             helper_context_enabled: bool
             helper_prune_enabled: bool
             helper_prune_progress_bar_color: str
@@ -161,6 +166,7 @@ class User():
             helper_trophies_diamond_progress_bar_color: str
             helper_trophies_enabled: bool
             helper_trophies_trophy_progress_bar_color: str
+            last_bunny_update: datetime | None
             last_rebirth: datetime UTC aware
             league_beta: bool
             level: int
@@ -244,8 +250,10 @@ async def _dict_to_user(record: dict) -> User:
             diamond_trophies_raid_count = record['diamond_trophies_raid_count'],
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
             donor_tier = record['donor_tier'],
+            last_bunny_update = datetime.fromisoformat(record['last_bunny_update']) if record['last_bunny_update'] is not None else None,
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
             league_beta = bool(record['league_beta']),
+            helper_bunny_enabled = bool(record['helper_bunny_enabled']),
             helper_context_enabled = bool(record['helper_context_enabled']),
             helper_prune_enabled = bool(record['helper_prune_enabled']),
             helper_prune_progress_bar_color = record['helper_prune_progress_bar_color'],
@@ -428,6 +436,7 @@ async def _update_user(user: User, **kwargs) -> None:
         diamond_trophies_raid_count: int
         dnd_mode_enabled: bool
         donor_tier: int
+        helper_bunny_enabled: bool
         helper_context_enabled: bool
         helper_prune_enabled: bool
         helper_prune_progress_bar_color: str
@@ -435,6 +444,7 @@ async def _update_user(user: User, **kwargs) -> None:
         helper_trophies_diamond_progress_bar_color: str
         helper_trophies_enabled: bool
         helper_trophies_trophy_progress_bar_color: str
+        last_bunny_update: datetime | None
         last_rebirth: datetime UTC aware
         league_beta: bool
         level: int

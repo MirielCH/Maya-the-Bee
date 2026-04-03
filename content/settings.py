@@ -381,6 +381,8 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
     helpers = (
         f'{emojis.BP} **Context commands**: {await functions.bool_to_text(user_settings.helper_context_enabled)}\n'
         f'{emojis.DETAIL} _Shows helpful slash commands depending on context._\n'
+        f'{emojis.BP} **Easter bunnies**: {await functions.bool_to_text(user_settings.helper_bunny_enabled)}\n'
+        f'{emojis.DETAIL} _Shows possible updates when encountering easter bunnies._\n'
         f'{emojis.BP} **Level XP popup**: {await functions.bool_to_text(user_settings.helper_prune_enabled)}\n'
         f'{emojis.DETAIL} _Shows XP progress to next level after using {strings.SLASH_COMMANDS["prune"]}._\n'
         f'{emojis.BP} **Rebirth summary**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'

@@ -8,8 +8,8 @@ import discord
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, chests, chips, clean, cooldowns, daily, fusion, hive, incubator, inventory, laboratory, league
-from processing import patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
+from processing import bonuses, easter, chests, chips, clean, cooldowns, daily, fusion, hive, incubator, inventory
+from processing import laboratory, league, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, regex, settings
 
 
@@ -63,6 +63,7 @@ class DetectionCog(commands.Cog):
                     embed_user_settings = None
             embed_data['embed_user_settings'] = embed_user_settings
         return_values = []
+        helper_bunny_enabled = getattr(user_settings, 'helper_bunny_enabled', True)
         helper_context_enabled = getattr(user_settings, 'helper_context_enabled', True)
         helper_prune_enabled = getattr(user_settings, 'helper_prune_enabled', True)
         reminder_boosts_enabled = getattr(getattr(user_settings, 'reminder_boosts', None), 'enabled', True)
@@ -81,6 +82,11 @@ class DetectionCog(commands.Cog):
         # Bonuses
         if reminder_boosts_enabled:
             add_reaction = await bonuses.process_message(message, embed_data, interaction_user, user_settings)
+            return_values.append(add_reaction)
+
+        # Bunnies
+        if helper_bunny_enabled:
+            add_reaction = await easter.process_message(message, embed_data, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         # Cooldowns

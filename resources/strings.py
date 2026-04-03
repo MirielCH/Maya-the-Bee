@@ -258,6 +258,7 @@ SLASH_COMMANDS = {
     'craft': '</craft:960947259627958293>',
     'daily': '</daily:989564333308661771>',
     'dismantle': '</dismantle:960947259627958295>',
+    'easter hutch': '</easter hutch:1488594985782874143>',
     'fusion': '</fusion:976919525415071826>',
     'hive claim energy': '</hive claim-energy:976919525415071824>',
     'hive claim honey': '</hive claim-honey:976919525415071824>',

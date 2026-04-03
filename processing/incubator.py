@@ -43,7 +43,8 @@ async def create_larva_reminders_from_feeding(message: discord.Message, embed_da
         'you have fed', #English
         'is now growing', #English
     ]
-    if any(search_string in embed_data['description'].lower() for search_string in search_strings):
+    if (any(search_string in embed_data['description'].lower() for search_string in search_strings)
+        and 'larva' in embed_data['description'].lower()):
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']

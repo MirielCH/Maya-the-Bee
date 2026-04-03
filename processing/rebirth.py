@@ -52,12 +52,12 @@ async def track_rebirth_and_show_summary(message: discord.Message, embed_data: D
         rebirth_match = re.search(r'^total rebirths: (.+?)$', rebirth_string.lower())
         rebirth = int(re.sub(r'\D', '', rebirth_match.group(1)))
 
+        current_time = utils.utcnow().replace(microsecond=0)
         if user_settings.helper_rebirth_enabled:
             if user_settings.rebirth <= 10:
                 level_target = 5 + rebirth
             else:
                 level_target = 15 + ((rebirth - 10) // 2)
-            current_time = utils.utcnow().replace(microsecond=0)
             report: tracking.LogReport = await tracking.get_log_report(user.id, current_time - user_settings.last_rebirth)
             embed = discord.Embed(
                 color = settings.EMBED_COLOR,

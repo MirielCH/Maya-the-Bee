@@ -308,7 +308,7 @@ async def parse_timestring_to_timedelta(timestring: str) -> timedelta:
                 f'Error parsing timestring \'{timestring}\', couldn\'t convert \'{seconds}\' to an integer'
             )
 
-    if time_left_seconds > 999_999_999:
+    if time_left_seconds > 999_999_999_999_999:
         raise OverflowError('Timestring out of valid range. Stop hacking.')
 
     return timedelta(seconds=time_left_seconds)
