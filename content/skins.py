@@ -65,7 +65,7 @@ class SkinsSelect(discord.ui.Select):
 
 
 # --- Views ---
-class SkinsView(discord.ui.View):
+class SkinsView(discord.ui.DesignerView):
     """View with a topic select and a skin preview select.
     Also needs the interaction of the response with the view, so do SkinsView.interaction = await ctx.respond('foo').
 
@@ -92,7 +92,7 @@ class SkinsView(discord.ui.View):
         self.user = ctx.author
         self.active_skin = active_skin
         self.placeholder = placeholder
-        self.add_item(SkinsSelect(self.placeholder))
+        self.add_item(discord.ui.ActionRow(SkinsSelect(self.placeholder)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         #if interaction.user.id != self.user.id:

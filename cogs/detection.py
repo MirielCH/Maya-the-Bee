@@ -12,7 +12,7 @@ from discord.ext import commands
 from database import users
 from processing import bonuses, easter, chests, chips, clean, cooldowns, daily, fusion, hive, incubator, inventory
 from processing import laboratory, league, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
-from resources import exceptions, functions, regex, settings
+from resources import exceptions, functions, logs, regex, settings
 
 seen_messages = {}  
 
@@ -43,32 +43,31 @@ class DetectionCog(commands.Cog):
     async def on_message(self, message: discord.Message) -> None:
         """Runs when a message is sent in a channel."""
         if message.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
-
+        user_settings = None
+        embed_data = await parse_embed(message)
+        
         # Duplicate message handling
-        if (message.id, message.edited_at) in seen_messages:
-            old_message = seen_messages[(message.id, message.edited_at)]
-            print(
-                'Duplicate found.\n',
-                'Message ID:', old_message.id, 'Created at:', old_message.created_at, 'Edited at:', old_message.edited_at, 'Interaction metadata:', old_message.interaction_metadata, 'Content:', old_message.content, 'Nonce:', old_message.nonce, '\n',
-                'Message ID:', message.id, 'Created at:', message.created_at, 'Edited at:', message.edited_at, 'Interaction metadata:', message.interaction_metadata, 'Content:', message.content, 'Nonce:', message.nonce, '\n',
-            )
-        now = utils.utcnow()
-        message_timestamp = seen_messages.get((message.id, message.edited_at), datetime.fromtimestamp(0, tz=timezone.utc))
-        # difference = now - message_timestamp
-        """
-        if utils.utcnow() - seen_messages.get((message.id, message.edited_at), datetime.fromtimestamp(0, tz=timezone.utc)) < timedelta(milliseconds=50):
+        if (message.id, message.content, str(embed_data), str(message.components)) in seen_messages:
+            if 'a bunny is approaching!' in embed_data['title'].lower():
+                logs.logger.info(
+                    f'\nDuplicate message detected and ignored.\n'
+                    f'Message ID: {message.id}\n'
+                    f'Message created at: {message.created_at}\n'
+                    f'Message edited at: {message.edited_at}\n'
+                    f'Message content: {message.content}\n'
+                    f'Message embed: {str(embed_data)}\n'
+                    f'Message components: {str(message.components)}\n'
+                    f'Message nonce: {message.nonce}\n'
+                )
             return
-        """
-        seen_messages[(message.id, message.edited_at)] = message
-        """
-        if len(seen_messages) > 100_000:
-            seen_messages.clear()
         expired_message_keys = [seen_key for seen_key, seen_time in seen_messages.items() if utils.utcnow() - seen_time > timedelta(minutes=1)]
         for seen_key in expired_message_keys:
             del seen_messages[seen_key]
-        """
-        user_settings = None
-        embed_data = await parse_embed(message)
+        if len(seen_messages) > 10_000:
+            seen_messages.clear()
+            logs.logger.info('Cleared message cache to prevent memory issues. This should not happen often.')
+        seen_messages[(message.id, message.content, str(embed_data), str(message.components))] = utils.utcnow()
+
         embed_data['embed_user'] = None
         embed_data['embed_user_settings'] = None
         interaction_user = await functions.get_interaction_user(message)

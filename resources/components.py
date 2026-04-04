@@ -46,8 +46,12 @@ class DeleteCustomRemindersButton(discord.ui.Button):
                          emoji=None)
 
     async def callback(self, interaction: discord.Interaction) -> None:
-        self.view.remove_item(self.custom_id)
-        self.view.add_item(discord.ui.ActionRow(DeleteCustomReminderSelect(self.view, self.view.custom_reminders)))
+        for action_row in self.view.children.copy():
+            for child in action_row.children.copy():
+                if isinstance(child, DeleteCustomRemindersButton):
+                    self.view = self.view.remove_item(action_row)
+                    self.view = self.view.add_item(discord.ui.ActionRow(DeleteCustomReminderSelect(self.view, self.view.custom_reminders)))
+        
         embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_settings,
                                                self.view.user_reminders, self.view.show_timestamps)
         await interaction.response.edit_message(embed=embed, view=self.view)
@@ -55,7 +59,7 @@ class DeleteCustomRemindersButton(discord.ui.Button):
 
 class DeleteCustomReminderSelect(discord.ui.Select):
     """Select to delete custom reminders"""
-    def __init__(self, view: discord.ui.View, custom_reminders: List[reminders.Reminder]):
+    def __init__(self, view: discord.ui.DesignerView, custom_reminders: List[reminders.Reminder]):
         self.custom_reminders = custom_reminders
 
         options = []
@@ -75,11 +79,21 @@ class DeleteCustomReminderSelect(discord.ui.Select):
                     if user_reminder.custom_id == reminder.custom_id:
                         self.view.user_reminders.remove(user_reminder)
                         break
+        for action_row in self.view.children.copy():
+            for child in action_row.children.copy():
+                if isinstance(child, DeleteCustomReminderSelect):
+                    options = []
+                    for reminder in self.custom_reminders:
+                        label = f'{reminder.custom_id} - {reminder.message[:92]}'
+                        options.append(discord.SelectOption(label=label, value=str(reminder.custom_id), emoji=None))
+                    if not options:
+                        self.view = self.view.remove_item(action_row)
+                    else:
+                        child.options = options
+                        
         embed = await self.view.embed_function(self.view.bot, self.view.user, self.view.user_settings,
                                                self.view.user_reminders, self.view.show_timestamps)
-        self.view.remove_item(self.custom_id)
-        if self.custom_reminders:
-            self.view.add_item(discord.ui.ActionRow(DeleteCustomReminderSelect(self.view, self.view.custom_reminders)))
+        
         await interaction.response.edit_message(embed=embed, view=self.view)
 
 
@@ -103,7 +117,7 @@ class ToggleTimestampsButton(discord.ui.Button):
 # --- Settings: General ---
 class SwitchSettingsSelect(discord.ui.Select):
     """Select to switch between settings embeds"""
-    def __init__(self, view: discord.ui.View, commands_settings: Dict[str, callable]):
+    def __init__(self, view: discord.ui.DesignerView, commands_settings: Dict[str, callable]):
         self.commands_settings = commands_settings
         options = []
         for label in commands_settings.keys():
@@ -120,7 +134,7 @@ class SwitchSettingsSelect(discord.ui.Select):
 # --- Settings: Reminder messages ---
 class ReminderMessageSelect(discord.ui.Select):
     """Select to select reminder messages by activity"""
-    def __init__(self, view: discord.ui.View, activities: List[str], placeholder: str, custom_id: str):
+    def __init__(self, view: discord.ui.DesignerView, activities: List[str], placeholder: str, custom_id: str):
         options = []
         options.append(discord.SelectOption(label='All', value='all', emoji=None))
         for activity in activities:
@@ -282,7 +296,7 @@ class SetReminderMessageButton(discord.ui.Button):
 # --- Settings: Server ---
 class ManageServerSettingsSelect(discord.ui.Select):
     """Select to change server settings"""
-    def __init__(self, view: discord.ui.View):
+    def __init__(self, view: discord.ui.DesignerView):
         options = []
         options.append(discord.SelectOption(label='Change prefix',
                                             value='set_prefix', emoji=None))
@@ -305,7 +319,7 @@ class ManageServerSettingsSelect(discord.ui.Select):
 # --- Settings: User ---
 class ManageUserSettingsSelect(discord.ui.Select):
     """Select to change user settings"""
-    def __init__(self, view: discord.ui.View):
+    def __init__(self, view: discord.ui.DesignerView):
         options = []
         reactions_emoji = emojis.ENABLED if view.user_settings.reactions_enabled else emojis.DISABLED
         dnd_emoji = emojis.ENABLED if view.user_settings.dnd_mode_enabled else emojis.DISABLED
@@ -367,7 +381,7 @@ class ManageUserSettingsSelect(discord.ui.Select):
 
 class SetDonorTierSelect(discord.ui.Select):
     """Select to set a donor tier"""
-    def __init__(self, view: discord.ui.View, placeholder: str, donor_type: Optional[str] = 'user',
+    def __init__(self, view: discord.ui.DesignerView, placeholder: str, donor_type: Optional[str] = 'user',
                  disabled: Optional[bool] = False):
         self.donor_type = donor_type
         options = []
@@ -386,7 +400,7 @@ class SetDonorTierSelect(discord.ui.Select):
 
 class ToggleUserSettingsSelect(discord.ui.Select):
     """Toggle select that shows and toggles the status of user settings (except alerts)."""
-    def __init__(self, view: discord.ui.View, toggled_settings: Dict[str, str], placeholder: str,
+    def __init__(self, view: discord.ui.DesignerView, toggled_settings: Dict[str, str], placeholder: str,
                  custom_id: Optional[str] = 'toggle_user_settings'):
         self.toggled_settings = toggled_settings
         options = []
@@ -485,7 +499,7 @@ class CopyEventReductionsButton(discord.ui.Button):
 
 class ManageEventReductionsSelect(discord.ui.Select):
     """Select to manage cooldowns"""
-    def __init__(self, view: discord.ui.View, all_cooldowns: List[cooldowns.Cooldown],
+    def __init__(self, view: discord.ui.DesignerView, all_cooldowns: List[cooldowns.Cooldown],
                  cd_type: Literal['slash', 'text']):
         self.all_cooldowns = all_cooldowns
         self.cd_type = cd_type
@@ -511,7 +525,7 @@ class ManageEventReductionsSelect(discord.ui.Select):
 
 class SetProgressBarColorSelect(discord.ui.Select):
     """Select to change the prune XP progress bar color"""
-    def __init__(self, view: discord.ui.View, setting: str, placeholder: str):
+    def __init__(self, view: discord.ui.DesignerView, setting: str, placeholder: str):
         options = []
         self.setting = setting
         for color in strings.PROGRESS_BAR_COLORS:
@@ -533,7 +547,7 @@ class SetProgressBarColorSelect(discord.ui.Select):
 
 class SetAlertSettingsSelect(discord.ui.Select):
     """Select to change the alert settings"""
-    def __init__(self, view: discord.ui.View):
+    def __init__(self, view: discord.ui.DesignerView):
         options = []
         alert_captcha_mode = 'ping' if view.user_settings.alert_captcha_dm else 'DM'
         alert_nugget_mode = 'ping' if view.user_settings.alert_nugget_dm else 'DM'
@@ -571,7 +585,7 @@ class SetAlertSettingsSelect(discord.ui.Select):
 
 class SetAlertNuggetThresholdSelect(discord.ui.Select):
     """Select to change the nugget alert threshold"""
-    def __init__(self, view: discord.ui.View):
+    def __init__(self, view: discord.ui.DesignerView):
         options = []
         for name, emoji in strings.NUGGETS.items():
             options.append(discord.SelectOption(label=name, value=name, emoji=emoji))

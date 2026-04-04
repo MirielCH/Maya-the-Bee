@@ -201,7 +201,7 @@ async def command_purge_data(bot: discord.Bot, ctx: discord.ApplicationContext) 
 
 
 async def command_settings_alerts(bot: discord.Bot, ctx: discord.ApplicationContext,
-                                   switch_view: Optional[discord.ui.View] = None) -> None:
+                                   switch_view: Optional[discord.ui.DesignerView] = None) -> None:
     """Alert settings command"""
     commands_settings = {
         'Alerts': command_settings_alerts,
@@ -228,7 +228,7 @@ async def command_settings_alerts(bot: discord.Bot, ctx: discord.ApplicationCont
 
     
 async def command_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationContext,
-                                   switch_view: Optional[discord.ui.View] = None) -> None:
+                                   switch_view: Optional[discord.ui.DesignerView] = None) -> None:
     """Helper settings command"""
     commands_settings = {
         'Alerts': command_settings_alerts,
@@ -255,7 +255,7 @@ async def command_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationCon
 
     
 async def command_settings_messages(bot: discord.Bot, ctx: discord.ApplicationContext,
-                                    switch_view: Optional[discord.ui.View] = None) -> None:
+                                    switch_view: Optional[discord.ui.DesignerView] = None) -> None:
     """Reminder message settings command"""
     commands_settings = {
         'Alerts': command_settings_alerts,
@@ -282,7 +282,7 @@ async def command_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCo
 
 
 async def command_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationContext,
-                                     switch_view: Optional[discord.ui.View] = None) -> None:
+                                     switch_view: Optional[discord.ui.DesignerView] = None) -> None:
     """Reminder settings command"""
     commands_settings = {
         'Alerts': command_settings_alerts,
@@ -319,7 +319,7 @@ async def command_settings_server(bot: discord.Bot, ctx: discord.ApplicationCont
 
 
 async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContext,
-                                switch_view: Optional[discord.ui.View] = None) -> None:
+                                switch_view: Optional[discord.ui.DesignerView] = None) -> None:
     """User settings command"""
     commands_settings = {
         'Alerts': command_settings_alerts,

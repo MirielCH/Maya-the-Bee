@@ -10,7 +10,7 @@ from discord.ui import InputText, Modal
 
 # --- Settings: Server ---
 class SetPrefixModal(Modal):
-    def __init__(self, view: discord.ui.View) -> None:
+    def __init__(self, view: discord.ui.DesignerView) -> None:
         super().__init__(title='Change prefix')
         self.view = view
         self.add_item(
@@ -29,7 +29,7 @@ class SetPrefixModal(Modal):
 
 # --- Settings: User ---
 class SetLastRebirthModal(Modal):
-    def __init__(self, view: discord.ui.View) -> None:
+    def __init__(self, view: discord.ui.DesignerView) -> None:
         super().__init__(title='Change last rebirth time')
         self.view = view
         self.add_item(
@@ -71,7 +71,7 @@ class SetLastRebirthModal(Modal):
 
 # -- Dev ---
 class SetEventReductionModal(Modal):
-    def __init__(self, view: discord.ui.View, activity: str, cd_type: Literal['slash', 'text']) -> None:
+    def __init__(self, view: discord.ui.DesignerView, activity: str, cd_type: Literal['slash', 'text']) -> None:
         titles = {
             'slash': 'Change slash event reduction',
             'text': 'Change text event reduction',

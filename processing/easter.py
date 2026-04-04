@@ -8,7 +8,7 @@ from discord import utils
 
 from cache import messages
 from database import bunnies, users
-from resources import emojis, exceptions, functions, regex, settings, strings
+from resources import emojis, exceptions, functions, regex, settings, strings, logs
 
 
 async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
@@ -22,9 +22,10 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     """
     return_values = []
     return_values.append(await call_bunny_helper(message, embed_data, user, user_settings))
+    return_values.append(await send_notification_on_catch(message, embed_data, user, user_settings))
     return_values.append(await update_bunnies_from_hutch(message, embed_data, user, user_settings))
     return_values.append(await update_bunny_from_fusion(message, embed_data, user, user_settings))
-    return_values.append(await send_notification_on_catch(message, embed_data, user, user_settings))
+    return_values.append(await update_rebirth_from_calendar(message, embed_data, user, user_settings))
     return any(return_values)
 
 
@@ -153,6 +154,20 @@ async def call_bunny_helper(message: discord.Message, embed_data: Dict, user: Op
         else:
             message_content = None
         await message.reply(content=message_content, embed=embed)
+
+        # Debug double replies
+        if user_settings.user_id in (350875703580819457, 347400890149240842, 151096364867125249):
+            logs.logger.info(
+                f'\nDouble post debugging for user {user_settings.user_id}.\n'
+                f'Reply sent: {utils.utcnow()}\n'
+                f'Message ID: {message.id}\n'
+                f'Message created at: {message.created_at}\n'
+                f'Message edited at: {message.edited_at}\n'
+                f'Message content: {message.content}\n'
+                f'Message embed: {str(embed_data)}\n'
+                f'Message components: {str(message.components)}\n'
+                f'Message nonce: {message.nonce}\n'
+            )
             
     return add_reaction
 
@@ -216,9 +231,10 @@ async def update_bunnies_from_hutch(message: discord.Message, embed_data: Dict, 
                 await bunnies.insert_bunny(interaction_user.id, field.name, epicness,
                                            fertility)
             )
-            if user_settings.reactions_enabled and bunny.record_exists:
+            if bunny.record_exists:
                 bunnies_updated = True
-                add_reaction = True
+                if user_settings.reactions_enabled:
+                    add_reaction = True
 
         if bunnies_updated:
             await user_settings.update(last_bunny_update=utils.utcnow())
@@ -240,7 +256,7 @@ async def update_bunny_from_fusion(message: discord.Message, embed_data: Dict, u
         'you fused', #English
     ]
     if (any(search_string in embed_data['description'].lower() for search_string in search_strings)
-        and ':fertility:' in embed_data['field0']['value'].lower()):
+        and (':fertility:' in embed_data['field0']['value'].lower()) or 'crack crock' in embed_data['field0']['name'].lower()):
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']
@@ -260,16 +276,23 @@ async def update_bunny_from_fusion(message: discord.Message, embed_data: Dict, u
 
         bunny_names_match = re.search(r'\*\*(.+?)\*\* with \*\*(.+?)\*\*', embed_data['description'])
         new_bunny_name, old_bunny_name = bunny_names_match.groups()
-        fertility = embed_data['field0']['value'].lower().count(':fertility:')
-        epicness = embed_data['field0']['value'].lower().count(':epicness:')
-
+        
         try:
             bunny = await bunnies.get_bunny(user.id, old_bunny_name)
         except exceptions.NoDataFoundError:
             await user_settings.update(last_bunny_update=None)
             return add_reaction
-        await bunny.update(name=new_bunny_name, fertility=fertility, epicness=epicness)
 
+        if ':fertility:' in embed_data['field0']['value'].lower():
+            fertility = embed_data['field0']['value'].lower().count(':fertility:')
+            epicness = embed_data['field0']['value'].lower().count(':epicness:')
+            await bunny.update(name=new_bunny_name, fertility=fertility, epicness=epicness)
+        else:
+            await user_settings.update(last_bunny_update=None)
+            await message.reply(
+                f"➜ Please use {strings.SLASH_COMMANDS['easter hutch']} to update my bunny data!\n"
+            )
+            
         if user_settings.reactions_enabled and not bunny.record_exists:
             add_reaction = True
             
@@ -309,7 +332,47 @@ async def send_notification_on_catch(message: discord.Message, embed_data: Dict,
 
         await user_settings.update(last_bunny_update=None)
         await message.reply(
-            f"➜ Use {strings.SLASH_COMMANDS['easter hutch']} to update my bunny data!\n"
+            f"➜ Please use {strings.SLASH_COMMANDS['easter hutch']} to update my bunny data!\n"
         )
+            
+    return add_reaction
+
+
+async def update_rebirth_from_calendar(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                       user_settings: Optional[users.User]) -> bool:
+    """Update rebirth count from the easter calendar.
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings = [
+        'you have claimed day', #English
+    ]
+    if (any(search_string in embed_data['description'].lower() for search_string in search_strings)
+        and 'easter calendar' in embed_data['description'].lower()):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_USE_EASTER_EGG,
+                                                user_name=embed_data['author']['name'])
+                )
+                user = user_command_message.author
+        if user_settings is None:
+            try: 
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
+
+        rebirth_amount = await functions.get_inventory_item(embed_data['field0']['value'], 'rebirth')
+        if rebirth_amount > 0:
+            await user_settings.update(rebirth=user_settings.rebirth + rebirth_amount)
+            add_reaction = True
             
     return add_reaction
