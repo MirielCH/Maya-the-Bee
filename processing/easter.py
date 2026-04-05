@@ -1,6 +1,7 @@
 # easter.py
 
 import re
+import sqlite3
 from typing import Dict, Optional
 
 import discord
@@ -286,7 +287,14 @@ async def update_bunny_from_fusion(message: discord.Message, embed_data: Dict, u
         if ':fertility:' in embed_data['field0']['value'].lower():
             fertility = embed_data['field0']['value'].lower().count(':fertility:')
             epicness = embed_data['field0']['value'].lower().count(':epicness:')
-            await bunny.update(name=new_bunny_name, fertility=fertility, epicness=epicness)
+            try:
+                await bunny.update(name=new_bunny_name, fertility=fertility, epicness=epicness)
+            except sqlite3.Error:
+                await user_settings.update(last_bunny_update=None)
+                await message.reply(
+                f"➜ Please use {strings.SLASH_COMMANDS['easter hutch']} to update my bunny data!\n"
+                )
+                return add_reaction
         else:
             await user_settings.update(last_bunny_update=None)
             await message.reply(
@@ -359,7 +367,7 @@ async def update_rebirth_from_calendar(message: discord.Message, embed_data: Dic
                 user_settings = embed_data['embed_user_settings']
             else:
                 user_command_message = (
-                    await messages.find_message(message.channel.id, regex.COMMAND_USE_EASTER_EGG,
+                    await messages.find_message(message.channel.id, regex.COMMAND_EASTER_CALENDAR,
                                                 user_name=embed_data['author']['name'])
                 )
                 user = user_command_message.author

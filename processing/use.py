@@ -256,7 +256,7 @@ async def update_rebirth_on_easter_eggs(message: discord.Message, embed_data: Di
         for embed_element, element_data in embed_data.items():
             if not embed_element.startswith('field'):
                 continue
-            if element_data['name'] == 'Special Rewards':
+            if element_data['name'].lower() == 'special rewards':
                 special_rewards = element_data['value']
                 break
         if not special_rewards:
