@@ -367,8 +367,7 @@ async def update_rebirth_from_calendar(message: discord.Message, embed_data: Dic
                 user_settings = embed_data['embed_user_settings']
             else:
                 user_command_message = (
-                    await messages.find_message(message.channel.id, regex.COMMAND_EASTER_CALENDAR,
-                                                user_name=embed_data['author']['name'])
+                    await messages.find_message(message.channel.id, regex.COMMAND_EASTER_CALENDAR)
                 )
                 user = user_command_message.author
         if user_settings is None:
