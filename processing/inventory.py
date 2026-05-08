@@ -12,7 +12,7 @@ from database import users
 from resources import exceptions, functions, regex
 
 
-async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
                            user_settings: Optional[users.User]) -> bool:
     """Processes the message for all clean related actions.
 
@@ -22,11 +22,11 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     - False otherwise
     """
     return_values = []
-    return_values.append(await call_rebirth_guide(message, embed_data, user, user_settings))
+    return_values.append(await call_rebirth_guide(message, embed_data, text_displays, user, user_settings))
     return any(return_values)
 
 
-async def call_rebirth_guide(message: discord.Message, embed_data: Dict, interaction_user: Optional[discord.User],
+async def call_rebirth_guide(message: discord.Message, embed_data: Dict, text_displays: list, interaction_user: Optional[discord.User],
                              user_settings: Optional[users.User]) -> bool:
     """Calls the rebirth guide if necessary
 
@@ -39,7 +39,8 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, interac
     search_strings = [
         '\'s inventory', #English
     ]
-    if any(search_string in embed_data['author']['name'].lower() for search_string in search_strings):
+    if (any(search_string in embed_data['author']['name'].lower() for search_string in search_strings)
+        or any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings)):
         if embed_data['embed_user'] is not None and interaction_user is not None:
             if interaction_user != embed_data['embed_user']:
                 return add_reaction
@@ -49,15 +50,26 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, interac
         )
         if interaction_user is None:
             interaction_user = user_command_message.author
-        if embed_data['embed_user'] is None:
+        if embed_data['embed_user']:
+            embed_users.append(embed_data['embed_user'])
+        else:
+            if text_displays:
+                user_name_match = re.search(regex.USERNAME_FROM_TEXT_DISPLAY, text_displays[0])
+            else:
+                user_name_match = re.search(regex.USERNAME_FROM_EMBED_AUTHOR, embed_data['author']['name'])
             user_id_match = re.search(regex.USER_ID_FROM_ICON_URL, embed_data['author']['icon_url'])
             if user_id_match:
                 user_id = int(user_id_match.group(1))
                 embed_users.append(message.guild.get_member(user_id))
+            if user_name_match:
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_INVENTORY,
+                                                user_name=user_name_match.group(1))
+                )
+                if not embed_users:
+                    embed_users.append(user_command_message.author)
             else:
-                embed_users = await functions.get_guild_member_by_name(message.guild, embed_data['author']['name'])
-        else:
-            embed_users.append(embed_data['embed_user'])
+                return add_reaction
         if interaction_user not in embed_users: return add_reaction
         if user_settings is None:
             try:
@@ -72,6 +84,10 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, interac
                 continue
             if element_data['name'] == 'Items':
                 field_items = element_data['value']
+                break
+        for text_display in text_displays:
+            if '### items' in text_display.lower():
+                field_items = text_display
                 break
         diamond_rings = await functions.get_inventory_item(field_items, 'diamondring')
         if user_settings.diamond_rings != diamond_rings:

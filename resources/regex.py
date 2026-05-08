@@ -6,6 +6,7 @@ import re
 # --- User data extraction ---
 USER_ID_FROM_ICON_URL = re.compile(r"avatars\/(.+?)\/")
 USERNAME_FROM_EMBED_AUTHOR = re.compile(r"^(.+?)'s")
+USERNAME_FROM_TEXT_DISPLAY = re.compile(r"^\*\*(.+?)\*\*'s")
 NAME_FROM_MESSAGE = re.compile(r"\s\*\*(.+?)\*\*\s")
 NAME_FROM_MESSAGE_START = re.compile(r"^\*\*(.+?)\*\*\s")
 
@@ -14,8 +15,6 @@ NAME_FROM_MESSAGE_START = re.compile(r"^\*\*(.+?)\*\*\s")
 COMMAND_BEES = re.compile(r"\bbees?\b")
 COMMAND_BONUSES = re.compile(r"(?:\bboosts\b|\bbonuses\b)")
 COMMAND_CHESTS = re.compile(r"\bchests?\b")
-COMMAND_CHIPS = re.compile(r"\bchips?\b")
-COMMAND_CHIPS_FUSION = re.compile(r"\bchips?\b\s+\bfusion\b")
 COMMAND_CLEAN = re.compile(r"\bclean\b")
 COMMAND_COOLDOWNS = re.compile(r"(?:\bcd\b|\bcooldowns?\b)")
 COMMAND_DAILY = re.compile(r"\bdaily\b")

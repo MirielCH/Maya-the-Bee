@@ -12,7 +12,7 @@ from database import reminders, users
 from resources import exceptions, functions, regex, settings, strings
 
 
-async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
                           user_settings: Optional[users.User]) -> bool:
     """Processes the message for all incubator related actions.
 
@@ -79,6 +79,7 @@ async def create_larva_reminders_from_feeding(message: discord.Message, embed_da
         for line in larvae_fed:
             if not single_feed:
                 slot_match = re.search(r"slot\s(\d+?)\)", line.lower())
+                if not slot_match: continue
                 slot = slot_match.group(1)
                 if 'queen' in line.lower():
                     larva_type = 'queen'
@@ -214,7 +215,10 @@ async def create_nugget_alert(message: discord.Message, embed_data: Dict, user: 
     search_strings_field = [
         'drops', #English
     ]
-    fields = f'{embed_data['field0']['name']}\n{embed_data['field0']['value']}\n{embed_data['field1']['name']}\n{embed_data['field1']['value']}'
+    fields = ''
+    if message.embeds:
+        for field in message.embeds[0].fields:
+            fields = f'{fields}\n{field.name}\n{field.value}'
     if (all(search_string in embed_data['description'].lower() for search_string in search_strings_description)
         and any(search_string in fields.lower() for search_string in search_strings_field)):
         if user is None:

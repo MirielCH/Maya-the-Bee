@@ -19,12 +19,17 @@ class CacheCog(commands.Cog):
         if message.author.bot: return
         if message.embeds or message.content is None: return
         correct_mention = False
-        if message.content.lower().startswith('tree ') or message.content.lower().startswith('testy '):
+        bot_prefixes = [
+            'tree ',
+            't ',
+            'testy ',
+        ]
+        if any(message.content.lower().startswith(bot_prefix) for bot_prefix in bot_prefixes):
             await messages.store_message(message)
             return
         if message.mentions:
             for mentioned_user in message.mentions:
-                if mentioned_user.id == settings.GAME_ID:
+                if mentioned_user.id in (settings.TREE_ID, settings.TREE_BETA_ID):
                     correct_mention = True
                     break
             if correct_mention:

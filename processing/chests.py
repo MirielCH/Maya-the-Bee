@@ -11,7 +11,7 @@ from database import reminders, users
 from resources import emojis, exceptions, functions, regex, settings, strings
 
 
-async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
                           user_settings: Optional[users.User]) -> bool:
     """Processes the message for all chests related actions.
 
@@ -109,9 +109,9 @@ async def call_context_helper_on_chest_open(message: discord.Message, embed_data
                         embed.set_footer(text='Use "/settings alerts" to change this')
                         embeds.insert(0, embed)
                         await message.reply(user.mention, embed=embed)
-        if user_settings.helper_context_enabled and 'chip' in embed_data['field0']['value'].lower():
+        if user_settings.helper_context_enabled and (dropped_nuggets or 'fragments' in embed_data['field0']['value'].lower()):
             await message.reply(
-                f"➜ {strings.SLASH_COMMANDS['chips fusion']}\n"
+                f"➜ {strings.SLASH_COMMANDS['chips upgrade-buff']}\n"
                 f"➜ {strings.SLASH_COMMANDS['chips show']}\n"
             )
     return add_reaction

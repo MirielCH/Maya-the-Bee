@@ -1,7 +1,7 @@
 # detection.py
 """Collects and parses Tree messages"""
 
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 import re
 from typing import Dict, Union
 
@@ -10,7 +10,7 @@ from discord import utils
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, easter, chests, chips, clean, cooldowns, daily, fusion, hive, incubator, inventory
+from processing import bonuses, easter, chests, clean, cooldowns, daily, fusion, hive, incubator, inventory
 from processing import laboratory, league, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, logs, regex, settings
 
@@ -24,7 +24,7 @@ class DetectionCog(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message) -> None:
         """Runs when a message is edited in a channel."""
-        if message_after.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
+        if message_after.author.id not in [settings.TREE_ID, settings.TREE_BETA_ID, settings.TESTY_ID]: return
 
         embed_data_before = await parse_embed(message_before)
         embed_data = await parse_embed(message_after)
@@ -42,9 +42,10 @@ class DetectionCog(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         """Runs when a message is sent in a channel."""
-        if message.author.id not in [settings.GAME_ID, settings.TESTY_ID]: return
+        if message.author.id not in [settings.TREE_ID, settings.TREE_BETA_ID, settings.TESTY_ID]: return
         user_settings = None
         embed_data = await parse_embed(message)
+        text_displays = await functions.parse_text_displays(message)
         
         # Duplicate message handling
         if (message.id, message.content, str(embed_data), str(message.components)) in seen_messages:
@@ -109,117 +110,112 @@ class DetectionCog(commands.Cog):
 
         # Bonuses
         if reminder_boosts_enabled:
-            add_reaction = await bonuses.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await bonuses.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         # Bunnies
         if helper_bunny_enabled:
-            add_reaction = await easter.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await easter.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         # Cooldowns
-        add_reaction = await cooldowns.process_message(message, embed_data, interaction_user, user_settings)
+        add_reaction = await cooldowns.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Chests
         if reminder_chests_enabled or helper_context_enabled:
-            add_reaction = await chests.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await chests.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
-        # Chips
-        if helper_context_enabled:
-            add_reaction = await chips.process_message(message, embed_data, interaction_user, user_settings)
-            return_values.append(add_reaction)
-
         # Clean
         if reminder_clean_enabled or tracking_enabled:
-            add_reaction = await clean.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await clean.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Daily
         if reminder_daily_enabled:
-            add_reaction = await daily.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await daily.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         # Fusion
         if reminder_fusion_enabled:
-            add_reaction = await fusion.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await fusion.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Hive
         if reminder_hive_enabled:
-            add_reaction = await hive.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await hive.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Incubator
         if reminder_incubator_enabled:
-            add_reaction = await incubator.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await incubator.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
         
         # Inventory
-        add_reaction = await inventory.process_message(message, embed_data, interaction_user, user_settings)
+        add_reaction = await inventory.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Prune
-        add_reaction = await prune.process_message(message, embed_data, interaction_user, user_settings)
+        add_reaction = await prune.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Laboratory
         if reminder_research_enabled or helper_context_enabled:
-            add_reaction = await laboratory.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await laboratory.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # League
-        add_reaction = await league.process_message(message, embed_data, interaction_user, user_settings)
+        add_reaction = await league.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Patreon
-        add_reaction = await patreon.process_message(message, embed_data, interaction_user, user_settings)
+        add_reaction = await patreon.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Profile & Stats
         if reminder_research_enabled or reminder_upgrade_enabled or helper_prune_enabled:
-            add_reaction = await profile.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await profile.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         # Quests
         if reminder_quests_enabled:
-            add_reaction = await quests.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await quests.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Raid
         if helper_context_enabled:
-            add_reaction = await raid.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await raid.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Rebirth
         if helper_prune_enabled:
-            add_reaction = await rebirth.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await rebirth.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Tool upgrade
         if reminder_upgrade_enabled or helper_context_enabled:
-            add_reaction = await tool.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await tool.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Tracking
         if tracking_enabled:
-            add_reaction = await tracking.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await tracking.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         # Use items
         if reminder_boosts_enabled or helper_prune_enabled:
-            add_reaction = await use.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await use.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Vote
         if reminder_vote_enabled:
-            add_reaction = await vote.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await vote.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
             
         # Shop
         if reminder_boosts_enabled:
-            add_reaction = await shop.process_message(message, embed_data, interaction_user, user_settings)
+            add_reaction = await shop.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
 
         if any(return_values): await functions.add_logo_reaction(message)

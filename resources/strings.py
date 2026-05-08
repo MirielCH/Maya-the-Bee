@@ -251,8 +251,9 @@ ACTIVITIES_NAME_BOOSTS = {
 SLASH_COMMANDS = {
     'bees': '</bees:976919525415071825>',
     'chests': '</chests:1027309977104285697>',
-    'chips show': '</chips show:1076966047351046186>',
-    'chips fusion': '</chips fusion:1076966047351046186>',
+    'chips upgrade-buff': '</chips upgrade-buff:0>', # TODO: Addd correct command ID
+    'chips upgrade-tier': '</chips upgrade-tier:0>', # TODO: Addd correct command ID
+    'chips show': '</chips show:0>', # TODO: Addd correct command ID
     'claim': '</claim:960947259560820812>',
     'clean': '</clean:960947259560820813>',
     'craft': '</craft:960947259627958293>',
@@ -334,8 +335,8 @@ LEAGUES = {
     6_001: ('5', emojis.LEAGUE_5),
     10_001: ('6', emojis.LEAGUE_6),
     14_001: ('7', emojis.LEAGUE_7),
-    22_001: ('7', emojis.LEAGUE_8),
-    30_001: ('7', emojis.LEAGUE_9),
+    22_001: ('8', emojis.LEAGUE_8),
+    30_001: ('9', emojis.LEAGUE_9),
     40_001: ('X', emojis.LEAGUE_X),
     52_001: ('Y', emojis.LEAGUE_Y),
     62_001: ('Z', emojis.LEAGUE_Z),

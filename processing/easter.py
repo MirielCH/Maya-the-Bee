@@ -12,7 +12,7 @@ from database import bunnies, users
 from resources import emojis, exceptions, functions, regex, settings, strings, logs
 
 
-async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
                           user_settings: Optional[users.User]) -> bool:
     """Processes the message for all incubator related actions.
 
@@ -121,7 +121,7 @@ async def call_bunny_helper(message: discord.Message, embed_data: Dict, user: Op
         field_fusable_bunnies = ''
         for bunny in fusable_bunnies:
             if fertility== 5:
-                fertility_improvement = 1 - bunny.fertility
+                fertility_improvement = 0
                 epicness_improvement = 1
             else:
                 fertility_improvement = 1

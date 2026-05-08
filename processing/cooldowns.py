@@ -13,7 +13,7 @@ from database import reminders, users
 from resources import emojis, exceptions, functions, regex
 
 
-async def process_message(message: discord.Message, embed_data: Dict, interaction_user: Optional[discord.User],
+async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, interaction_user: Optional[discord.User],
                           user_settings: Optional[users.User]) -> bool:
     """Processes the message for all cooldown related actions.
 

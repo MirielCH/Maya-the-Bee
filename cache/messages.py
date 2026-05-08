@@ -52,7 +52,8 @@ async def find_message(channel_id: int, regex: Union[str, re.Pattern] = None,
             if regex is None:
                 return message
             else:
-                message_content = re.sub(rf'<@!?{settings.GAME_ID}>', '', message.content.lower())
+                message_content = re.sub(rf'<@!?{settings.TREE_ID}>', '', message.content.lower())
+                message_content = re.sub(rf'<@!?{settings.TREE_BETA_ID}>', '', message.content.lower())
                 match = re.search(regex, message_content)
                 if match: return message
         await asyncio.sleep(0.5)

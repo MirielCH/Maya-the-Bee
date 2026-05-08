@@ -12,7 +12,7 @@ from database import errors, reminders, users
 from resources import emojis, exceptions, functions, regex, strings
 
 
-async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
                           user_settings: Optional[users.User]) -> bool:
     """Processes the message for all profile or stats related actions.
 
@@ -22,14 +22,14 @@ async def process_message(message: discord.Message, embed_data: Dict, user: Opti
     - False otherwise
     """
     return_values = []
-    return_values.append(await create_reminders_from_stats(message, embed_data, user, user_settings))
+    return_values.append(await create_reminders_from_stats(message, embed_data, text_displays, user, user_settings))
     return any(return_values)
 
 
 
-async def create_reminders_from_stats(message: discord.Message, embed_data: Dict, interaction_user: Optional[discord.User],
+async def create_reminders_from_stats(message: discord.Message, embed_data: Dict, text_displays: list, interaction_user: Optional[discord.User],
                                    user_settings: Optional[users.User]) -> bool:
-    """Creates research and upgrade remindesr from "tree stats"
+    """Creates research and upgrade reminders from "tree stats" and "tree profile"
 
     Returns
     -------
@@ -41,8 +41,10 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
     ready_commands = []
     search_strings = [
         '\'s tree', #English
+        '\'s profile', #English
     ]
-    if any(search_string in embed_data['author']['name'].lower() for search_string in search_strings):
+    if (any(search_string in embed_data['author']['name'].lower() for search_string in search_strings)
+        or any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings)):
         if embed_data['embed_user'] is not None and interaction_user is not None:
             if interaction_user != embed_data['embed_user']:
                 return add_reaction
@@ -74,7 +76,13 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
         # Insecticide & Raid shield boost reminder
         # Store level, xp and rebirth
         level = rebirth = xp = xp_target = -1
-        for line in embed_data['field0']['value'].split('\n'):
+        field_statistics = ''
+        for key, value in embed_data.items():
+            if 'field' in key.lower():
+                if 'statistics' in value['name'].lower():
+                    field_statistics = value['value']
+                    break
+        for line in field_statistics.split('\n'):
             if 'insecticide' in line.lower():
                 boost_end_match = re.search(r'<t:(\d+?):r>', line.lower())
                 activity = 'insecticide'
@@ -143,7 +151,14 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 ready_commands.append(activity)
 
         # Research & Upgrade cooldowns
-        if embed_data['field3']['value'] != '':
+        field_tool_status = ''
+        for key, value in embed_data.items():
+            if 'field' in key.lower():
+                if 'tool status' in value['name'].lower():
+                    field_tool_status = value['value']
+                    break
+        
+        if field_tool_status:
             if user_settings.reminder_research.enabled:
                 timestring_match = re.search(r"researching: `(.+?)` remaining", embed_data['field3']['value'].lower())
                 if timestring_match:

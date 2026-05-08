@@ -35,8 +35,13 @@ async def command_rebirth_guide(
             return
         if bot_message is None: return
     inventory = ''
-    for field in bot_message.embeds[0].fields:
-        inventory = f'{inventory}{field.value}\n'
+    if bot_message.embeds:
+        for field in bot_message.embeds[0].fields:
+            inventory = f'{inventory}{field.value}\n'
+    if bot_message.components:
+        text_displays = await functions.parse_text_displays(bot_message)
+        for text_display in text_displays:
+            inventory = f'{inventory}{text_display}\n'
     inventory_data['apple'] = await functions.get_inventory_item(inventory, 'apple')
     inventory_data['chestnut_leaf'] = await functions.get_inventory_item(inventory, 'chestnutleaf')
     inventory_data['copper_nugget'] = await functions.get_inventory_item(inventory, 'coppernugget')
@@ -104,6 +109,10 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     water_bottles_crafted = min(leaves // 40, honey // 3)
     if water_bottles_crafted > 0:
         honey = honey - honey % water_bottles_crafted
+    upgrade_chips = (
+        f'{emojis.CHIPS} Use {strings.SLASH_COMMANDS["chips upgrade-buff"]} to upgrade your chips.\n'
+        f'{emojis.BLANK} ➜ **Reopen the rebirth guide if you upgrade**.\n'
+    )
     resources = (
         f'{emojis.READY} {strings.SLASH_COMMANDS["claim"]}\n'
         f'{emojis.READY} {strings.SLASH_COMMANDS["hive claim honey"]}\n'
@@ -263,10 +272,11 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         color = settings.EMBED_COLOR,
         title = f'{user.global_name}\'s rebirth guide',
     )
-    if not miri_mode: embed.add_field(name='1. Resources', value=resources, inline=False)
-    embed.add_field(name='2. Craft & Dismantle', value=craft_dismantle.strip(), inline=False)
-    embed.add_field(name='3. Use', value=use.strip(), inline=False)
-    embed.add_field(name='4. Sell', value=sell.strip(), inline=False)
+    if not miri_mode: embed.add_field(name='1. Upgrade chips', value=upgrade_chips, inline=False)
+    if not miri_mode: embed.add_field(name='2. Resources', value=resources, inline=False)
+    embed.add_field(name='3. Craft & Dismantle', value=craft_dismantle.strip(), inline=False)
+    embed.add_field(name='4. Use', value=use.strip(), inline=False)
+    embed.add_field(name='5. Sell', value=sell.strip(), inline=False)
     if user_settings.rebirth <= 10:
         level_target = 5 + user_settings.rebirth
     else:

@@ -9,7 +9,7 @@ from database import users
 from resources import exceptions, regex, strings
 
 
-async def process_message(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
                           user_settings: Optional[users.User]) -> bool:
     """Processes the message for all /use related actions.
 

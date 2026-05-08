@@ -1,6 +1,7 @@
 # functions.py
 
 import asyncio
+from collections import deque
 from datetime import timedelta
 from math import ceil, floor
 import random
@@ -553,6 +554,21 @@ async def get_result_from_tasks(ctx: discord.ApplicationContext, tasks: List[asy
     return result
 
 
+async def parse_text_displays(message: discord.Message) -> list[str]:
+    """Parses all text display components from a message into a list.
+    """    
+    text_displays = []
+
+    queue = deque(message.components)
+    while queue:
+        component = queue.popleft()
+        if isinstance(component, discord.TextDisplay):
+            text_displays.append(component.content)
+        queue.extend(getattr(component, 'components', []))
+        
+    return text_displays
+
+
 # Wait for input
 async def wait_for_bot_or_abort(ctx: discord.ApplicationContext, bot_message_task: Coroutine,
                                 content: str) -> Union[discord.Message, None]:
@@ -644,7 +660,7 @@ async def wait_for_inventory_message(bot: commands.Bot, ctx: discord.Application
                 except:
                     pass
 
-        return ((message.author.id in (settings.GAME_ID, settings.TESTY_ID)) and (message.channel == ctx.channel)
+        return ((message.author.id in (settings.TREE_ID, settings.TREE_BETA_ID, settings.TESTY_ID)) and (message.channel == ctx.channel)
                 and correct_message)
 
     message_task = asyncio.ensure_future(bot.wait_for('message', check=game_check,
