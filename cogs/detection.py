@@ -10,7 +10,7 @@ from discord import utils
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, easter, chests, clean, cooldowns, daily, fusion, hive, incubator, inventory
+from processing import bonuses, calendar, easter, chests, clean, cooldowns, daily, fusion, hive, incubator, inventory
 from processing import laboratory, league, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, logs, regex, settings
 
@@ -117,6 +117,11 @@ class DetectionCog(commands.Cog):
         if helper_bunny_enabled:
             add_reaction = await easter.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
+
+         # Calendar
+        add_reaction = await calendar.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
+            
 
         # Cooldowns
         add_reaction = await cooldowns.process_message(message, embed_data, text_displays, interaction_user, user_settings)
