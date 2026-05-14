@@ -81,6 +81,7 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
     add_reaction = False
     search_strings = [
         'upgrading to level', #English
+        'drop nuggets from pruning', #English
     ]
     if any(search_string in embed_data['description'].lower() for search_string in search_strings):
         if embed_data['embed_user'] is not None and interaction_user is not None:
@@ -107,19 +108,30 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'tool')
-        upgrade_end_match = re.search(r'<t:(\d+?):f>', embed_data['field0']['value'].lower())
-        end_time = datetime.fromtimestamp(int(upgrade_end_match.group(1)), timezone.utc).replace(microsecond=0)
-        current_time = utils.utcnow().replace(microsecond=0)
-        time_left = end_time - current_time
-        if time_left < timedelta(0): return add_reaction
-        reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(interaction_user.id, 'pruner-upgrade', time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+
+        level_tier_match = re.search(r'level (\d+?) tier (.+?) ', embed_data['title'].lower())
+        type_match = re.search(r':(.+?)pruner:', embed_data['title'].lower())
+        pruner_level = int(level_tier_match.group(1))
+        pruner_tier = int(strings.NUMBERS_ROMAN_ARABIC[level_tier_match.group(2)])
+        pruner_type = type_match.group(1)
+
+        await user_settings.update(pruner_level=pruner_level, pruner_tier=pruner_tier, pruner_type=pruner_type)
+
+        if user_settings.reminder_upgrade.enabled or user_settings.ready_show_pruner:
+            user_command = await functions.get_game_command(user_settings, 'tool')
+            upgrade_end_match = re.search(r'<t:(\d+?):f>', embed_data['field0']['value'].lower())
+            if not upgrade_end_match: return add_reaction
+            end_time = datetime.fromtimestamp(int(upgrade_end_match.group(1)), timezone.utc).replace(microsecond=0)
+            current_time = utils.utcnow().replace(microsecond=0)
+            time_left = end_time - current_time
+            if time_left < timedelta(0): return add_reaction
+            reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(interaction_user.id, 'pruner-upgrade', time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
     return add_reaction
 
 
@@ -192,11 +204,12 @@ async def delete_reminder_on_skip(message: discord.Message, embed_data: Dict, us
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
-        try:
-            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-upgrade')
-            await reminder.delete()
-        except exceptions.NoDataFoundError:
-            return add_reaction
-        if user_settings.reactions_enabled: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_upgrade.enabled or user_settings.ready_show_pruner:
+            try:
+                reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-upgrade')
+                await reminder.delete()
+            except exceptions.NoDataFoundError:
+                return add_reaction
+            if user_settings.reactions_enabled: add_reaction = True
     return add_reaction

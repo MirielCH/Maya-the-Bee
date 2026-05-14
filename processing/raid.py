@@ -181,6 +181,9 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
             kwargs['beta_pass_available'] = user_settings.beta_pass_available - 1
             kwargs['diamond_rings_cap'] = user_settings.diamond_rings_cap + 1_350
 
+        if 'chest' in embed_data['field0']['value'].lower():
+            kwargs['chests_in_queue'] = user_settings.chests_in_queue + 1
+
         await user_settings.update(**kwargs)
 
         message_content = None

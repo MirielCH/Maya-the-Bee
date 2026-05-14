@@ -206,6 +206,7 @@ async def command_settings_alerts(bot: discord.Bot, ctx: discord.ApplicationCont
     commands_settings = {
         'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
+        'Ready list': command_settings_ready_list,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -233,6 +234,7 @@ async def command_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationCon
     commands_settings = {
         'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
+        'Ready list': command_settings_ready_list,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -260,6 +262,7 @@ async def command_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCo
     commands_settings = {
         'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
+        'Ready list': command_settings_ready_list,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -281,12 +284,41 @@ async def command_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCo
     await view.wait()
 
 
+async def command_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationContext,
+                                      switch_view: Optional[discord.ui.DesignerView] = None) -> None:
+    """Ready list settings command"""
+    commands_settings = {
+        'Alerts': command_settings_alerts,
+        'Helpers': command_settings_helpers,
+        'Ready list': command_settings_ready_list,
+        'Reminders': command_settings_reminders,
+        'Reminder messages': command_settings_messages,
+        'User': command_settings_user,
+    }
+    user_settings = interaction = None
+    if switch_view is not None:
+        user_settings = getattr(switch_view, 'user_settings', None)
+        interaction = getattr(switch_view, 'interaction', None)
+        switch_view.stop()
+    if user_settings is None:
+        user_settings: users.User = await users.get_user(ctx.author.id)
+    view = views.SettingsReadyListView(ctx, bot, user_settings, embed_settings_ready_list, commands_settings)
+    embed = await embed_settings_ready_list(bot, ctx, user_settings)
+    if interaction is None:
+        interaction = await ctx.respond(embed=embed, view=view)
+    else:
+        await functions.edit_interaction(interaction, embed=embed, view=view)
+    view.interaction = interaction
+    await view.wait()
+
+    
 async def command_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationContext,
                                      switch_view: Optional[discord.ui.DesignerView] = None) -> None:
     """Reminder settings command"""
     commands_settings = {
         'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
+        'Ready list': command_settings_ready_list,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -324,6 +356,7 @@ async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContex
     commands_settings = {
         'Alerts': command_settings_alerts,
         'Helpers': command_settings_helpers,
+        'Ready list': command_settings_ready_list,
         'Reminders': command_settings_reminders,
         'Reminder messages': command_settings_messages,
         'User': command_settings_user,
@@ -475,6 +508,42 @@ async def embed_settings_messages(bot: discord.Bot, ctx: discord.ApplicationCont
         embeds = [embed,]
 
     return embeds
+
+
+async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationContext,
+                                    user_settings: users.User) -> discord.Embed:
+    """Ready list settings embed"""
+    main = (
+        f'{emojis.BP} **Show list after `prune`**: {await functions.bool_to_text(user_settings.ready_popup_enabled)}\n'
+        f'{emojis.BP} **Show list when empty**: {await functions.bool_to_text(user_settings.ready_show_when_empty)}\n'
+    )
+    cooldowns_1 = (
+        f'{emojis.BP} **Calendar**: {await functions.bool_to_text(user_settings.ready_show_calendar)}\n'
+        f'{emojis.BP} **Chests**: {await functions.bool_to_text(user_settings.ready_show_chests)}\n'
+        f'{emojis.BP} **Clean**: {await functions.bool_to_text(user_settings.ready_show_clean)}\n'
+        f'{emojis.BP} **Daily**: {await functions.bool_to_text(user_settings.ready_show_daily)}\n'
+        f'{emojis.BP} **Fusion**: {await functions.bool_to_text(user_settings.ready_show_fusion)}\n'
+        f'{emojis.BP} **Hive Energy**: {await functions.bool_to_text(user_settings.ready_show_hive_energy)}\n'
+    )
+    cooldowns_2 = (
+        f'{emojis.BP} **Incubator**: {await functions.bool_to_text(user_settings.ready_show_incubator)}\n'
+        f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.ready_show_prune)}\n'
+        f'{emojis.BP} **Pruner**: {await functions.bool_to_text(user_settings.ready_show_pruner)}\n'
+        f'{emojis.BP} **Quests**: {await functions.bool_to_text(user_settings.ready_show_quests)}\n'
+        f'{emojis.BP} **Vote**: {await functions.bool_to_text(user_settings.ready_show_vote)}\n'
+    )
+    other = (
+        f'{emojis.BP} **Ready to rebirth**: {await functions.bool_to_text(user_settings.ready_show_rebirth)}\n'
+    )
+    embed = discord.Embed(
+        color = settings.EMBED_COLOR,
+        title = f'{ctx.author.global_name}\'s ready list settings',
+    )
+    embed.add_field(name='Settings', value=main, inline=False)
+    embed.add_field(name='Cooldowns (I)', value=cooldowns_1, inline=False)
+    embed.add_field(name='Cooldowns (II)', value=cooldowns_2, inline=False)
+    embed.add_field(name='Other activities', value=other, inline=False)
+    return embed
 
 
 async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationContext,

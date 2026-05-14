@@ -62,12 +62,12 @@ async def create_reminder_on_command_cooldown(message: discord.Message, embed_da
         if not user_settings.bot_enabled: return add_reaction
         timestring_match = re.search(r'in \*\*`(.+?)`\*\*$', embed_data['title'].lower())
         if (re.search(regex.COMMAND_CLEAN, user_command.lower() or user_command == 'clean')
-            and user_settings.reminder_clean.enabled):
+            and (user_settings.reminder_clean.enabled or user_settings.ready_show_clean)):
             activity = 'clean'
             user_command = await functions.get_game_command(user_settings, activity)
             reminder_message = user_settings.reminder_clean.message.replace('{command}', user_command)
         elif (re.search(regex.COMMAND_DAILY, user_command.lower() or user_command == 'daily')
-            and user_settings.reminder_daily.enabled):
+            and (user_settings.reminder_daily.enabled or user_settings.ready_show_daily)):
             activity = 'daily'
             user_command = await functions.get_game_command(user_settings, activity)
             reminder_message = user_settings.reminder_daily.message.replace('{command}', user_command)
@@ -77,7 +77,7 @@ async def create_reminder_on_command_cooldown(message: discord.Message, embed_da
             user_command = await functions.get_game_command(user_settings, 'incubator upgrade')
             reminder_message = user_settings.reminder_incubator_upgrade.message.replace('{command}', user_command)
         elif (re.search(regex.COMMAND_PRUNE, user_command.lower() or user_command == 'prune')
-            and user_settings.reminder_prune.enabled):
+            and (user_settings.reminder_prune.enabled or user_settings.ready_show_prune)):
             activity = 'prune'
             user_command = await functions.get_game_command(user_settings, activity)
             pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
@@ -88,7 +88,7 @@ async def create_reminder_on_command_cooldown(message: discord.Message, embed_da
                 .replace('  ', ' ')
             )
         elif (re.search(regex.COMMAND_HIVE, user_command.lower() or user_command == 'hive')
-            and user_settings.reminder_hive_energy.enabled):
+            and (user_settings.reminder_hive_energy.enabled or user_settings.ready_show_hive_energy)):
             activity = 'hive-energy'
             user_command = await functions.get_game_command(user_settings, 'hive claim energy')
             reminder_message = user_settings.reminder_hive_energy.message.replace('{command}', user_command)
@@ -152,7 +152,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
         embed_field_tool = unicodedata.normalize('NFKD', embed_data['field3']['value'])
         cooldowns = []
         ready_commands = []
-        if user_settings.reminder_clean.enabled:
+        if user_settings.reminder_clean.enabled or user_settings.ready_show_clean:
             timestring_match = re.search(r"clean\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'clean')
@@ -160,7 +160,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['clean', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('clean')
-        if user_settings.reminder_fusion.enabled:
+        if user_settings.reminder_fusion.enabled or user_settings.ready_show_fusion:
             timestring_match = re.search(r"fusion\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'fusion')
@@ -168,7 +168,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['fusion', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('fusion')
-        if user_settings.reminder_daily.enabled:
+        if user_settings.reminder_daily.enabled or user_settings.ready_show_daily:
             timestring_match = re.search(r"daily\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'daily')
@@ -176,7 +176,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['daily', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('daily')
-        if user_settings.reminder_hive_energy.enabled:
+        if user_settings.reminder_hive_energy.enabled or user_settings.ready_show_hive_energy:
             timestring_match = re.search(r"energy\*\* • \*\*`(.+?)`\*\*", embed_field_raid.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'hive claim energy')
@@ -184,7 +184,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['hive-energy', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('hive-energy')
-        if user_settings.reminder_prune.enabled:
+        if user_settings.reminder_prune.enabled or user_settings.ready_show_prune:
             timestring_match = re.search(r"prune\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'prune')
@@ -198,7 +198,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['prune', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('prune')
-        if user_settings.reminder_quests.enabled:
+        if user_settings.reminder_quests.enabled or user_settings.ready_show_quests:
             timestring_daily_match = re.search(r"daily\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())
             timestring_weekly_match = re.search(r"weekly\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())
             timestring_monthly_match = re.search(r"monthly\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())
@@ -230,7 +230,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['quest-monthly', timestring_monthly_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('quest-monthly')
-        if user_settings.reminder_research.enabled:
+        if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
             timestring_match = re.search(r"researching: \*\*`(.+?)`\*\* remaining", embed_field_tool.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'laboratory')
@@ -238,7 +238,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['pruner-research', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('pruner-research')
-        if user_settings.reminder_upgrade.enabled:
+        if user_settings.reminder_upgrade.enabled or user_settings.ready_show_pruner:
             timestring_match = re.search(r"upgrading: \*\*`(.+?)`\*\* remaining", embed_field_tool.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'tool')
@@ -246,7 +246,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['pruner-upgrade', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('pruner-upgrade')
-        if user_settings.reminder_vote.enabled:
+        if user_settings.reminder_vote.enabled or user_settings.ready_show_vote:
             timestring_match = re.search(r"vote\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'vote')

@@ -57,26 +57,27 @@ async def create_reminder_on_overview(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'quests')
-        regex_quest = re.compile(r'^(.+?) \| (.+?)$')
-        for button in message.components[0].children:
-            quest_match = re.search(regex_quest, button.label)
-            if not quest_match: continue
-            quest_type = quest_match.group(1).lower()
-            activity = f'quest-{quest_type}'
-            reminder_message = (
-                user_settings.reminder_quests.message
-                .replace('{command}', user_command)
-                .replace('{quest_type}', quest_type)
-            )
-            time_left = await functions.parse_timestring_to_timedelta(quest_match.group(2).lower())
-            if time_left < timedelta(0): continue
-            reminder: reminders.Reminder = (
-                await reminders.insert_reminder(user.id, activity, time_left,
-                                                message.channel.id, reminder_message)
-            )
-            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_quests.enabled or user_settings.ready_show_quests:
+            user_command = await functions.get_game_command(user_settings, 'quests')
+            regex_quest = re.compile(r'^(.+?) \| (.+?)$')
+            for button in message.components[0].children:
+                quest_match = re.search(regex_quest, button.label)
+                if not quest_match: continue
+                quest_type = quest_match.group(1).lower()
+                activity = f'quest-{quest_type}'
+                reminder_message = (
+                    user_settings.reminder_quests.message
+                    .replace('{command}', user_command)
+                    .replace('{quest_type}', quest_type)
+                )
+                time_left = await functions.parse_timestring_to_timedelta(quest_match.group(2).lower())
+                if time_left < timedelta(0): continue
+                reminder: reminders.Reminder = (
+                    await reminders.insert_reminder(user.id, activity, time_left,
+                                                    message.channel.id, reminder_message)
+                )
+                if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
     return add_reaction
 
 
@@ -111,22 +112,23 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'quests')
-        quest_type_match = re.search(r'the (.+?) quest', embed_data['description'].lower())
-        quest_type = quest_type_match.group(1).lower()
-        activity = f'quest-{quest_type}'
-        time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, activity)
-        reminder_message = (
-            user_settings.reminder_quests.message
-            .replace('{command}', user_command)
-            .replace('{quest_type}', quest_type)
-        )
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, activity, time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_quests.enabled or user_settings.ready_show_quests:
+            user_command = await functions.get_game_command(user_settings, 'quests')
+            quest_type_match = re.search(r'the (.+?) quest', embed_data['description'].lower())
+            quest_type = quest_type_match.group(1).lower()
+            activity = f'quest-{quest_type}'
+            time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, activity)
+            reminder_message = (
+                user_settings.reminder_quests.message
+                .replace('{command}', user_command)
+                .replace('{quest_type}', quest_type)
+            )
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, activity, time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
     return add_reaction
 
 
@@ -161,35 +163,36 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_quests.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'quests')
-        quest_type_match = re.search(r'> (.+?) quest', embed_data['description'].lower())
-        quest_start_field = ''
-        for value in embed_data.values():
-            if isinstance(value, dict):
-                try:
-                    if '<t:' in value['value']:
-                        quest_start_field = value['value']
-                        break
-                except KeyError:
-                    continue
-        quest_start_match = re.search(r'<t:(\d+?):d>', quest_start_field.lower())
-        quest_type = quest_type_match.group(1).lower()
-        activity = f'quest-{quest_type}'
-        quest_start = datetime.fromtimestamp(int(quest_start_match.group(1)), timezone.utc).replace(microsecond=0)
-        reminder_time = await functions.calculate_time_left_from_cooldown(message, user_settings, activity)
-        end_time = quest_start + reminder_time
-        current_time = utils.utcnow().replace(microsecond=0)
-        time_left = end_time - current_time
-        if time_left < timedelta(0): return add_reaction
-        reminder_message = (
-            user_settings.reminder_quests.message
-            .replace('{command}', user_command)
-            .replace('{quest_type}', quest_type)
-        )
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, activity, time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_quests.enabled or user_settings.ready_show_quests:
+            user_command = await functions.get_game_command(user_settings, 'quests')
+            quest_type_match = re.search(r'> (.+?) quest', embed_data['description'].lower())
+            quest_start_field = ''
+            for value in embed_data.values():
+                if isinstance(value, dict):
+                    try:
+                        if '<t:' in value['value']:
+                            quest_start_field = value['value']
+                            break
+                    except KeyError:
+                        continue
+            quest_start_match = re.search(r'<t:(\d+?):d>', quest_start_field.lower())
+            quest_type = quest_type_match.group(1).lower()
+            activity = f'quest-{quest_type}'
+            quest_start = datetime.fromtimestamp(int(quest_start_match.group(1)), timezone.utc).replace(microsecond=0)
+            reminder_time = await functions.calculate_time_left_from_cooldown(message, user_settings, activity)
+            end_time = quest_start + reminder_time
+            current_time = utils.utcnow().replace(microsecond=0)
+            time_left = end_time - current_time
+            if time_left < timedelta(0): return add_reaction
+            reminder_message = (
+                user_settings.reminder_quests.message
+                .replace('{command}', user_command)
+                .replace('{quest_type}', quest_type)
+            )
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, activity, time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
     return add_reaction

@@ -1,5 +1,5 @@
-# reminders_lists.py
-"""Contains reminder list commands"""
+# list_reminders.py
+"""Contains reminder list command"""
 
 import re
 from typing import List, Optional, Union
@@ -60,12 +60,22 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
     reminders_boosts_list = []
     reminders_custom_list = []
     for reminder in user_reminders:
+        if reminder.activity in strings.ACTIVITIES_COLUMNS:
+            if not getattr(
+                getattr(user_settings, strings.ACTIVITIES_COLUMNS[reminder.activity], None),
+                'enabled',
+                False
+            ):
+                continue
         if reminder.end_time < current_time: continue
         if reminder.activity == 'custom':
             reminders_custom_list.append(reminder)
         elif reminder.activity.startswith('chest'):
             reminders_chests_list.append(reminder)
-        elif reminder.activity.startswith('larva') or reminder.activity.startswith('incubator'):
+        elif reminder.activity.startswith('larva'):
+            if not user_settings.reminder_larva.enabled: continue
+            reminders_incubator_list.append(reminder)
+        elif reminder.activity.startswith('incubator'):
             reminders_incubator_list.append(reminder)
         elif reminder.activity.startswith('quest'):
             reminders_quests_list.append(reminder)

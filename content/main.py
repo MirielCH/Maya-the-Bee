@@ -99,8 +99,10 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
     """Main menu embed"""
     prefix = await guilds.get_prefix(ctx)
     commands_reminders = (
-        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "reminders list")} : Check all active reminders\n'
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "reminders list")} : Check active reminders\n'
         f'{emojis.DETAIL} _Aliases: `{prefix}list`, `{prefix}cd`_\n'
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "ready list")} : Check what\'s ready\n'
+        f'{emojis.DETAIL} _Aliases: `{prefix}ready`, `{prefix}rd`_\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "reminders add")} : Add a custom reminder\n'
         f'{emojis.DETAIL} _Aliases: `{prefix}reminder`, `{prefix}rm`_\n'
 
@@ -115,6 +117,7 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings alerts")} : Manage alerts\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings helpers")} : Manage helpers\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings messages")} : Manage reminder messages\n'
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings ready-list")} : Manage the ready list\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings reminders")} : Enable/disable reminders\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings user")} : Manage user settings\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings server")} : Manage server settings\n'

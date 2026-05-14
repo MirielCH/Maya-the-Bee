@@ -55,6 +55,11 @@ class SettingsCog(commands.Cog):
         """Manage reminder messages"""
         await settings_cmd.command_settings_messages(self.bot, ctx)
 
+    @cmd_settings.command(name='ready-list')
+    async def ready_list(self, ctx: discord.ApplicationContext) -> None:
+        """Manage ready list settings"""
+        await settings_cmd.command_settings_ready_list(self.bot, ctx)
+        
     @cmd_settings.command()
     async def reminders(self, ctx: discord.ApplicationContext) -> None:
         """Manage reminder settings"""
@@ -127,6 +132,7 @@ class SettingsCog(commands.Cog):
         await ctx.reply(
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings helpers")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings messages")}\n'
+            f'➜ {await functions.get_maya_slash_command(self.bot, "settings ready-list")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings reminders")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings server")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings user")}\n'

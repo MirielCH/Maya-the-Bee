@@ -60,49 +60,50 @@ async def create_larva_reminders_from_feeding(message: discord.Message, embed_da
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_larva.enabled: return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
 
-        single_feed = False
-        slot_description_match = re.search(r"slot\s(\d+?)`", embed_data['description'].lower())
-        if slot_description_match:
-            slot = slot_description_match.group(1)
-            single_feed = True
-        if 'queen' in embed_data['description'].lower():
-            larva_type = 'queen'
-        elif 'soldier' in embed_data['description'].lower():
-            larva_type = 'soldier'  
-        elif 'worker' in embed_data['description'].lower():
-            larva_type = 'worker' 
-        else:
-            larva_type = 'unknown'
-        larvae_fed = embed_data['field0']['value'].split('\n')
-        for line in larvae_fed:
-            if not single_feed:
-                slot_match = re.search(r"slot\s(\d+?)\)", line.lower())
-                if not slot_match: continue
-                slot = slot_match.group(1)
-                if 'queen' in line.lower():
-                    larva_type = 'queen'
-                elif 'soldier' in line.lower():
-                    larva_type = 'soldier'  
-                elif 'worker' in line.lower():
-                    larva_type = 'worker' 
-            timestring_match = re.search(r"`(.+?)`", line.lower())
-            user_command = await functions.get_game_command(user_settings, 'incubator claim')
-            time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
-            if time_left < timedelta(0): continue
-            activity = f'larva-{larva_type}-{slot}'
-            reminder_message = (
-                    user_settings.reminder_larva.message
-                    .replace('{command}', user_command)
-                    .replace('{larva_emoji}', strings.LARVAE_EMOJIS[larva_type])
-                    .replace('{larva_name}', f'{larva_type} larva')
+        if user_settings.reminder_larva.enabled or user_settings.ready_show_incubator:
+            single_feed = False
+            slot_description_match = re.search(r"slot\s(\d+?)`", embed_data['description'].lower())
+            if slot_description_match:
+                slot = slot_description_match.group(1)
+                single_feed = True
+            if 'queen' in embed_data['description'].lower():
+                larva_type = 'queen'
+            elif 'soldier' in embed_data['description'].lower():
+                larva_type = 'soldier'  
+            elif 'worker' in embed_data['description'].lower():
+                larva_type = 'worker' 
+            else:
+                larva_type = 'unknown'
+            larvae_fed = embed_data['field0']['value'].split('\n')
+            for line in larvae_fed:
+                if not single_feed:
+                    slot_match = re.search(r"slot\s(\d+?)\)", line.lower())
+                    if not slot_match: continue
+                    slot = slot_match.group(1)
+                    if 'queen' in line.lower():
+                        larva_type = 'queen'
+                    elif 'soldier' in line.lower():
+                        larva_type = 'soldier'  
+                    elif 'worker' in line.lower():
+                        larva_type = 'worker' 
+                timestring_match = re.search(r"`(.+?)`", line.lower())
+                user_command = await functions.get_game_command(user_settings, 'incubator claim')
+                time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
+                if time_left < timedelta(0): continue
+                activity = f'larva-{larva_type}-{slot}'
+                reminder_message = (
+                        user_settings.reminder_larva.message
+                        .replace('{command}', user_command)
+                        .replace('{larva_emoji}', strings.LARVAE_EMOJIS[larva_type])
+                        .replace('{larva_name}', f'{larva_type} larva')
+                    )
+                reminder: reminders.Reminder = (
+                    await reminders.insert_reminder(user.id, activity, time_left,
+                                                    message.channel.id, reminder_message)
                 )
-            reminder: reminders.Reminder = (
-                await reminders.insert_reminder(user.id, activity, time_left,
-                                                message.channel.id, reminder_message)
-            )
-            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+                if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
     
     return add_reaction
 
@@ -153,34 +154,50 @@ async def create_larva_reminders_from_overview(message: discord.Message, embed_d
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
 
-        if user_settings.reminder_larva.enabled:
-            for field in message.embeds[0].fields:
-                if not 'loading' in field.value.lower(): continue
-                slot_match = re.search(r"`slot\s(\d+?)`", field.name.lower())
-                timestring_match = re.search(r"`(.+?)`", field.value.lower())
-                
-                if 'queen' in field.value.lower():
-                    larva_type = 'queen'
-                elif 'soldier' in field.value.lower():
-                    larva_type = 'soldier'  
-                elif 'worker' in field.value.lower():
-                    larva_type = 'worker'  
+        incubator_slots_empty = 0
+        incubator_slots_hungry = 0
+        incubator_slots_ready = 0
+        incubator_slots_total = 0
+        for field in message.embeds[0].fields:
+            if 'larva' in field.name.lower():
+                incubator_slots_total += 1
+                if 'loading' in field.value.lower() and (user_settings.reminder_larva.enabled or user_settings.ready_show_incubator):
+                    slot_match = re.search(r"`slot\s(\d+?)`", field.name.lower())
+                    timestring_match = re.search(r"`(.+?)`", field.value.lower())
                     
-                user_command = await functions.get_game_command(user_settings, 'incubator claim')
-                time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
-                if time_left < timedelta(0): continue
-                activity = f'larva-{larva_type}-{slot_match.group(1)}'
-                reminder_message = (
-                    user_settings.reminder_larva.message
-                    .replace('{command}', user_command)
-                    .replace('{larva_emoji}', strings.LARVAE_EMOJIS[larva_type])
-                    .replace('{larva_name}', f'{larva_type} larva')
-                )
-                reminder: reminders.Reminder = (
-                    await reminders.insert_reminder(interaction_user.id, activity, time_left,
-                                                    message.channel.id, reminder_message)
-                )
-                if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+                    if 'queen' in field.value.lower():
+                        larva_type = 'queen'
+                    elif 'soldier' in field.value.lower():
+                        larva_type = 'soldier'  
+                    elif 'worker' in field.value.lower():
+                        larva_type = 'worker'  
+                        
+                    user_command = await functions.get_game_command(user_settings, 'incubator claim')
+                    time_left = await functions.calculate_time_left_from_timestring(message, timestring_match.group(1))
+                    if time_left < timedelta(0): continue
+                    activity = f'larva-{larva_type}-{slot_match.group(1)}'
+                    reminder_message = (
+                        user_settings.reminder_larva.message
+                        .replace('{command}', user_command)
+                        .replace('{larva_emoji}', strings.LARVAE_EMOJIS[larva_type])
+                        .replace('{larva_name}', f'{larva_type} larva')
+                    )
+                    reminder: reminders.Reminder = (
+                        await reminders.insert_reminder(interaction_user.id, activity, time_left,
+                                                        message.channel.id, reminder_message)
+                    )                    
+                elif 'empty' in field.value.lower():
+                    incubator_slots_empty += 1
+                elif '/' in field.value.lower():
+                    incubator_slots_hungry += 1
+                elif 'has grown' in field.value.lower():
+                    incubator_slots_ready += 1
+        await user_settings.update(
+            incubator_slots_empty=incubator_slots_empty, incubator_slots_hungry=incubator_slots_hungry,
+            incubator_slots_ready=incubator_slots_ready, incubator_slots_total=incubator_slots_total
+        )
+        if user_settings.reactions_enabled: add_reaction = True
+                    
 
         if user_settings.reminder_incubator_upgrade.enabled:
             incubator_upgrade_match = re.search(r"cooldown:.+`(.+?)`", embed_data['description'].lower())
@@ -212,15 +229,12 @@ async def create_nugget_alert(message: discord.Message, embed_data: Dict, user: 
         'claimed **', #English
         'larva(e)!', #English
     ]
-    search_strings_field = [
-        'drops', #English
-    ]
     fields = ''
     if message.embeds:
         for field in message.embeds[0].fields:
             fields = f'{fields}\n{field.name}\n{field.value}'
     if (all(search_string in embed_data['description'].lower() for search_string in search_strings_description)
-        and any(search_string in fields.lower() for search_string in search_strings_field)):
+        and 'drops' in fields.lower()):
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']

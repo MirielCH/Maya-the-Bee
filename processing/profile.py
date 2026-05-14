@@ -159,7 +159,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                     break
         
         if field_tool_status:
-            if user_settings.reminder_research.enabled:
+            if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
                 timestring_match = re.search(r"researching: `(.+?)` remaining", embed_data['field3']['value'].lower())
                 if timestring_match:
                     user_command = await functions.get_game_command(user_settings, 'laboratory')
@@ -169,7 +169,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                     cooldowns.append(['pruner-research', time_left, reminder_message])
                 else:
                     ready_commands.append('pruner-research')
-            if user_settings.reminder_upgrade.enabled:
+            if user_settings.reminder_upgrade.enabled or user_settings.ready_show_pruner:
                 timestring_match = re.search(r"upgrading: `(.+?)` remaining", embed_data['field3']['value'].lower())
                 if timestring_match:
                     user_command = await functions.get_game_command(user_settings, 'tool')

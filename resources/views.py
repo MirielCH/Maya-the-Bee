@@ -336,6 +336,76 @@ class SettingsMessagesView(discord.ui.DesignerView):
         self.stop()
 
 
+class SettingsReadyListView(discord.ui.DesignerView):
+    """View with a all components to manage ready list settings.
+    Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
+
+    Arguments
+    ---------
+    ctx: Context.
+    bot: Bot.
+    user_settings: User object with the settings of the user.
+    embed_function: Function that returns the settings embed. The view expects the following arguments:
+    - bot: Bot
+    - user_settings: User object with the settings of the user
+    commands_settings: Dict[str, callable] with the names and embeds of all settings pages to switch to
+
+    Returns
+    -------
+    None
+
+    """
+    def __init__(self, ctx: discord.ApplicationContext, bot: discord.Bot, user_settings: users.User,
+                 embed_function: callable, commands_settings: Dict, interaction: Optional[discord.Interaction] = None):
+        super().__init__(timeout=settings.INTERACTION_TIMEOUT)
+        self.ctx = ctx
+        self.bot = bot
+        self.value = None
+        self.interaction = interaction
+        self.user = ctx.author
+        self.user_settings = user_settings
+        self.embed_function = embed_function
+        self.commands_settings = commands_settings
+        toggled_settings = {
+            'Show list after prune': 'ready_popup_enabled',
+            'Show list when empty': 'ready_show_when_empty',
+        }
+        toggled_settings_cooldowns = {
+            'Calendar': 'ready_show_calendar',
+            'Chests': 'ready_show_chests',
+            'Clean': 'ready_show_clean',
+            'Daily': 'ready_show_daily',
+            'Fusion': 'ready_show_fusion',
+            'Hive Energy': 'ready_show_hive_energy',
+            'Incubator': 'ready_show_incubator',
+            'Prune': 'ready_show_prune',
+            'Pruner': 'ready_show_pruner',
+            'Quests': 'ready_show_quests',
+            'Vote': 'ready_show_vote',
+        }
+        toggled_settings_other = {
+            'Ready to rebirth': 'ready_show_rebirth',
+        }
+
+        self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle settings',
+                                                          'toggle_settings')))
+        self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_cooldowns, 'Toggle cooldowns',
+                                                          'toggle_cooldowns')))
+        self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_other, 'Toggle other activities',
+                                                          'toggle_other')))
+        self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user != self.user:
+            await interaction.response.send_message(random.choice(strings.MSG_INTERACTION_ERRORS), ephemeral=True)
+            return False
+        return True
+
+    async def on_timeout(self) -> None:
+        await functions.edit_interaction(self.interaction, view=None)
+        self.stop()
+
+        
 class SettingsRemindersView(discord.ui.DesignerView):
     """View with a all components to manage reminder settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
@@ -367,19 +437,19 @@ class SettingsRemindersView(discord.ui.DesignerView):
         self.embed_function = embed_function
         self.commands_settings = commands_settings
         toggled_settings_commands = {
-            'Boosts': 'reminder_boosts',
-            'Chests': 'reminder_chests',
-            'Clean': 'reminder_clean',
-            'Daily': 'reminder_daily',
-            'Fusion': 'reminder_fusion',
-            'Hive Energy': 'reminder_hive_energy',
-            'Larva Growing': 'reminder_larva',
-            'Incubator Upgrade': 'reminder_incubator_upgrade',
-            'Prune': 'reminder_prune',
-            'Pruner Research': 'reminder_research',
-            'Pruner Upgrade': 'reminder_upgrade',
-            'Quests': 'reminder_quests',
-            'Vote': 'reminder_vote',
+            'Boosts': 'reminder_boosts_enabled',
+            'Chests': 'reminder_chests_enabled',
+            'Clean': 'reminder_clean_enabled',
+            'Daily': 'reminder_daily_enabled',
+            'Fusion': 'reminder_fusion_enabled',
+            'Hive Energy': 'reminder_hive_energy_enabled',
+            'Larva Growing': 'reminder_larva_enabled',
+            'Incubator Upgrade': 'reminder_incubator_upgrade_enabled',
+            'Prune': 'reminder_prune_enabled',
+            'Pruner Research': 'reminder_research_enabled',
+            'Pruner Upgrade': 'reminder_upgrade_enabled',
+            'Quests': 'reminder_quests_enabled',
+            'Vote': 'reminder_vote_enabled',
         }
 
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_commands, 'Toggle reminders',

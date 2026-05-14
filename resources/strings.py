@@ -98,6 +98,7 @@ DEFAULT_MESSAGE_CUSTOM_REMINDER = 'Bzzt! This is your reminder for **{message}**
 
 DEFAULT_MESSAGES = {
     'boosts': '{name} Bzzt! Your {boost_emoji} {boost_name} just ran out!',
+    'calendar': '{name} Bzzt! Today\'s {command} reward is ready to claim!',
     'chests': '{name} Bzzt! A {chest_emoji} {chest_type} chest is ready! Use {command} to open it.',
     'clean': '{name} Bzzt! Go {command} that tree!',
     'daily': '{name} Bzzt! Time for your {command} rewards!',
@@ -168,6 +169,7 @@ ACTIVITIES_ALL.sort()
 ACTIVITIES_ALL.insert(0, 'all')
 
 ACTIVITIES_COMMANDS = (
+    'calendar',
     'chest-1',
     'chest-2',
     'chest-3',
@@ -195,6 +197,32 @@ ACTIVITIES_BOOSTS = (
     'xp-boost',
 )
 
+ACTIVITIES_QUEST = (
+    'quest-daily',
+    'quest-weekly',
+    'quest-monthly',
+)
+
+ACTIVITIES_READY_COMMANDS = (
+    'calendar',
+    'clean',
+    'daily',
+    'fusion',
+    'hive-energy',
+    'prune',
+    'vote',
+)
+
+ACTIVITIES_READY_COMMANDS_SETTINGS = {
+    'calendar': 'ready_show_calendar',
+    'clean': 'ready_show_clean',
+    'daily': 'ready_show_daily',
+    'fusion': 'ready_show_fusion',
+    'hive-energy': 'ready_show_hive_energy',
+    'prune': 'ready_show_prune',
+    'vote': 'ready_show_vote',
+}
+
 ACTIVITIES_TOOL = (
     'pruner-research',
     'pruner-upgrade',
@@ -216,6 +244,7 @@ ACTIVITIES_SLASH_COMMANDS = {
 
 ACTIVITIES_COLUMNS = {
     'boosts': 'reminder_boosts',
+    'calendar': 'reminder_calendar',
     'chest-1': 'reminder_chests',
     'chest-2': 'reminder_chests',
     'chest-3': 'reminder_chests',
@@ -250,6 +279,7 @@ ACTIVITIES_NAME_BOOSTS = {
 
 SLASH_COMMANDS = {
     'bees': '</bees:976919525415071825>',
+    'calendar': '</calendar:1500208124416753776>',
     'chests': '</chests:1027309977104285697>',
     'chips upgrade-buff': '</chips upgrade-buff:0>', # TODO: Addd correct command ID
     'chips upgrade-tier': '</chips upgrade-tier:0>', # TODO: Addd correct command ID
@@ -266,6 +296,7 @@ SLASH_COMMANDS = {
     'hive equip-chip': '</hive equip-chip:976919525415071824>',
     'hive show': '</hive show:976919525415071824>',
     'incubator claim': '</incubator claim:1482481237070450748>',
+    'incubator show': '</incubator show:1482481237070450748>',
     'incubator upgrade': '</incubator upgrade:1482481237070450748>',
     'inventory': '</inventory:960947259627958292>',
     'laboratory': '</laboratory:960947259560820810>',
@@ -342,4 +373,25 @@ LEAGUES = {
     62_001: ('Z', emojis.LEAGUE_Z),
     74_001: ('Alpha', emojis.LEAGUE_ALPHA),
     86_000: ('Beta', emojis.LEAGUE_BETA),
+}
+
+PRUNER_TYPES = {
+    'wooden': 1,
+    'copper': 2,
+    'silver': 3,
+    'golden': 4,
+    'diamond': 5,
+}
+
+NUMBERS_ROMAN_ARABIC = {
+    'ix': 1,
+    'ii': 2,
+    'iii': 3,
+    'iv': 4,
+    'v': 5,
+    'vi': 6,
+    'vii': 7,
+    'viii': 8,
+    'ix': 9,
+    'x': 10,
 }

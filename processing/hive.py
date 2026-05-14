@@ -50,19 +50,20 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_hive_energy.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'hive claim energy')
-        time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'hive-energy')
-        if time_left < timedelta(0): return add_reaction
-        reminder_message = user_settings.reminder_hive_energy.message.replace('{command}', user_command)
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, 'hive-energy', time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if user_settings.reactions_enabled and reminder.record_exists:
-            add_reaction = True
-        if user_settings.helper_context_enabled:
-            await message.reply(f"➜ {strings.SLASH_COMMANDS['raid']}")
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_hive_energy.enabled or user_settings.ready_show_hive_energy:
+            user_command = await functions.get_game_command(user_settings, 'hive claim energy')
+            time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'hive-energy')
+            if time_left < timedelta(0): return add_reaction
+            reminder_message = user_settings.reminder_hive_energy.message.replace('{command}', user_command)
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, 'hive-energy', time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists:
+                add_reaction = True
+            if user_settings.helper_context_enabled:
+                await message.reply(f"➜ {strings.SLASH_COMMANDS['raid']}")
     return add_reaction
 
 

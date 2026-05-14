@@ -3,7 +3,6 @@
 import asyncio
 from datetime import timedelta
 from math import ceil, floor
-import random
 import re
 from typing import Dict, Optional
 
@@ -11,6 +10,7 @@ import discord
 from discord import utils
 
 from cache import messages
+from content import list_ready
 from database import reminders, tracking, users
 from resources import emojis, exceptions, functions, regex, settings, strings
 
@@ -122,7 +122,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, message.guild.id, 'royal-jelly', current_time,
                                                 royal_jelly_amount)
-        if user_settings.reminder_prune.enabled:
+        if user_settings.reminder_prune.enabled or user_settings.ready_show_prune:
             user_command = await functions.get_game_command(user_settings, 'prune')
             pruner_type_match = re.search(r'> \*\*(.+?) pruner', message.content, re.IGNORECASE)
             await user_settings.update(pruner_type=pruner_type_match.group(1).lower())
@@ -229,7 +229,12 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                         embed.set_footer(text='Use "/settings alerts" to change this')
                         embeds.insert(0, embed)
                     nugget_alert = True
-                    
+
+            if user_settings.ready_popup_enabled:
+                ready_embed = await list_ready.embed_ready_list(user, user_settings)
+                if ready_embed:
+                    embeds.append(ready_embed)
+            
             if embeds or message_content:
                 if nugget_alert and not user_settings.alert_nugget_dm:
                     message_content = f'{user.mention}\n{message_content}'

@@ -53,14 +53,15 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_daily.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'daily')
-        time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'daily')
-        if time_left < timedelta(0): return add_reaction
-        reminder_message = user_settings.reminder_daily.message.replace('{command}', user_command)
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, 'daily', time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_daily.enabled or user_settings.ready_show_daily:
+            user_command = await functions.get_game_command(user_settings, 'daily')
+            time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'daily')
+            if time_left < timedelta(0): return add_reaction
+            reminder_message = user_settings.reminder_daily.message.replace('{command}', user_command)
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, 'daily', time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
     return add_reaction

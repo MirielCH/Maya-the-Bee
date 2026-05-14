@@ -5,7 +5,7 @@ import discord
 from discord.commands import SlashCommandGroup, Option
 from discord.ext import commands
 
-from content import reminders_lists, reminders_custom
+from content import list_reminders, reminders_custom
 from resources import functions
 
 
@@ -36,7 +36,7 @@ class RemindersListsCog(commands.Cog):
         user: Option(discord.User, 'User you want to check active reminders for', default=None),
     ) -> None:
         """Lists all active reminders"""
-        await reminders_lists.command_list(self.bot, ctx, user)
+        await list_reminders.command_list(self.bot, ctx, user)
 
     @commands.command(name='reminder', aliases=('rm','remind','add','add-reminder','rm-add','reminders-add','reminder-add'))
     @commands.bot_has_permissions(send_messages=True)
@@ -86,7 +86,7 @@ class RemindersListsCog(commands.Cog):
         if user.bot:
             await ctx.reply('Imagine trying to check the reminders of a bot.')
             return
-        await reminders_lists.command_list(self.bot, ctx, user)
+        await list_reminders.command_list(self.bot, ctx, user)
 
 
 # Initialization

@@ -28,6 +28,9 @@ class User():
     alert_rebirth_enabled: bool
     beta_pass_available: int
     bot_enabled: bool
+    chests_in_queue: int
+    chests_slots_empty: int
+    chests_slots_ready: int
     diamond_rings: int
     diamond_rings_cap: int
     diamond_trophies: int
@@ -43,14 +46,35 @@ class User():
     helper_trophies_diamond_progress_bar_color: str
     helper_trophies_enabled: bool
     helper_trophies_trophy_progress_bar_color: str
+    incubator_slots_empty: int
+    incubator_slots_hungry: int
+    incubator_slots_ready: int
+    incubator_slots_total: int
     last_bunny_update: datetime | None
     last_rebirth: datetime
     league_beta: bool
     level: int
+    pruner_level: int
+    pruner_tier: int
     pruner_type: str
     reactions_enabled: bool
+    ready_popup_enabled: bool
+    ready_show_calendar: bool
+    ready_show_chests: bool
+    ready_show_clean: bool
+    ready_show_daily: bool
+    ready_show_fusion: bool
+    ready_show_hive_energy: bool
+    ready_show_incubator: bool
+    ready_show_prune: bool
+    ready_show_pruner: bool
+    ready_show_quests: bool
+    ready_show_rebirth: bool
+    ready_show_vote: bool
+    ready_show_when_empty: bool
     rebirth: int
     reminder_boosts: UserReminder
+    reminder_calendar: UserReminder
     reminder_chests: UserReminder
     reminder_clean: UserReminder
     reminder_daily: UserReminder
@@ -88,6 +112,9 @@ class User():
         self.alert_rebirth_enabled = new_settings.alert_rebirth_enabled
         self.beta_pass_available = new_settings.beta_pass_available
         self.bot_enabled = new_settings.bot_enabled
+        self.chests_in_queue = new_settings.chests_in_queue
+        self.chests_slots_empty = new_settings.chests_slots_empty
+        self.chests_slots_ready = new_settings.chests_slots_ready
         self.diamond_rings = new_settings.diamond_rings
         self.diamond_rings_cap = new_settings.diamond_rings_cap
         self.diamond_trophies = new_settings.diamond_trophies
@@ -103,14 +130,35 @@ class User():
         self.helper_trophies_diamond_progress_bar_color = new_settings.helper_trophies_diamond_progress_bar_color
         self.helper_trophies_enabled = new_settings.helper_trophies_enabled
         self.helper_trophies_trophy_progress_bar_color = new_settings.helper_trophies_trophy_progress_bar_color
+        self.incubator_slots_empty = new_settings.incubator_slots_empty
+        self.incubator_slots_hungry = new_settings.incubator_slots_hungry
+        self.incubator_slots_ready = new_settings.incubator_slots_ready
+        self.incubator_slots_total = new_settings.incubator_slots_total
         self.last_bunny_update = new_settings.last_bunny_update
         self.last_rebirth = new_settings.last_rebirth
         self.league_beta = new_settings.league_beta
         self.level = new_settings.level
+        self.pruner_level = new_settings.pruner_level
+        self.pruner_tier = new_settings.pruner_tier
         self.pruner_type = new_settings.pruner_type
         self.reactions_enabled = new_settings.reactions_enabled
+        self.ready_popup_enabled = new_settings.ready_popup_enabled
+        self.ready_show_calendar = new_settings.ready_show_calendar
+        self.ready_show_chests = new_settings.ready_show_chests
+        self.ready_show_clean = new_settings.ready_show_clean
+        self.ready_show_daily = new_settings.ready_show_daily
+        self.ready_show_fusion = new_settings.ready_show_fusion
+        self.ready_show_hive_energy = new_settings.ready_show_hive_energy
+        self.ready_show_incubator = new_settings.ready_show_incubator
+        self.ready_show_prune = new_settings.ready_show_prune
+        self.ready_show_pruner = new_settings.ready_show_pruner
+        self.ready_show_quests = new_settings.ready_show_quests
+        self.ready_show_rebirth = new_settings.ready_show_rebirth
+        self.ready_show_vote = new_settings.ready_show_vote
+        self.ready_show_when_empty = new_settings.ready_show_when_empty
         self.rebirth = new_settings.rebirth
         self.reminder_boosts = new_settings.reminder_boosts
+        self.reminder_calendar = new_settings.reminder_calendar
         self.reminder_chests = new_settings.reminder_chests
         self.reminder_clean = new_settings.reminder_clean
         self.reminder_daily = new_settings.reminder_daily
@@ -151,6 +199,9 @@ class User():
             alert_rebirth_enabled: bool
             beta_pass_available: int
             bot_enabled: bool
+            chests_in_queue: int
+            chests_slots_empty: int
+            chests_slots_ready: int
             diamond_rings: int
             diamond_rings_cap: int
             diamond_trophies: int
@@ -166,15 +217,37 @@ class User():
             helper_trophies_diamond_progress_bar_color: str
             helper_trophies_enabled: bool
             helper_trophies_trophy_progress_bar_color: str
+            incubator_slots_empty: int
+            incubator_slots_hungry: int
+            incubator_slots_ready: int
+            incubator_slots_total: int
             last_bunny_update: datetime | None
             last_rebirth: datetime UTC aware
             league_beta: bool
             level: int
+            pruner_level: int
+            pruner_tier: int
             pruner_type: str
             reactions_enabled: bool
+            ready_popup_enabled: int
+            ready_show_calendar: bool
+            ready_show_chests: bool
+            ready_show_clean: bool
+            ready_show_daily: bool
+            ready_show_fusion: bool
+            ready_show_hive_energy: bool
+            ready_show_incubator: bool
+            ready_show_prune: bool
+            ready_show_pruner: bool
+            ready_show_quests: bool
+            ready_show_rebirth: bool
+            ready_show_vote: bool
+            ready_show_when_empty: bool
             rebirth: int
             reminder_boosts_enabled: bool
             reminder_boosts_message: str
+            reminder_calendar_enabled: bool
+            reminder_calendar_message: str
             reminder_chests_enabled: bool
             reminder_chests_message: str
             reminder_clean_enabled: bool
@@ -243,6 +316,9 @@ async def _dict_to_user(record: dict) -> User:
             alert_rebirth_enabled = bool(record['alert_rebirth_enabled']),
             beta_pass_available = record['beta_pass_available'],
             bot_enabled = bool(record['bot_enabled']),
+            chests_in_queue = record['chests_in_queue'],
+            chests_slots_empty = record['chests_slots_empty'],
+            chests_slots_ready = record['chests_slots_ready'],
             diamond_rings = record['diamond_rings'],
             diamond_rings_cap = record['diamond_rings_cap'],
             diamond_trophies = record['diamond_trophies'],
@@ -261,12 +337,34 @@ async def _dict_to_user(record: dict) -> User:
             helper_trophies_diamond_progress_bar_color = record['helper_trophies_diamond_progress_bar_color'],
             helper_trophies_enabled = bool(record['helper_trophies_enabled']),
             helper_trophies_trophy_progress_bar_color = record['helper_trophies_trophy_progress_bar_color'],
+            incubator_slots_empty = record['incubator_slots_empty'],
+            incubator_slots_hungry = record['incubator_slots_hungry'],
+            incubator_slots_ready = record['incubator_slots_ready'],
+            incubator_slots_total = record['incubator_slots_total'],
             level = record['level'],
+            pruner_level = record['pruner_level'],
+            pruner_tier= record['pruner_tier'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
             reactions_enabled = bool(record['reactions_enabled']),
+            ready_popup_enabled = bool(record['ready_popup_enabled']),
+            ready_show_calendar = bool(record['ready_show_calendar']),
+            ready_show_chests = bool(record['ready_show_chests']),
+            ready_show_clean = bool(record['ready_show_clean']),
+            ready_show_daily = bool(record['ready_show_daily']),
+            ready_show_fusion = bool(record['ready_show_fusion']),
+            ready_show_hive_energy = bool(record['ready_show_hive_energy']),
+            ready_show_incubator = bool(record['ready_show_incubator']),
+            ready_show_prune = bool(record['ready_show_prune']),
+            ready_show_pruner = bool(record['ready_show_pruner']),
+            ready_show_quests = bool(record['ready_show_quests']),
+            ready_show_rebirth = bool(record['ready_show_rebirth']),
+            ready_show_vote = bool(record['ready_show_vote']),
+            ready_show_when_empty = bool(record['ready_show_when_empty']),
             rebirth = record['rebirth'],
             reminder_boosts = UserReminder(enabled=bool(record['reminder_boosts_enabled']),
                                            message=record['reminder_boosts_message']),
+            reminder_calendar = UserReminder(enabled=bool(record['reminder_calendar_enabled']),
+                                              message=record['reminder_calendar_message']),
             reminder_chests = UserReminder(enabled=bool(record['reminder_chests_enabled']),
                                            message=record['reminder_chests_message']),
             reminder_clean = UserReminder(enabled=bool(record['reminder_clean_enabled']),
@@ -429,6 +527,9 @@ async def _update_user(user: User, **kwargs) -> None:
         alert_rebirth_enabled: bool
         beta_pass_available: int
         bot_enabled: bool
+        chests_in_queue: int
+        chests_slots_empty: int
+        chests_slots_ready: int
         diamond_rings: int
         diamond_rings_cap: int
         diamond_trophies: int
@@ -444,15 +545,43 @@ async def _update_user(user: User, **kwargs) -> None:
         helper_trophies_diamond_progress_bar_color: str
         helper_trophies_enabled: bool
         helper_trophies_trophy_progress_bar_color: str
+        incubator_slots_empty: int
+        incubator_slots_hungry: int
+        incubator_slots_ready: int
+        incubator_slots_total: int
         last_bunny_update: datetime | None
         last_rebirth: datetime UTC aware
         league_beta: bool
         level: int
+        nuggets_copper: int
+        nuggets_diamond: int
+        nuggets_golden: int
+        nuggets_silver: int
+        nuggets_wooden: int
+        pruner_level: int
+        pruner_research_cost: int
+        pruner_tier: int
         pruner_type: str
         reactions_enabled: bool
+        ready_popup_enabled: bool
+        ready_show_calendar: bool
+        ready_show_chests: bool
+        ready_show_clean: bool
+        ready_show_daily: bool
+        ready_show_fusion: bool
+        ready_show_hive_energy: bool
+        ready_show_incubator: bool
+        ready_show_prune: bool
+        ready_show_pruner: bool
+        ready_show_quests: bool
+        ready_show_rebirth: bool
+        ready_show_vote: bool
+        ready_show_when_empty: bool
         rebirth: int
         reminder_boosts_enabled: bool
         reminder_boosts_message: str
+        reminder_calendar_enabled: bool
+        reminder_calendar_message: str
         reminder_chests_enabled: bool
         reminder_chests_message: str
         reminder_clean_enabled: bool

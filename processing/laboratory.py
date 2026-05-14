@@ -95,19 +95,20 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'laboratory')
-        if user_settings.research_time == 0:
-            await functions.add_warning_reaction(message)
-            await errors.log_error('Research time is 0 for some reason.', message)
-            return add_reaction
-        time_left = timedelta(seconds=user_settings.research_time)
-        reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, 'pruner-research', time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
+            user_command = await functions.get_game_command(user_settings, 'laboratory')
+            if user_settings.research_time == 0:
+                await functions.add_warning_reaction(message)
+                await errors.log_error('Research time is 0 for some reason.', message)
+                return add_reaction
+            time_left = timedelta(seconds=user_settings.research_time)
+            reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, 'pruner-research', time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
     return add_reaction
 
 
@@ -149,19 +150,20 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_research.enabled: return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'laboratory')
-        research_end_match = re.search(r'<t:(\d+?):f>', embed_data['field0']['value'].lower())
-        end_time = datetime.fromtimestamp(int(research_end_match.group(1)), timezone.utc).replace(microsecond=0)
-        current_time = utils.utcnow().replace(microsecond=0)
-        time_left = end_time - current_time
-        if time_left < timedelta(0): return add_reaction
-        reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(interaction_user.id, 'pruner-research', time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
+            user_command = await functions.get_game_command(user_settings, 'laboratory')
+            research_end_match = re.search(r'<t:(\d+?):f>', embed_data['field0']['value'].lower())
+            end_time = datetime.fromtimestamp(int(research_end_match.group(1)), timezone.utc).replace(microsecond=0)
+            current_time = utils.utcnow().replace(microsecond=0)
+            time_left = end_time - current_time
+            if time_left < timedelta(0): return add_reaction
+            reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(interaction_user.id, 'pruner-research', time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
     return add_reaction
 
 
@@ -186,13 +188,14 @@ async def delete_reminder_on_cancel(message: discord.Message, embed_data: Dict, 
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
-        try:
-            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-research')
-            await reminder.delete()
-        except exceptions.NoDataFoundError:
-            return add_reaction
-        if user_settings.reactions_enabled: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
+            try:
+                reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-research')
+                await reminder.delete()
+            except exceptions.NoDataFoundError:
+                return add_reaction
+            if user_settings.reactions_enabled: add_reaction = True
     return add_reaction
 
 
@@ -226,13 +229,14 @@ async def delete_reminder_on_skip(message: discord.Message, embed_data: Dict, us
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_upgrade.enabled: return add_reaction
-        try:
-            reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-research')
-            await reminder.delete()
-        except exceptions.NoDataFoundError:
-            return add_reaction
-        if user_settings.reactions_enabled: add_reaction = True
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
+            try:
+                reminder: reminders.Reminder = await reminders.get_reminder(user.id, 'pruner-research')
+                await reminder.delete()
+            except exceptions.NoDataFoundError:
+                return add_reaction
+            if user_settings.reactions_enabled: add_reaction = True
     return add_reaction
 
 

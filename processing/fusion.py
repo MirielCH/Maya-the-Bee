@@ -67,7 +67,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                 user2_settings = None
         if user1_settings is not None:
             if user1_settings.bot_enabled:
-                if user1_settings.reminder_fusion.enabled:
+                if user1_settings.reminder_fusion.enabled or user1_settings.ready_show_fusion:
                     user_command = await functions.get_game_command(user1_settings, 'fusion')
                     time_left = await functions.calculate_time_left_from_cooldown(message, user1_settings, 'fusion')
                     if time_left < timedelta(0): return add_reaction
@@ -79,7 +79,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
                     if user1_settings.reactions_enabled and reminder.record_exists: add_reaction = True
         if user2_settings is not None:
             if user2_settings.bot_enabled:
-                if user2_settings.reminder_fusion.enabled:
+                if user2_settings.reminder_fusion.enabled or user2_settings.ready_show_fusion:
                     user_command = await functions.get_game_command(user2_settings, 'fusion')
                     time_left = await functions.calculate_time_left_from_cooldown(message, user2_settings, 'fusion')
                     if time_left < timedelta(0): return add_reaction

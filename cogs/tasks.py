@@ -39,9 +39,22 @@ class TasksCog(commands.Cog):
             if channel is None: return
             user = await functions.get_discord_user(self.bot, first_reminder.user_id)
             user_settings = await users.get_user(user.id)
+            if first_reminder.activity in strings.ACTIVITIES_COLUMNS:
+                if not getattr(
+                    getattr(user_settings, strings.ACTIVITIES_COLUMNS[first_reminder.activity], None),
+                    'enabled',
+                    False
+                ):
+                    return                
             message_no = 1
             messages = {message_no: ('', '')}
+            larva_reminders = 0
+            send_message = True
             for reminder in reminders_list:
+                if reminder.activity.startswith('larva'):
+                    larva_reminders += 1
+                    if not user_settings.reminder_larva.enabled:
+                        send_message = False
                 if reminder.activity == 'custom':
                     reminder_message = strings.DEFAULT_MESSAGE_CUSTOM_REMINDER.format(message=reminder.message)
                     if user_settings.dnd_mode_enabled:
@@ -66,7 +79,11 @@ class TasksCog(commands.Cog):
                     activity, message = activity_message
                     if activity == 'sweet-apple':
                         await user_settings.update(xp_gain_average=0)
-                    await channel.send(message.strip(), allowed_mentions=allowed_mentions)
+                    if send_message:
+                        await channel.send(message.strip(), allowed_mentions=allowed_mentions)
+                if larva_reminders > 0:
+                    await user_settings.refresh()
+                    await user_settings.update(incubator_slots_ready=user_settings.incubator_slots_ready + larva_reminders)
             except asyncio.CancelledError:
                 return
             except discord.errors.Forbidden:
@@ -196,7 +213,7 @@ class TasksCog(commands.Cog):
     @tasks.loop(minutes=10)
     async def delete_old_messages_from_cache(self) -> None:
         """Task that deletes messages from the message cache that are older than 10 minutes"""
-        deleted_messages_count = await messages.delete_old_messages(timedelta(minutes=6))
+        deleted_messages_count = await messages.delete_old_messages(timedelta(minutes=10))
         if settings.DEBUG_MODE:
             logs.logger.debug(f'Deleted {deleted_messages_count} messages from message cache.')
 

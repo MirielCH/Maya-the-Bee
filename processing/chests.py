@@ -146,48 +146,62 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.reminder_chests.enabled: return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
+
+        chests_in_queue = 10 - embed_data['field0']['value'].count('neutral')
+        chests_slots_empty = chests_slots_ready = 0
+                        
         user_command = await functions.get_game_command(user_settings, 'chests')
         regex_timestring = re.compile(r'\.\.\. \((.+?)\)')
         for index, button in enumerate(message.components[0].children):
-            activity = f'chest-{index + 1}'
-            if button.emoji is None or button.label.lower() in ('empty slot', 'open'):
-                try:
-                    reminder = await reminders.get_reminder(user.id, activity)
-                    await reminder.delete()
-                except exceptions.NoDataFoundError:
-                    pass
-                continue
-            if 'silver' in button.emoji.name:
-                chest_type = 'silver'
-                chest_emoji = emojis.CHEST_SILVER
-            elif 'gold' in button.emoji.name:
-                chest_type = 'golden'
-                chest_emoji = emojis.CHEST_GOLDEN
-            elif 'pumpkin' in button.emoji.name:
-                chest_type = 'pumpkin'
-                chest_emoji = emojis.PUMPKIN
-            elif 'valentine' in button.emoji.name:
-                chest_type = 'valentine'
-                chest_emoji = emojis.CHEST_VALENTINE
-            elif 'easter' in button.emoji.name:
-                chest_type = 'easter'
-                chest_emoji = emojis.CHEST_EASTER
-            else:
-                chest_type = 'wooden'
-                chest_emoji = emojis.CHEST_WOODEN
-            timestring_match = re.search(regex_timestring, button.label.lower())
-            if not timestring_match: return add_reaction
-            reminder_message = (
-                user_settings.reminder_chests.message
-                .replace('{command}', user_command)
-                .replace('{chest_emoji}', chest_emoji)
-                .replace('{chest_type}', chest_type)
-            )
-            time_left = await functions.parse_timestring_to_timedelta(timestring_match.group(1).lower())
-            reminder: reminders.Reminder = (
-                await reminders.insert_reminder(user.id, activity, time_left,
-                                                message.channel.id, reminder_message)
-            )
-            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+            if 'empty' in button.label.lower():
+                chests_slots_empty += 1
+            if button.label.lower() == 'open':
+                chests_slots_ready += 1
+            
+            if user_settings.reminder_chests.enabled or user_settings.ready_show_chests:
+                activity = f'chest-{index + 1}'
+                if button.emoji is None or button.label.lower() in ('empty slot', 'open'):
+                    try:
+                        reminder = await reminders.get_reminder(user.id, activity)
+                        await reminder.delete()
+                    except exceptions.NoDataFoundError:
+                        pass
+                    continue
+                if 'silver' in button.emoji.name:
+                    chest_type = 'silver'
+                    chest_emoji = emojis.CHEST_SILVER
+                elif 'gold' in button.emoji.name:
+                    chest_type = 'golden'
+                    chest_emoji = emojis.CHEST_GOLDEN
+                elif 'pumpkin' in button.emoji.name:
+                    chest_type = 'pumpkin'
+                    chest_emoji = emojis.PUMPKIN
+                elif 'valentine' in button.emoji.name:
+                    chest_type = 'valentine'
+                    chest_emoji = emojis.CHEST_VALENTINE
+                elif 'easter' in button.emoji.name:
+                    chest_type = 'easter'
+                    chest_emoji = emojis.CHEST_EASTER
+                else:
+                    chest_type = 'wooden'
+                    chest_emoji = emojis.CHEST_WOODEN
+                timestring_match = re.search(regex_timestring, button.label.lower())
+                if not timestring_match: return add_reaction
+                reminder_message = (
+                    user_settings.reminder_chests.message
+                    .replace('{command}', user_command)
+                    .replace('{chest_emoji}', chest_emoji)
+                    .replace('{chest_type}', chest_type)
+                )
+                time_left = await functions.parse_timestring_to_timedelta(timestring_match.group(1).lower())
+                reminder: reminders.Reminder = (
+                    await reminders.insert_reminder(user.id, activity, time_left,
+                                                    message.channel.id, reminder_message)
+                )
+                if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+
+        await user_settings.update(chests_in_queue=chests_in_queue, chests_slots_empty=chests_slots_empty,
+                                   chests_slots_ready=chests_slots_ready)
+        
     return add_reaction

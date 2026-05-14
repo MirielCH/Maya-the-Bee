@@ -399,15 +399,16 @@ class SetDonorTierSelect(discord.ui.Select):
 
 
 class ToggleUserSettingsSelect(discord.ui.Select):
-    """Toggle select that shows and toggles the status of user settings (except alerts)."""
+    """Toggle select that shows and toggles the status of user settings (except alerts). Column name must end in '_enabled'"""
     def __init__(self, view: discord.ui.DesignerView, toggled_settings: Dict[str, str], placeholder: str,
                  custom_id: Optional[str] = 'toggle_user_settings'):
         self.toggled_settings = toggled_settings
         options = []
-        options.append(discord.SelectOption(label='Enable all', value='enable_all', emoji=None))
-        options.append(discord.SelectOption(label='Disable all', value='disable_all', emoji=None))
+        if len(toggled_settings) > 1:
+            options.append(discord.SelectOption(label='Enable all', value='enable_all', emoji=None))
+            options.append(discord.SelectOption(label='Disable all', value='disable_all', emoji=None))
         for label, setting in toggled_settings.items():
-            setting_enabled = getattr(view.user_settings, setting)
+            setting_enabled = getattr(view.user_settings, setting, getattr(view.user_settings, setting.replace('_enabled', ''), False))
             if isinstance(setting_enabled, users.UserReminder):
                 setting_enabled = getattr(setting_enabled, 'enabled')
             emoji = emojis.ENABLED if setting_enabled else emojis.DISABLED
@@ -421,25 +422,23 @@ class ToggleUserSettingsSelect(discord.ui.Select):
         if select_value in ('enable_all','disable_all'):
             enabled = True if select_value == 'enable_all' else False
             for setting in self.toggled_settings.values():
-                if not setting.endswith('_enabled'):
-                    setting = f'{setting}_enabled'
                 kwargs[setting] = enabled
         else:
-            setting_value = getattr(self.view.user_settings, select_value)
+            setting_value = getattr(self.view.user_settings, select_value, getattr(self.view.user_settings, select_value.replace('_enabled', ''), False))
             if isinstance(setting_value, users.UserReminder):
                 setting_value = getattr(setting_value, 'enabled')
-            if not select_value.endswith('_enabled'):
-                select_value = f'{select_value}_enabled'
             kwargs[select_value] = not setting_value
         await self.view.user_settings.update(**kwargs)
         for action_row in self.view.children.copy():
             for child in action_row.children.copy():
                 if isinstance(child, ToggleUserSettingsSelect):
+                    if child.custom_id != self.custom_id: continue
                     options = []
-                    options.append(discord.SelectOption(label='Enable all', value='enable_all', emoji=None))
-                    options.append(discord.SelectOption(label='Disable all', value='disable_all', emoji=None))
+                    if len(self.toggled_settings) > 1:
+                        options.append(discord.SelectOption(label='Enable all', value='enable_all', emoji=None))
+                        options.append(discord.SelectOption(label='Disable all', value='disable_all', emoji=None))
                     for label, setting in self.toggled_settings.items():
-                        setting_enabled = getattr(self.view.user_settings, setting)
+                        setting_enabled = getattr(self.view.user_settings, setting, getattr(self.view.user_settings, setting.replace('_enabled', ''), False))
                         if isinstance(setting_enabled, users.UserReminder):
                             setting_enabled = getattr(setting_enabled, 'enabled')
                         emoji = emojis.ENABLED if setting_enabled else emojis.DISABLED
@@ -447,7 +446,6 @@ class ToggleUserSettingsSelect(discord.ui.Select):
                     child.options = options
         embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
         await interaction.response.edit_message(embed=embed, view=self.view)
-
 
 # --- Tracking ---
 class ToggleTrackingButton(discord.ui.Button):

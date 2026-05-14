@@ -58,7 +58,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             current_time = utils.utcnow().replace(microsecond=0)
             await tracking.insert_log_entry(user.id, message.guild.id, 'clean', current_time)
             if user_settings.reactions_enabled: add_reaction = True
-        if not user_settings.reminder_clean.enabled: return add_reaction
+        if not user_settings.reminder_clean.enabled and not user_settings.ready_show_clean: return add_reaction
         user_command = await functions.get_game_command(user_settings, 'clean')
         time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'clean')
         if time_left < timedelta(0): return add_reaction
