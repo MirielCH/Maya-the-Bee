@@ -10,6 +10,7 @@ from discord import utils
 from cache import messages
 from database import errors, reminders, users
 from resources import exceptions, functions, regex
+from resources.enums import ReadyPopupMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -129,6 +130,7 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
                                                 message.channel.id, reminder_message)
             )
             if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+                
     return add_reaction
 
 

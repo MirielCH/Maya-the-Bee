@@ -10,6 +10,7 @@ from discord import utils
 
 from database import guilds, reminders, tracking, users
 from resources import emojis, exceptions, functions, settings, strings, views
+from resources.enums import ReadyPopupMode
 
 
 # --- Commands ---
@@ -514,7 +515,7 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
                                     user_settings: users.User) -> discord.Embed:
     """Ready list settings embed"""
     main = (
-        f'{emojis.BP} **Show list after `prune`**: {await functions.bool_to_text(user_settings.ready_popup_enabled)}\n'
+        f'{emojis.BP} **Ready pop-up mode**: `{user_settings.ready_popup_mode.label}`\n'
         f'{emojis.BP} **Show list when empty**: {await functions.bool_to_text(user_settings.ready_show_when_empty)}\n'
     )
     cooldowns_1 = (

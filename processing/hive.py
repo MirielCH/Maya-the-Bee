@@ -4,10 +4,12 @@ from datetime import timedelta
 from typing import Dict, Optional
 
 import discord
+from discord import message
 
 from cache import messages
 from database import reminders, users
 from resources import exceptions, functions, regex, strings
+from resources.enums import ReadyPopupMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -62,8 +64,16 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             )
             if user_settings.reactions_enabled and reminder.record_exists:
                 add_reaction = True
+
+            ready_embed = message_content = None
             if user_settings.helper_context_enabled:
-                await message.reply(f"➜ {strings.SLASH_COMMANDS['raid']}")
+                message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
+
+            if user_settings.ready_popup_mode == ReadyPopupMode.SHOW_AFTER_EVERY_COMMAND:
+               ready_embed = await functions.design_embed_ready_list(user, user_settings)
+            if ready_embed or message_content:
+                await message.reply(content=message_content, embed=ready_embed)
+                
     return add_reaction
 
 

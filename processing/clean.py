@@ -9,6 +9,7 @@ from discord import utils
 from cache import messages
 from database import reminders, tracking, users
 from resources import exceptions, functions, regex
+from resources.enums import ReadyPopupMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -68,4 +69,10 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                                             message.channel.id, reminder_message)
         )
         if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
+
+        if user_settings.ready_popup_mode == ReadyPopupMode.SHOW_AFTER_EVERY_COMMAND:
+            ready_embed = await functions.design_embed_ready_list(user, user_settings)
+            if ready_embed:
+                await message.reply(embed=ready_embed)
+        
     return add_reaction

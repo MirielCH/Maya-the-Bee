@@ -9,6 +9,7 @@ import discord
 
 from database import cooldowns, reminders, users
 from resources import emojis, modals, strings, views
+from resources.enums import ReadyPopupMode
 
 
 # --- Miscellaneous ---
@@ -519,6 +520,30 @@ class ManageEventReductionsSelect(discord.ui.Select):
         select_value = self.values[0]
         modal = modals.SetEventReductionModal(self.view, select_value, self.cd_type)
         await interaction.response.send_modal(modal)
+
+
+class ManageReadyPopupModeSelect(discord.ui.Select):
+    """Select to manage the ready popup mode"""
+    def __init__(self, view: discord.ui.DesignerView):
+        options = []
+        options.append(discord.SelectOption(label=ReadyPopupMode.MANUAL.label, value=str(ReadyPopupMode.MANUAL.value)))
+        options.append(discord.SelectOption(label=ReadyPopupMode.SHOW_AFTER_PRUNE.label,
+                                            value=str(ReadyPopupMode.SHOW_AFTER_PRUNE.value)))
+        options.append(discord.SelectOption(label=ReadyPopupMode.SHOW_AFTER_EVERY_COMMAND.label,
+                                            value=str(ReadyPopupMode.SHOW_AFTER_EVERY_COMMAND.value),
+                                            description='➜ calendar, clean, daily, hive ce, prune'))
+
+        super().__init__(placeholder='Change ready pop-up mode', min_values=1, max_values=1, options=options,
+                         custom_id='manage_ready_popup_mode')
+
+    async def callback(self, interaction: discord.Interaction):
+        select_value = self.values[0]
+        await self.view.user_settings.update(ready_popup_mode=select_value)
+        embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
+        if interaction.response.is_done():
+            await interaction.message.edit(embed=embed, view=self.view)
+        else:
+            await interaction.response.edit_message(embed=embed, view=self.view)
 
 
 class SetProgressBarColorSelect(discord.ui.Select):

@@ -8,6 +8,7 @@ from typing import NamedTuple, Tuple
 
 from database import errors
 from resources import exceptions, settings, strings
+from resources.enums import ReadyPopupMode
 
 
 # Containers
@@ -58,7 +59,7 @@ class User():
     pruner_tier: int
     pruner_type: str
     reactions_enabled: bool
-    ready_popup_enabled: bool
+    ready_popup_mode: ReadyPopupMode
     ready_show_calendar: bool
     ready_show_chests: bool
     ready_show_clean: bool
@@ -142,7 +143,7 @@ class User():
         self.pruner_tier = new_settings.pruner_tier
         self.pruner_type = new_settings.pruner_type
         self.reactions_enabled = new_settings.reactions_enabled
-        self.ready_popup_enabled = new_settings.ready_popup_enabled
+        self.ready_popup_mode = new_settings.ready_popup_mode
         self.ready_show_calendar = new_settings.ready_show_calendar
         self.ready_show_chests = new_settings.ready_show_chests
         self.ready_show_clean = new_settings.ready_show_clean
@@ -229,7 +230,7 @@ class User():
             pruner_tier: int
             pruner_type: str
             reactions_enabled: bool
-            ready_popup_enabled: int
+            ready_popup_mode: ReadyPopupMode
             ready_show_calendar: bool
             ready_show_chests: bool
             ready_show_clean: bool
@@ -346,7 +347,7 @@ async def _dict_to_user(record: dict) -> User:
             pruner_tier= record['pruner_tier'],
             pruner_type = '' if record['pruner_type'] is None else record['pruner_type'],
             reactions_enabled = bool(record['reactions_enabled']),
-            ready_popup_enabled = bool(record['ready_popup_enabled']),
+            ready_popup_mode = ReadyPopupMode(record['ready_popup_mode']),
             ready_show_calendar = bool(record['ready_show_calendar']),
             ready_show_chests = bool(record['ready_show_chests']),
             ready_show_clean = bool(record['ready_show_clean']),
@@ -563,7 +564,7 @@ async def _update_user(user: User, **kwargs) -> None:
         pruner_tier: int
         pruner_type: str
         reactions_enabled: bool
-        ready_popup_enabled: bool
+        ready_popup_mode: ReadyPopupMode
         ready_show_calendar: bool
         ready_show_chests: bool
         ready_show_clean: bool

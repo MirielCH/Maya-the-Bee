@@ -207,7 +207,7 @@ class SettingsAlertsView(discord.ui.DesignerView):
         await functions.edit_interaction(self.interaction, view=None)
         self.stop()
 
-        
+
 class SettingsHelpersView(discord.ui.DesignerView):
     """View with a all components to manage helper settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
@@ -367,7 +367,6 @@ class SettingsReadyListView(discord.ui.DesignerView):
         self.embed_function = embed_function
         self.commands_settings = commands_settings
         toggled_settings = {
-            'Show list after prune': 'ready_popup_enabled',
             'Show list when empty': 'ready_show_when_empty',
         }
         toggled_settings_cooldowns = {
@@ -387,8 +386,9 @@ class SettingsReadyListView(discord.ui.DesignerView):
             'Ready to rebirth': 'ready_show_rebirth',
         }
 
+        self.add_item(discord.ui.ActionRow(components.ManageReadyPopupModeSelect(self)))
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle settings',
-                                                          'toggle_settings')))
+                                           'toggle_settings')))
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_cooldowns, 'Toggle cooldowns',
                                                           'toggle_cooldowns')))
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_other, 'Toggle other activities',
@@ -405,7 +405,7 @@ class SettingsReadyListView(discord.ui.DesignerView):
         await functions.edit_interaction(self.interaction, view=None)
         self.stop()
 
-        
+
 class SettingsRemindersView(discord.ui.DesignerView):
     """View with a all components to manage reminder settings.
     Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').

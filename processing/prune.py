@@ -13,6 +13,7 @@ from cache import messages
 from content import list_ready
 from database import reminders, tracking, users
 from resources import emojis, exceptions, functions, regex, settings, strings
+from resources.enums import ReadyPopupMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -231,8 +232,8 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                         embeds.insert(0, embed)
                     nugget_alert = True
 
-            if user_settings.ready_popup_enabled:
-                ready_embed = await list_ready.embed_ready_list(user, user_settings)
+            if user_settings.ready_popup_mode > ReadyPopupMode.MANUAL:
+                ready_embed = await functions.design_embed_ready_list(user, user_settings)
                 if ready_embed:
                     embeds.append(ready_embed)
             

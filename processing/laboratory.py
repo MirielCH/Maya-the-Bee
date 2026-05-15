@@ -109,6 +109,7 @@ async def create_reminder_on_start(message: discord.Message, embed_data: Dict, u
                                                 message.channel.id, reminder_message)
             )
             if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
+                
     return add_reaction
 
 
