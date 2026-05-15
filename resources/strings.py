@@ -282,9 +282,9 @@ SLASH_COMMANDS = {
     'bees': '</bees:976919525415071825>',
     'calendar': '</calendar:1500208124416753776>',
     'chests': '</chests:1027309977104285697>',
-    'chips upgrade-buff': '</chips upgrade-buff:0>', # TODO: Addd correct command ID
-    'chips upgrade-tier': '</chips upgrade-tier:0>', # TODO: Addd correct command ID
-    'chips show': '</chips show:0>', # TODO: Addd correct command ID
+    'chips upgrade-buff': '</chips upgrade-buff:1076966047351046186>',
+    'chips upgrade-tier': '</chips upgrade-tier:1076966047351046186>',
+    'chips show': '</chips show:1076966047351046186>',
     'claim': '</claim:960947259560820812>',
     'clean': '</clean:960947259560820813>',
     'cooldowns': '</cooldowns:977233562854105108>',

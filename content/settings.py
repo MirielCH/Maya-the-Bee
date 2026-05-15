@@ -571,9 +571,6 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = f'{ctx.author.global_name}\'s reminder settings',
-        description = (
-            f'_Note that disabling a reminder also deletes the active reminder._'
-        )
     )
     embed.add_field(name='Reminders (I)', value=command_reminders, inline=False)
     embed.add_field(name='Reminders (II)', value=command_reminders2, inline=False)
