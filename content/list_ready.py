@@ -91,15 +91,15 @@ async def embed_ready_list(user: discord.User, user_settings: users.User) -> dis
                 
     if len(reminders_chests) < 3 and user_settings.ready_show_chests:
         if user_settings.chests_slots_ready > 0:
-            ready_list = f'{ready_list}\n- {user_settings.chests_slots_ready} {strings.SLASH_COMMANDS['chests']} ready to open'
+            ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS['chests']}: {user_settings.chests_slots_ready} chest(s) ready to open'
         if user_settings.chests_slots_empty > 0 and user_settings.chests_in_queue > 0:
             ready_list = f'{ready_list}\n- {min(user_settings.chests_slots_empty, user_settings.chests_in_queue)} {strings.SLASH_COMMANDS['chests']} ready to start'
 
     if quests_ready and user_settings.ready_show_quests:
         quest_types = ''
         for quest in quests_ready:
-            quest_types = f'{quest_types}, {quest.replace("quest-", "").replace("-", " ").title()}'
-        ready_list = f'{ready_list}\n- {len(quests_ready)} {strings.SLASH_COMMANDS["quests"]} ready to start: {quest_types.strip(", ")}'
+            quest_types = f'{quest_types}, {quest.replace("quest-", "").replace("-", " ")}'
+        ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["quests"]}: {quest_types.strip(", ").capitalize()}'
         
     if len(reminders_larvae) < user_settings.incubator_slots_total and user_settings.ready_show_incubator:
         if any([user_settings.incubator_slots_ready > 0, user_settings.incubator_slots_hungry > 0, user_settings.incubator_slots_empty > 0]):
@@ -115,7 +115,7 @@ async def embed_ready_list(user: discord.User, user_settings: users.User) -> dis
     else:
         level_target = 15 + ((user_settings.rebirth - 10) // 2)
     if user_settings.level >= level_target and user_settings.ready_show_rebirth:
-        ready_list = f'{ready_list}\n- Ready to {strings.SLASH_COMMANDS["rebirth"]} (Level {user_settings.level} / {level_target})'
+        ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["rebirth"]} level reached'
 
     if not ready_list and user_settings.ready_show_when_empty:
         ready_list = f'{emojis.ENABLED} All done!'
@@ -124,7 +124,7 @@ async def embed_ready_list(user: discord.User, user_settings: users.User) -> dis
 
     if ready_list:
         embed = discord.Embed(
-           color = settings.EMBED_COLOR,
+            color = settings.EMBED_COLOR,
             title = f'{user.global_name}\'s ready list'
         )
         embed.description = ready_list

@@ -150,6 +150,7 @@ DONOR_TIERS_EMOJIS = {
 
 ACTIVITIES = (
     'boosts',
+    'calendar',
     'chests',
     'clean',
     'daily',
@@ -203,14 +204,14 @@ ACTIVITIES_QUEST = (
     'quest-monthly',
 )
 
-ACTIVITIES_READY_COMMANDS = (
-    'calendar',
+ACTIVITIES_READY_COMMANDS = ( # Sorted by cooldown length, shortest first
+    'prune',
     'clean',
-    'daily',
     'fusion',
     'hive-energy',
-    'prune',
     'vote',
+    'calendar',
+    'daily',
 )
 
 ACTIVITIES_READY_COMMANDS_SETTINGS = {
@@ -286,6 +287,7 @@ SLASH_COMMANDS = {
     'chips show': '</chips show:0>', # TODO: Addd correct command ID
     'claim': '</claim:960947259560820812>',
     'clean': '</clean:960947259560820813>',
+    'cooldowns': '</cooldowns:977233562854105108>',
     'craft': '</craft:960947259627958293>',
     'daily': '</daily:989564333308661771>',
     'dismantle': '</dismantle:960947259627958295>',

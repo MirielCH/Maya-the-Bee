@@ -190,6 +190,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 except ZeroDivisionError:
                     prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
                 embed = discord.Embed(
+                    color = settings.EMBED_COLOR,
                     title = progress_bar,
                     description = (
                         f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1:,}**\n'

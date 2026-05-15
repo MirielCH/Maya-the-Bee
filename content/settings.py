@@ -551,6 +551,7 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
     """Reminder settings embed"""
     command_reminders = (
         f'{emojis.BP} **Boosts**: {await functions.bool_to_text(user_settings.reminder_boosts.enabled)}\n'
+        f'{emojis.BP} **Calendar**: {await functions.bool_to_text(user_settings.reminder_calendar.enabled)}\n'
         f'{emojis.BP} **Chests**: {await functions.bool_to_text(user_settings.reminder_chests.enabled)}\n'
         f'{emojis.BP} **Clean**: {await functions.bool_to_text(user_settings.reminder_clean.enabled)}\n'
         f'{emojis.BP} **Daily**: {await functions.bool_to_text(user_settings.reminder_daily.enabled)}\n'

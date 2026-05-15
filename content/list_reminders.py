@@ -82,6 +82,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
         elif reminder.activity in strings.ACTIVITIES_TOOL:
             reminders_tool_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_BOOSTS:
+            if not user_settings.reminder_boosts.enabled: continue
             reminders_boosts_list.append(reminder)
         else:
             reminders_commands_list.append(reminder)
@@ -90,8 +91,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
         color = settings.EMBED_COLOR,
         title = f'{user.global_name}\'s active reminders'
     )
-    if not user_reminders:
-        embed.description = f'{emojis.BP} You have no active reminders'
+
     if reminders_commands_list:
         field_command_reminders = ''
         for reminder in reminders_commands_list:
@@ -248,4 +248,6 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 f'{emojis.BP} **{custom_id}** • {reminder_time} • {reminder.message}'
             )
         embed.add_field(name='Custom', value=field_custom_reminders.strip(), inline=False)
+    if not embed.fields:
+        embed.description = f'{emojis.BP} You have no active reminders'
     return embed

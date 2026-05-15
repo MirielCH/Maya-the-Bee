@@ -38,23 +38,26 @@ class TasksCog(commands.Cog):
             channel = await functions.get_discord_channel(self.bot, first_reminder.channel_id)
             if channel is None: return
             user = await functions.get_discord_user(self.bot, first_reminder.user_id)
-            user_settings = await users.get_user(user.id)
-            if first_reminder.activity in strings.ACTIVITIES_COLUMNS:
-                if not getattr(
-                    getattr(user_settings, strings.ACTIVITIES_COLUMNS[first_reminder.activity], None),
-                    'enabled',
-                    False
-                ):
-                    return                
+            user_settings = await users.get_user(user.id)            
             message_no = 1
             messages = {message_no: ('', '')}
             larva_reminders = 0
-            send_message = True
+            chest_reminders = 0
             for reminder in reminders_list:
                 if reminder.activity.startswith('larva'):
                     larva_reminders += 1
-                    if not user_settings.reminder_larva.enabled:
-                        send_message = False
+                    if not user_settings.reminder_larva.enabled: continue
+                elif reminder.activity.startswith('chest'):
+                    chest_reminders += 1
+                    if not user_settings.reminder_chests.enabled: continue
+                    
+                else:
+                    if not getattr(
+                        getattr(user_settings, strings.ACTIVITIES_COLUMNS.get(first_reminder.activity, ''), None),
+                        'enabled',
+                        False
+                    ):
+                        continue
                 if reminder.activity == 'custom':
                     reminder_message = strings.DEFAULT_MESSAGE_CUSTOM_REMINDER.format(message=reminder.message)
                     if user_settings.dnd_mode_enabled:
@@ -79,11 +82,14 @@ class TasksCog(commands.Cog):
                     activity, message = activity_message
                     if activity == 'sweet-apple':
                         await user_settings.update(xp_gain_average=0)
-                    if send_message:
+                    if message:
                         await channel.send(message.strip(), allowed_mentions=allowed_mentions)
                 if larva_reminders > 0:
                     await user_settings.refresh()
                     await user_settings.update(incubator_slots_ready=user_settings.incubator_slots_ready + larva_reminders)
+                if chest_reminders > 0:
+                    await user_settings.refresh()
+                    await user_settings.update(chests_slots_ready=user_settings.chests_slots_ready + chest_reminders)
             except asyncio.CancelledError:
                 return
             except discord.errors.Forbidden:

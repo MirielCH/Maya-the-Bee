@@ -438,6 +438,7 @@ class SettingsRemindersView(discord.ui.DesignerView):
         self.commands_settings = commands_settings
         toggled_settings_commands = {
             'Boosts': 'reminder_boosts_enabled',
+            'Calendar': 'reminder_calendar_enabled',
             'Chests': 'reminder_chests_enabled',
             'Clean': 'reminder_clean_enabled',
             'Daily': 'reminder_daily_enabled',
