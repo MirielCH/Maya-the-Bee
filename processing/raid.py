@@ -40,7 +40,7 @@ async def call_helpers_on_failed_raid(message: discord.Message, embed_data: Dict
     search_strings_title = [
         'raid failed!', #English
     ]
-    if any(search_string in embed_data['title'].lower() for search_string in search_strings_title):
+    if any(search_string in embed_data['title'].lower() for search_string in search_strings_title) and not message.edited_at:
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']
@@ -102,7 +102,10 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
     search_strings_title = [
         'raid successful!', #English
     ]
-    if any(search_string in embed_data['title'].lower() for search_string in search_strings_title):
+    search_strings_field1 = [
+        'damaged chips', #English
+    ]
+    if any(search_string in embed_data['title'].lower() for search_string in search_strings_title) and not message.edited_at:
         if user is None:
             if embed_data['embed_user'] is not None:
                 user = embed_data['embed_user']

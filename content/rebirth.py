@@ -111,7 +111,8 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         honey = honey - honey % water_bottles_crafted
     upgrade_chips = (
         f'{emojis.CHIPS} Use {strings.SLASH_COMMANDS["chips show"]} to upgrade your chips.\n'
-        f'{emojis.BLANK} ➜ **Reopen this rebirth guide after upgrading**.\n'
+        f'{emojis.DETAIL2} _Craft and/or dismantle nuggets as you see fit._\n'
+        f'{emojis.DETAIL} _**Reopen this rebirth guide after you\'re done.**_\n'
     )
     resources = (
         f'{emojis.READY} {strings.SLASH_COMMANDS["claim"]}\n'

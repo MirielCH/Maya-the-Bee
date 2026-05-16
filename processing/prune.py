@@ -229,7 +229,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                             description = nuggets_found,
                         ) 
                         embed.set_footer(text='Use "/settings alerts" to change this')
-                        embeds.insert(0, embed)
+                        embeds.append(embed)
                     nugget_alert = True
 
             if user_settings.ready_popup_mode > ReadyPopupMode.MANUAL:
