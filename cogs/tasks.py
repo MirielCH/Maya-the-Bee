@@ -50,8 +50,7 @@ class TasksCog(commands.Cog):
                 elif reminder.activity.startswith('chest'):
                     chest_reminders += 1
                     if not user_settings.reminder_chests.enabled: continue
-                    
-                else:
+                elif reminder.activity != 'custom':
                     if not getattr(
                         getattr(user_settings, strings.ACTIVITIES_COLUMNS.get(first_reminder.activity, ''), None),
                         'enabled',

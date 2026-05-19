@@ -635,6 +635,7 @@ async def wait_for_inventory_message(bot: commands.Bot, ctx: discord.Application
     def game_check(message_before: discord.Message, message_after: Optional[discord.Message] = None):
         correct_message = False
         message = message_after if message_after is not None else message_before
+
         if message.embeds:
             embed = message.embeds[0]
             if embed.author:
@@ -659,6 +660,16 @@ async def wait_for_inventory_message(bot: commands.Bot, ctx: discord.Application
                             correct_message = True
                 except:
                     pass
+
+        if message.components:
+            text_displays = functions.await_coroutine(functions.parse_text_displays(message))
+            if text_displays:
+                ctx_author = encode_text_non_async(ctx.author.name)
+                search_strings = [
+                    f'**{ctx_author}**\'s inventory', #All languages
+                ]
+                if (any(search_string in text_displays[0].lower() for search_string in search_strings)):
+                    correct_message = True        
 
         return ((message.author.id in (settings.TREE_ID, settings.TREE_BETA_ID, settings.TESTY_ID)) and (message.channel == ctx.channel)
                 and correct_message)

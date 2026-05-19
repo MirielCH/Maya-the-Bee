@@ -339,6 +339,11 @@ async def check_edited_message_always_allowed(message_before: discord.Message,
     ]
     if any(search_string in embed_data['field0']['name'].lower() for search_string in search_strings):
         return True
+    search_strings = [
+        'chests inventory', #English
+    ]
+    if any(search_string in embed_data['field1']['name'].lower() for search_string in search_strings):
+        return True
     return False
 
 
