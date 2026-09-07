@@ -97,19 +97,14 @@ async def embed_event_reductions(bot: discord.Bot, all_cooldowns: List[cooldowns
 
 async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> discord.Embed:
     """Main menu embed"""
-    prefix = await guilds.get_prefix(ctx)
     commands_reminders = (
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "reminders list")} : Check active reminders\n'
-        f'{emojis.DETAIL} _Aliases: `{prefix}list`, `{prefix}cd`_\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "ready list")} : Check what\'s ready\n'
-        f'{emojis.DETAIL} _Aliases: `{prefix}ready`, `{prefix}rd`_\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "reminders add")} : Add a custom reminder\n'
-        f'{emojis.DETAIL} _Aliases: `{prefix}reminder`, `{prefix}rm`_\n'
 
     )
     commands_tracking = (
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "stats")} : Check your command stats\n'
-        f'{emojis.DETAIL} _Aliases: `{prefix}stats`, `{prefix}st`_\n'
     )
     commands_settings = (
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "on")} : Turn on Maya\n'
@@ -125,7 +120,6 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
     )
     commands_misc = (
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "rebirth guide")} : What to do before rebirth\n'
-        f'{emojis.DETAIL} _Alias: `tree i rb`_\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "skins")} : A list of all Tree skins\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "calculator")} : A basic calculator\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "event-reductions")} : Check active event reductions\n'

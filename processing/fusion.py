@@ -42,6 +42,11 @@ async def create_reminder(message: discord.Message, embed_data: Dict, interactio
         user1 = interaction_user
         user1_settings = user_settings
         user2 = user2_settings = None
+        if user1 and message.mentions:
+            for mention in message.mentions:
+                if mention != user1:
+                    user2 = mention
+                    break
         if user1 is None:
             user_command_message = (
                 await messages.find_message(message.channel.id, regex.COMMAND_FUSION,

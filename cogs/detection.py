@@ -35,7 +35,6 @@ class DetectionCog(commands.Cog):
             await self.on_message(message_after)
             return
         if message_before.components and not message_after.components: return
-
         if await check_message_for_active_components(message_after):
             await self.on_message(message_after)
 
@@ -79,7 +78,7 @@ class DetectionCog(commands.Cog):
             try:
                 user_settings: users.User = await users.get_user(interaction_user.id)
             except exceptions.FirstTimeUserError:
-                if not 'fusion results' in embed_data['field0']['name'].lower(): return
+                if not 'queen bees fusion' in embed_data['author']['name'].lower(): return
             if user_settings is not None:
                 if not user_settings.bot_enabled: return
         if embed_data['embed_user'] is not None:
@@ -99,7 +98,6 @@ class DetectionCog(commands.Cog):
         reminder_chests_enabled = getattr(getattr(user_settings, 'reminder_chests', None), 'enabled', True)
         reminder_clean_enabled = getattr(getattr(user_settings, 'reminder_clean', None), 'enabled', True)
         reminder_daily_enabled = getattr(getattr(user_settings, 'reminder_daily', None), 'enabled', True)
-        reminder_fusion_enabled = getattr(getattr(user_settings, 'reminder_fusion', None), 'enabled', True)
         reminder_hive_enabled = getattr(getattr(user_settings, 'reminder_hive_energy', None), 'enabled', True)
         reminder_incubator_enabled = getattr(getattr(user_settings, 'reminder_incubator', None), 'enabled', True)
         reminder_quests_enabled = getattr(getattr(user_settings, 'reminder_quests', None), 'enabled', True)
@@ -143,9 +141,8 @@ class DetectionCog(commands.Cog):
             return_values.append(add_reaction)
 
         # Fusion
-        if reminder_fusion_enabled:
-            add_reaction = await fusion.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await fusion.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Hive
         if reminder_hive_enabled:
@@ -194,9 +191,8 @@ class DetectionCog(commands.Cog):
             return_values.append(add_reaction)
             
         # Rebirth
-        if helper_prune_enabled:
-            add_reaction = await rebirth.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await rebirth.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Tool upgrade
         if reminder_upgrade_enabled or helper_context_enabled:
@@ -335,14 +331,24 @@ async def check_edited_message_always_allowed(message_before: discord.Message,
                 break
         return captcha_solved
     search_strings = [
-        'fusion results', #English
+        'queen bees fusion', #English
     ]
-    if any(search_string in embed_data['field0']['name'].lower() for search_string in search_strings):
+    if any(search_string in embed_data['author']['name'].lower() for search_string in search_strings):
         return True
     search_strings = [
         'chests inventory', #English
     ]
     if any(search_string in embed_data['field1']['name'].lower() for search_string in search_strings):
+        return True
+    search_strings = [
+        'chests inventory', #English
+    ]
+    if any(search_string in embed_data['field1']['name'].lower() for search_string in search_strings):
+        return True
+    search_strings = [
+        '** used rebirth!', #English
+    ]
+    if any(search_string in embed_data['description'].lower() for search_string in search_strings):
         return True
     return False
 

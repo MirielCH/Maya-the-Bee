@@ -33,7 +33,7 @@ async def update_progress_and_call_helper(message: discord.Message, embed_data: 
     - False
     """
     add_reaction = False
-    if interaction_user is not None: return add_reaction
+    if interaction_user is not None: return add_reaction # Slash is ignored because /league has a visual bug: It doesn't show the diamond trophies.
     search_strings = [
         'next cap increase requirement', #English
     ]

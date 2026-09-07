@@ -77,10 +77,12 @@ async def create_larva_reminders_from_feeding(message: discord.Message, embed_da
             else:
                 larva_type = 'unknown'
             larvae_fed = embed_data['field0']['value'].split('\n')
+            larvae_fed_amount: int = 0
             for line in larvae_fed:
                 if not single_feed:
                     slot_match = re.search(r"slot\s(\d+?)\)", line.lower())
                     if not slot_match: continue
+                    larvae_fed_amount += 1
                     slot = slot_match.group(1)
                     if 'queen' in line.lower():
                         larva_type = 'queen'
@@ -104,6 +106,10 @@ async def create_larva_reminders_from_feeding(message: discord.Message, embed_da
                                                     message.channel.id, reminder_message)
                 )
                 if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+            if larvae_fed_amount > 0 and user_settings.incubator_slots_hungry > 0:
+                incubator_slots_hungry: int = user_settings.incubator_slots_hungry - larvae_fed_amount
+                if incubator_slots_hungry < 0: incubator_slots_hungry = 0
+                await user_settings.update(incubator_slots_hungry=incubator_slots_hungry)
     
     return add_reaction
 
@@ -126,6 +132,10 @@ async def create_larva_reminders_from_overview(message: discord.Message, embed_d
     ]
     if (any(search_string in embed_data['title'].lower() for search_string in search_strings_title)
         and any(search_string in embed_data['description'].lower() for search_string in search_strings_description)):
+        interaction = await functions.get_interaction(message)
+        if interaction:
+            if interaction.name:
+                if interaction.name == 'incubator feed': return add_reaction
         if embed_data['embed_user'] is not None and interaction_user is not None:
             if interaction_user != embed_data['embed_user']:
                 return add_reaction

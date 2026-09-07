@@ -23,7 +23,7 @@ async def process_message(message: discord.Message, embed_data: Dict, text_displ
     return_values.append(await call_helpers_on_failed_raid(message, embed_data, user, user_settings))
     return_values.append(await call_helpers_on_successful_raid(message, embed_data, user, user_settings))
     return_values.append(await call_context_helper_on_empty_energy(message, embed_data, user, user_settings))
-    return_values.append(await update_trophies_on_raid_start(message, embed_data, user, user_settings))
+    return_values.append(await update_trophies_on_raid_start(message, embed_data, text_displays, user, user_settings))
     return any(return_values)
 
 
@@ -239,7 +239,7 @@ async def call_context_helper_on_empty_energy(message: discord.Message, embed_da
     return add_reaction
 
 
-async def update_trophies_on_raid_start(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+async def update_trophies_on_raid_start(message: discord.Message, embed_data: Dict, text_displays: list[str], user: Optional[discord.User],
                                         user_settings: Optional[users.User]) -> bool:
     """Update trophy count when starting a raid
 
@@ -252,9 +252,14 @@ async def update_trophies_on_raid_start(message: discord.Message, embed_data: Di
     search_strings = [
         'you have 5 minutes to start the raid', #English
     ]
-    if any(search_string in embed_data['footer']['text'].lower() for search_string in search_strings):
+    if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
+        text_display_user = ''
+        for text_display in text_displays:
+            if 'hive' in text_display.lower() and not 'raiding' in text_display.lower():
+                text_display_user = text_display
+                break
         if user is None:
-            user_name_match = re.search(r'^(.+?),', embed_data['footer']['text'])
+            user_name_match = re.search(r'### (.+?)\'s', text_display_user)
             user_name = user_name_match.group(1)
             user_command_message = (
                 await messages.find_message(message.channel.id, regex.COMMAND_RAID, user_name=user_name)
@@ -269,7 +274,7 @@ async def update_trophies_on_raid_start(message: discord.Message, embed_data: Di
         if not user_settings.bot_enabled: return add_reaction
 
         kwargs = {}
-        trophies_match = re.search(r'trophy:.+?\s(.+?)$', embed_data['title'], re.IGNORECASE)
+        trophies_match = re.search(r'\[([\d,]+?)\]', text_display_user, re.IGNORECASE)
         trophies = int(re.sub(r'\D', '', trophies_match.group(1)))
         kwargs['trophies'] = trophies
         

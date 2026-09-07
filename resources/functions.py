@@ -25,7 +25,7 @@ async def get_interaction(message: discord.Message) -> discord.Interaction:
             message = message.reference.cached_message
         else:
             message = await message.channel.fetch_message(message.reference.message_id)
-    return message.interaction
+    return message.interaction # This is deprecated, but I can't get interaction.name anymore otherwise, so I'll use this as long as I can.
 
 
 async def get_interaction_user(message: discord.Message) -> discord.User:
@@ -507,10 +507,10 @@ async def reply_or_respond(ctx: Union[discord.ApplicationContext, commands.Conte
 async def get_inventory_item(inventory: str, emoji_name: str) -> int:
     """Extracts the amount of a material from an inventory
     Because the material is only listed with its emoji, the exact and full emoji name needs to be given."""
-    material_match = re.search(fr'`\s*([\d,.kmb]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
+    material_match = re.search(fr'`\s*([\d,.kmbt]+?)`\*\* <:{emoji_name}:\d+>', inventory, re.IGNORECASE)
     if not material_match: return 0
     amount_patterns = [
-        r'([\d\.,]+[kmb]?)',
+        r'([\d\.,]+[kmbt]?)',
         r'(\d+)',
     ]
     amount_match = await functions.get_match_from_patterns(amount_patterns, material_match.group(1))
@@ -521,6 +521,8 @@ async def get_inventory_item(inventory: str, emoji_name: str) -> int:
         return int(round(float(amount.lower().rstrip('m')) * 1_000_000))
     elif amount.lower().endswith('b'):
         return int(round(float(amount.lower().rstrip('b')) * 1_000_000_000 ))
+    elif amount.lower().endswith('t'):
+        return int(round(float(amount.lower().rstrip('t')) * 1_000_000_000_000 ))
     else:
         amount = amount.replace(',','').replace('.','')
         if amount.isnumeric():

@@ -286,6 +286,4 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     if user_settings.level >= level_target:
         footer = f'{footer} • Ready for rebirth'
     embed.set_footer(text = footer)
-    if isinstance(ctx_or_message, discord.ApplicationContext):
-        embed.description = '_Tip: You can open this guide faster using `tree i rb`!_'
     return embed
