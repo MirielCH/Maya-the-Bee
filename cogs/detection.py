@@ -11,7 +11,7 @@ from discord.ext import commands
 
 from database import users
 from processing import bonuses, calendar, easter, chests, clean, cooldowns, daily, fusion, hive, incubator, inventory
-from processing import laboratory, league, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
+from processing import laboratory, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, logs, regex, settings
 
 seen_messages = {}  
@@ -166,10 +166,6 @@ class DetectionCog(commands.Cog):
         if reminder_research_enabled or helper_context_enabled:
             add_reaction = await laboratory.process_message(message, embed_data, text_displays, interaction_user, user_settings)
             return_values.append(add_reaction)
-            
-        # League
-        add_reaction = await league.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-        return_values.append(add_reaction)
             
         # Patreon
         add_reaction = await patreon.process_message(message, embed_data, text_displays, interaction_user, user_settings)

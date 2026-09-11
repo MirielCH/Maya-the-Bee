@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Union
 import discord
 from discord.ext import commands
 
-from database import cooldowns, guilds, reminders, users
+from database import cooldowns, reminders, users
 from resources import components, functions, settings, strings
 
 
@@ -242,25 +242,12 @@ class SettingsHelpersView(discord.ui.DesignerView):
             'Easter bunnies': 'helper_bunny_enabled',
             'Level XP popup': 'helper_prune_enabled',
             'Rebirth summary': 'helper_rebirth_enabled',
-            'Trophy progress popup': 'helper_trophies_enabled',
         }
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings, 'Toggle helpers')))
         self.add_item(
             discord.ui.ActionRow(
                 components.SetProgressBarColorSelect(self, 'helper_prune_progress_bar_color',
                                                       'Change XP progress bar color')
-            )
-        )
-        self.add_item(
-            discord.ui.ActionRow(
-                components.SetProgressBarColorSelect(self, 'helper_trophies_trophy_progress_bar_color',
-                                                      'Change trophy progress bar color')
-            )
-        )
-        self.add_item(
-            discord.ui.ActionRow(
-                components.SetProgressBarColorSelect(self, 'helper_trophies_diamond_progress_bar_color',
-                                                      'Change diamond trophy progress bar color')
             )
         )
         self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
@@ -456,48 +443,6 @@ class SettingsRemindersView(discord.ui.DesignerView):
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_commands, 'Toggle reminders',
                                                           'toggle_command_reminders')))
         self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
-
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        if interaction.user != self.user:
-            await interaction.response.send_message(random.choice(strings.MSG_INTERACTION_ERRORS), ephemeral=True)
-            return False
-        return True
-
-    async def on_timeout(self) -> None:
-        await functions.edit_interaction(self.interaction, view=None)
-        self.stop()
-
-
-class SettingsServerView(discord.ui.DesignerView):
-    """View with a all components to manage server settings.
-    Also needs the interaction of the response with the view, so do view.interaction = await ctx.respond('foo').
-
-    Arguments
-    ---------
-    ctx: Context.
-    bot: Bot.
-    guild_settings: Guild object with the settings of the guild/server.
-    embed_function: Function that returns the settings embed. The view expects the following arguments:
-    - bot: Bot
-    - ctx: context
-    - guild_settings: ClanGuild object with the settings of the guild/server
-
-    Returns
-    -------
-    None
-
-    """
-    def __init__(self, ctx: discord.ApplicationContext, bot: discord.Bot, guild_settings: guilds.Guild,
-                 embed_function: callable, interaction: Optional[discord.Interaction] = None):
-        super().__init__(timeout=settings.INTERACTION_TIMEOUT)
-        self.ctx = ctx
-        self.bot = bot
-        self.value = None
-        self.embed_function = embed_function
-        self.interaction = interaction
-        self.user = ctx.author
-        self.guild_settings = guild_settings
-        self.add_item(discord.ui.ActionRow(components.ManageServerSettingsSelect(self)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:

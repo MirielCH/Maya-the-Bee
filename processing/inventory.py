@@ -77,22 +77,6 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, text_di
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
-
-        field_items = ''
-        for embed_element, element_data in embed_data.items():
-            if not embed_element.startswith('field'):
-                continue
-            if element_data['name'] == 'Items':
-                field_items = element_data['value']
-                break
-        for text_display in text_displays:
-            if '### items' in text_display.lower():
-                field_items = text_display
-                break
-        diamond_rings = await functions.get_inventory_item(field_items, 'diamondring')
-        if user_settings.diamond_rings != diamond_rings:
-            await user_settings.update(diamond_rings=diamond_rings)
-        await user_settings.update(diamond_rings=diamond_rings)
             
         rebirth_guide_match = re.search(regex.COMMAND_REBIRTH_GUIDE, user_command_message.content.lower())
         if rebirth_guide_match:

@@ -27,16 +27,10 @@ class User():
     alert_nugget_threshold: str
     alert_rebirth_dm: bool
     alert_rebirth_enabled: bool
-    beta_pass_available: int
     bot_enabled: bool
     chests_in_queue: int
     chests_slots_empty: int
     chests_slots_ready: int
-    diamond_rings: int
-    diamond_rings_cap: int
-    diamond_trophies: int
-    diamond_trophies_gain_average: float
-    diamond_trophies_raid_count: int
     dnd_mode_enabled: bool
     donor_tier: int
     helper_bunny_enabled: bool
@@ -44,16 +38,12 @@ class User():
     helper_prune_enabled: bool
     helper_prune_progress_bar_color: str
     helper_rebirth_enabled: bool
-    helper_trophies_diamond_progress_bar_color: str
-    helper_trophies_enabled: bool
-    helper_trophies_trophy_progress_bar_color: str
     incubator_slots_empty: int
     incubator_slots_hungry: int
     incubator_slots_ready: int
     incubator_slots_total: int
     last_bunny_update: datetime | None
     last_rebirth: datetime
-    league_beta: bool
     level: int
     pruner_level: int
     pruner_tier: int
@@ -92,9 +82,6 @@ class User():
     research_time: int
     streak_vote: int
     tracking_enabled: bool
-    trophies: int
-    trophies_gain_average: float
-    trophies_raid_count: int
     user_id: int
     xp: int
     xp_gain_average: float
@@ -111,16 +98,10 @@ class User():
         self.alert_nugget_threshold = new_settings.alert_nugget_threshold
         self.alert_rebirth_dm = new_settings.alert_rebirth_dm
         self.alert_rebirth_enabled = new_settings.alert_rebirth_enabled
-        self.beta_pass_available = new_settings.beta_pass_available
         self.bot_enabled = new_settings.bot_enabled
         self.chests_in_queue = new_settings.chests_in_queue
         self.chests_slots_empty = new_settings.chests_slots_empty
         self.chests_slots_ready = new_settings.chests_slots_ready
-        self.diamond_rings = new_settings.diamond_rings
-        self.diamond_rings_cap = new_settings.diamond_rings_cap
-        self.diamond_trophies = new_settings.diamond_trophies
-        self.diamond_trophies_gain_average = new_settings.diamond_trophies_gain_average
-        self.diamond_trophies_raid_count = new_settings.diamond_trophies_raid_count
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
         self.helper_bunny_enabled = new_settings.helper_bunny_enabled
@@ -128,16 +109,12 @@ class User():
         self.helper_prune_enabled = new_settings.helper_prune_enabled
         self.helper_prune_progress_bar_color = new_settings.helper_prune_progress_bar_color
         self.helper_rebirth_enabled = new_settings.helper_rebirth_enabled
-        self.helper_trophies_diamond_progress_bar_color = new_settings.helper_trophies_diamond_progress_bar_color
-        self.helper_trophies_enabled = new_settings.helper_trophies_enabled
-        self.helper_trophies_trophy_progress_bar_color = new_settings.helper_trophies_trophy_progress_bar_color
         self.incubator_slots_empty = new_settings.incubator_slots_empty
         self.incubator_slots_hungry = new_settings.incubator_slots_hungry
         self.incubator_slots_ready = new_settings.incubator_slots_ready
         self.incubator_slots_total = new_settings.incubator_slots_total
         self.last_bunny_update = new_settings.last_bunny_update
         self.last_rebirth = new_settings.last_rebirth
-        self.league_beta = new_settings.league_beta
         self.level = new_settings.level
         self.pruner_level = new_settings.pruner_level
         self.pruner_tier = new_settings.pruner_tier
@@ -176,9 +153,6 @@ class User():
         self.research_time = new_settings.research_time
         self.streak_vote = new_settings.streak_vote
         self.tracking_enabled = new_settings.tracking_enabled
-        self.trophies = new_settings.trophies
-        self.trophies_gain_average = new_settings.trophies_gain_average
-        self.trophies_raid_count = new_settings.trophies_raid_count
         self.xp = new_settings.xp
         self.xp_gain_average = new_settings.xp_gain_average
         self.xp_prune_count = new_settings.xp_prune_count
@@ -198,16 +172,10 @@ class User():
             alert_nugget_threshold: str
             alert_rebirth_dm: bool
             alert_rebirth_enabled: bool
-            beta_pass_available: int
             bot_enabled: bool
             chests_in_queue: int
             chests_slots_empty: int
             chests_slots_ready: int
-            diamond_rings: int
-            diamond_rings_cap: int
-            diamond_trophies: int
-            diamond_trophies_gain_average: float
-            diamond_trophies_raid_count: int
             dnd_mode_enabled: bool
             donor_tier: int
             helper_bunny_enabled: bool
@@ -215,16 +183,12 @@ class User():
             helper_prune_enabled: bool
             helper_prune_progress_bar_color: str
             helper_rebirth_enabled: bool
-            helper_trophies_diamond_progress_bar_color: str
-            helper_trophies_enabled: bool
-            helper_trophies_trophy_progress_bar_color: str
             incubator_slots_empty: int
             incubator_slots_hungry: int
             incubator_slots_ready: int
             incubator_slots_total: int
             last_bunny_update: datetime | None
             last_rebirth: datetime UTC aware
-            league_beta: bool
             level: int
             pruner_level: int
             pruner_tier: int
@@ -277,9 +241,6 @@ class User():
             research_time: int
             streak_vote: int
             tracking_enabled: bool
-            trophies: int
-            trophies_gain_average: float
-            trophies_raid_count: int
             xp: int
             xp_gain_average: float
             xp_prune_count: int
@@ -315,29 +276,19 @@ async def _dict_to_user(record: dict) -> User:
             alert_nugget_threshold = record['alert_nugget_threshold'],
             alert_rebirth_dm = bool(record['alert_rebirth_dm']),
             alert_rebirth_enabled = bool(record['alert_rebirth_enabled']),
-            beta_pass_available = record['beta_pass_available'],
             bot_enabled = bool(record['bot_enabled']),
             chests_in_queue = record['chests_in_queue'],
             chests_slots_empty = record['chests_slots_empty'],
             chests_slots_ready = record['chests_slots_ready'],
-            diamond_rings = record['diamond_rings'],
-            diamond_rings_cap = record['diamond_rings_cap'],
-            diamond_trophies = record['diamond_trophies'],
-            diamond_trophies_gain_average = float(record['diamond_trophies_gain_average']),
-            diamond_trophies_raid_count = record['diamond_trophies_raid_count'],
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
             donor_tier = record['donor_tier'],
             last_bunny_update = datetime.fromisoformat(record['last_bunny_update']) if record['last_bunny_update'] is not None else None,
             last_rebirth = datetime.fromisoformat(record['last_rebirth']),
-            league_beta = bool(record['league_beta']),
             helper_bunny_enabled = bool(record['helper_bunny_enabled']),
             helper_context_enabled = bool(record['helper_context_enabled']),
             helper_prune_enabled = bool(record['helper_prune_enabled']),
             helper_prune_progress_bar_color = record['helper_prune_progress_bar_color'],
             helper_rebirth_enabled = bool(record['helper_rebirth_enabled']),
-            helper_trophies_diamond_progress_bar_color = record['helper_trophies_diamond_progress_bar_color'],
-            helper_trophies_enabled = bool(record['helper_trophies_enabled']),
-            helper_trophies_trophy_progress_bar_color = record['helper_trophies_trophy_progress_bar_color'],
             incubator_slots_empty = record['incubator_slots_empty'],
             incubator_slots_hungry = record['incubator_slots_hungry'],
             incubator_slots_ready = record['incubator_slots_ready'],
@@ -394,9 +345,6 @@ async def _dict_to_user(record: dict) -> User:
             research_time = record['research_time'],
             streak_vote = record['streak_vote'],
             tracking_enabled = bool(record['tracking_enabled']),
-            trophies = record['trophies'],
-            trophies_gain_average = float(record['trophies_gain_average']),
-            trophies_raid_count = record['trophies_raid_count'],
             xp = record['xp'],
             xp_gain_average = float(record['xp_gain_average']),
             xp_prune_count = record['xp_prune_count'],
@@ -526,16 +474,10 @@ async def _update_user(user: User, **kwargs) -> None:
         alert_nugget_threshold: bool
         alert_rebirth_dm: bool
         alert_rebirth_enabled: bool
-        beta_pass_available: int
         bot_enabled: bool
         chests_in_queue: int
         chests_slots_empty: int
         chests_slots_ready: int
-        diamond_rings: int
-        diamond_rings_cap: int
-        diamond_trophies: int
-        diamond_trophies_gain_average: float
-        diamond_trophies_raid_count: int
         dnd_mode_enabled: bool
         donor_tier: int
         helper_bunny_enabled: bool
@@ -543,16 +485,12 @@ async def _update_user(user: User, **kwargs) -> None:
         helper_prune_enabled: bool
         helper_prune_progress_bar_color: str
         helper_rebirth_enabled: bool
-        helper_trophies_diamond_progress_bar_color: str
-        helper_trophies_enabled: bool
-        helper_trophies_trophy_progress_bar_color: str
         incubator_slots_empty: int
         incubator_slots_hungry: int
         incubator_slots_ready: int
         incubator_slots_total: int
         last_bunny_update: datetime | None
         last_rebirth: datetime UTC aware
-        league_beta: bool
         level: int
         nuggets_copper: int
         nuggets_diamond: int
@@ -611,9 +549,6 @@ async def _update_user(user: User, **kwargs) -> None:
         research_time: int
         streak_vote: int
         tracking_enabled: bool
-        trophies: int
-        trophies_gain_average: float
-        trophies_raid_count: int
         xp: int
         xp_gain_average: float
         xp_prune_count: int

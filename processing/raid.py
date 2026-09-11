@@ -7,7 +7,7 @@ import discord
 
 from cache import messages
 from database import users
-from resources import exceptions, functions, logs, regex, strings
+from resources import exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -23,13 +23,12 @@ async def process_message(message: discord.Message, embed_data: Dict, text_displ
     return_values.append(await call_helpers_on_failed_raid(message, embed_data, user, user_settings))
     return_values.append(await call_helpers_on_successful_raid(message, embed_data, user, user_settings))
     return_values.append(await call_context_helper_on_empty_energy(message, embed_data, user, user_settings))
-    return_values.append(await update_trophies_on_raid_start(message, embed_data, text_displays, user, user_settings))
     return any(return_values)
 
 
 async def call_helpers_on_failed_raid(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
                                       user_settings: Optional[users.User]) -> bool:
-    """Call the context helper and trophy summary on a failed raid
+    """Call the context helper on a failed raid
 
     Returns
     -------
@@ -59,32 +58,13 @@ async def call_helpers_on_failed_raid(message: discord.Message, embed_data: Dict
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
 
-        diamond_trophies_lost = 0
-        trophies_lost_match = re.search(r'\[trophies:\].+\*\*([\d-]+)\*\*\n', embed_data['field0']['value'],
-                                        re.IGNORECASE)
-        trophies_lost = int(trophies_lost_match.group(1).replace(',',''))
-        diamond_trophies_lost_match = re.search(r'\[diamond trophies:\].+\*\*([\d-]+)\*\*\n', embed_data['field0']['value'],
-                                               re.IGNORECASE)
-        if diamond_trophies_lost_match:
-            diamond_trophies_lost = int(diamond_trophies_lost_match.group(1).replace(',',''))
-
-        trophies = user_settings.trophies + trophies_lost
-        if trophies < 0: trophies = 0
-        diamond_trophies = user_settings.diamond_trophies + diamond_trophies_lost
-        if diamond_trophies < 0: diamond_trophies = 0
-        
-        await user_settings.update(trophies=trophies, diamond_trophies=diamond_trophies)
-
         message_content = None
-        embed = None
-        if user_settings.helper_trophies_enabled:
-            embed = await functions.design_trophy_summary(user_settings)
         if user_settings.helper_context_enabled:
             message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
             if 'chest' in embed_data['field0']['value'].lower():
                 message_content = f"➜ {strings.SLASH_COMMANDS['chests']}\n{message_content}"
-        if message_content or embed:
-            await message.reply(content=message_content, embed=embed)
+        if message_content:
+            await message.reply(message_content)
             
     return add_reaction
 
@@ -101,9 +81,6 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
     add_reaction = False
     search_strings_title = [
         'raid successful!', #English
-    ]
-    search_strings_field1 = [
-        'damaged chips', #English
     ]
     if any(search_string in embed_data['title'].lower() for search_string in search_strings_title) and not message.edited_at:
         if user is None:
@@ -124,81 +101,16 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
 
-        kwargs = {}
-        diamond_trophies_gained = diamond_trophies_gain_average = 0
-        trophies_gained_match = re.search(r'\[trophies:\].+\*\*([\d-]+)\*\*\n', embed_data['field0']['value'],
-                                        re.IGNORECASE)
-        trophies_gained = int(trophies_gained_match.group(1).replace(',',''))
-
-        current_league = ''
-        for trophy_amount, league_data in strings.LEAGUES.items():
-            if user_settings.trophies >= trophy_amount:
-                current_league, _ = league_data
-            else:
-                break
-
-        new_league = ''
-        for trophy_amount, league_data in strings.LEAGUES.items():
-            if user_settings.trophies + trophies_gained >= trophy_amount:
-                new_league, _ = league_data
-            else:
-                break
-
-        if current_league != new_league:
-            await user_settings.update(trophies_raid_count=0, diamond_trophies_raid_count=0)
-
-        trophies_gain_average = user_settings.trophies_gain_average
-        if trophies_gain_average == 0: trophies_gain_average = trophies_gained
-        if user_settings.trophies_raid_count > 1:
-            trophies_gain_average = (
-                (user_settings.trophies_raid_count * user_settings.trophies_gain_average + trophies_gained)
-                / (user_settings.trophies_raid_count + 1)
-            )
-        elif user_settings.trophies_raid_count == 1:
-            trophies_gain_average = trophies_gained
-        kwargs['trophies_raid_count'] = user_settings.trophies_raid_count + 1
-        kwargs['trophies_gain_average'] = round(trophies_gain_average, 5)
-        
-        diamond_trophies_gained_match = re.search(r'\[diamond trophies:\].+\*\*([\d-]+)\*\*\n', embed_data['field0']['value'],
-                                               re.IGNORECASE)
-        if diamond_trophies_gained_match:
-            diamond_trophies_gained = int(diamond_trophies_gained_match.group(1).replace(',',''))
-            diamond_trophies_gain_average = user_settings.diamond_trophies_gain_average
-            if user_settings.diamond_trophies_raid_count > 1:
-                diamond_trophies_gain_average = (
-                    (user_settings.diamond_trophies_raid_count * user_settings.diamond_trophies_gain_average + diamond_trophies_gained)
-                    / (user_settings.diamond_trophies_raid_count + 1)
-                )
-            elif user_settings.diamond_trophies_raid_count == 1:
-                diamond_trophies_gain_average = diamond_trophies_gained
-            kwargs['diamond_trophies_raid_count'] = user_settings.diamond_trophies_raid_count + 1
-            kwargs['diamond_trophies_gain_average'] = round(diamond_trophies_gain_average, 5)
-
-        trophies = user_settings.trophies + trophies_gained
-        diamond_trophies = user_settings.diamond_trophies + diamond_trophies_gained
-        kwargs['trophies'] = trophies
-        kwargs['diamond_trophies'] = diamond_trophies
-
-        if trophies >= 86_000 and not user_settings.league_beta and user_settings.beta_pass_available > 0:
-            kwargs['league_beta'] = True
-            kwargs['beta_pass_available'] = user_settings.beta_pass_available - 1
-            kwargs['diamond_rings_cap'] = user_settings.diamond_rings_cap + 1_350
-
         if 'chest' in embed_data['field0']['value'].lower():
-            kwargs['chests_in_queue'] = user_settings.chests_in_queue + 1
-
-        await user_settings.update(**kwargs)
-
+            await user_settings.update(chests_in_queue=user_settings.chests_in_queue + 1)
+        
         message_content = None
-        embed = None
-        if user_settings.helper_trophies_enabled:
-            embed = await functions.design_trophy_summary(user_settings)
         if user_settings.helper_context_enabled:
             message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
             if 'chest' in embed_data['field0']['value'].lower():
                 message_content = f"➜ {strings.SLASH_COMMANDS['chests']}\n{message_content}"
-        if message_content or embed:
-            await message.reply(content=message_content, embed=embed)
+        if message_content:
+            await message.reply(message_content)
     return add_reaction
 
 
@@ -236,77 +148,4 @@ async def call_context_helper_on_empty_energy(message: discord.Message, embed_da
             f"➜ {strings.SLASH_COMMANDS['use']} `item: Energy Drink`"
         )
         await message.reply(answer)
-    return add_reaction
-
-
-async def update_trophies_on_raid_start(message: discord.Message, embed_data: Dict, text_displays: list[str], user: Optional[discord.User],
-                                        user_settings: Optional[users.User]) -> bool:
-    """Update trophy count when starting a raid
-
-    Returns
-    -------
-    - True if a logo reaction should be added to the message
-    - False otherwise
-    """
-    add_reaction = False
-    search_strings = [
-        'you have 5 minutes to start the raid', #English
-    ]
-    if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
-        text_display_user = ''
-        for text_display in text_displays:
-            if 'hive' in text_display.lower() and not 'raiding' in text_display.lower():
-                text_display_user = text_display
-                break
-        if user is None:
-            user_name_match = re.search(r'### (.+?)\'s', text_display_user)
-            user_name = user_name_match.group(1)
-            user_command_message = (
-                await messages.find_message(message.channel.id, regex.COMMAND_RAID, user_name=user_name)
-            )
-            if user_command_message is None: return add_reaction
-            user = user_command_message.author
-        if user_settings is None:
-            try:
-                user_settings: users.User = await users.get_user(user.id)
-            except exceptions.FirstTimeUserError:
-                return add_reaction
-        if not user_settings.bot_enabled: return add_reaction
-
-        kwargs = {}
-        trophies_match = re.search(r'\[([\d,]+?)\]', text_display_user, re.IGNORECASE)
-        trophies = int(re.sub(r'\D', '', trophies_match.group(1)))
-        kwargs['trophies'] = trophies
-        
-        current_league = ''
-        for trophy_amount, league_data in strings.LEAGUES.items():
-            if user_settings.trophies >= trophy_amount:
-                current_league, _ = league_data
-            else:
-                break
-
-        new_league = ''
-        for trophy_amount, league_data in strings.LEAGUES.items():
-            if trophies >= trophy_amount:
-                new_league, _ = league_data
-            else:
-                break
-
-        if current_league != new_league:
-            kwargs['trophies_raid_count'] = 0
-            kwargs['trophies_gain_average'] = 0
-            kwargs['diamond_trophies_raid_count'] = 0
-            kwargs['diamond_trophies_gain_average'] = 0
-
-        if trophies < 86_000:
-            kwargs['league_beta'] = False
-            
-        if user_settings.trophies != trophies:    
-            logs.logger.info(
-                f'User {user_settings.user_id} had {user_settings.trophies:,} in the database, found {trophies:,} trophies.\n'
-                f'{embed_data}'
-            )
-            
-        await user_settings.update(**kwargs)
-        
     return add_reaction

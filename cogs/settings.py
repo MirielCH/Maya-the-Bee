@@ -65,17 +65,6 @@ class SettingsCog(commands.Cog):
         """Manage reminder settings"""
         await settings_cmd.command_settings_reminders(self.bot, ctx)
 
-    @commands.guild_only()
-    @cmd_settings.command()
-    async def server(self, ctx: discord.ApplicationContext) -> None:
-        """Manage server settings"""
-        if (not ctx.author.guild_permissions.manage_guild
-            and not (ctx.guild.id == 713541415099170836 and ctx.author.id == 619879176316649482)):
-            raise commands.MissingPermissions(['manage_guild',])
-            # This is to give me (Miriel) server settings access in RPG ARMY. This does NOT give me backdoor access
-            # in any other server.
-        await settings_cmd.command_settings_server(self.bot, ctx)
-
     @cmd_settings.command()
     async def user(self, ctx: discord.ApplicationContext) -> None:
         """Manage user settings"""
@@ -116,15 +105,6 @@ class SettingsCog(commands.Cog):
             f'to change your reminder messages.'
         )
 
-    @commands.command(name='server')
-    @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    async def prefix_settings_server(self, ctx: commands.Context, *args: str) -> None:
-        """Server settings (prefix version)"""
-        await ctx.reply(
-            f'Bzzt! Please use {await functions.get_maya_slash_command(self.bot, "settings server")} '
-            f'to change server settings.'
-        )
-
     @commands.command(name='settings', aliases=('me','setting','set'))
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def prefix_settings(self, ctx: commands.Context, *args: str) -> None:
@@ -134,7 +114,6 @@ class SettingsCog(commands.Cog):
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings messages")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings ready-list")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings reminders")}\n'
-            f'➜ {await functions.get_maya_slash_command(self.bot, "settings server")}\n'
             f'➜ {await functions.get_maya_slash_command(self.bot, "settings user")}\n'
         )
 

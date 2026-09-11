@@ -150,7 +150,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         if user_settings.level > 0 and user_settings.xp_target > 0:
             xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
             xp_gain = int(re.sub(r'\D', '', xp_gain_match.group(1)))
-            if user_settings.league_beta: xp_gain = ceil(xp_gain * 1.33)
             if user_settings.xp_gain_average > 0:
                 xp_gain_average = (
                     (user_settings.xp_prune_count * user_settings.xp_gain_average + xp_gain)

@@ -11,7 +11,7 @@ import discord
 from discord import utils
 from discord.ext import commands
 
-from database import cooldowns, guilds, users
+from database import cooldowns, users
 from database import settings as settings_db
 from resources import emojis, functions, settings, strings
 
@@ -115,8 +115,6 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings ready-list")} : Manage the ready list\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings reminders")} : Enable/disable reminders\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings user")} : Manage user settings\n'
-        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "settings server")} : Manage server settings\n'
-        f'{emojis.DETAIL} _Requires `Manage server` permission._\n'
     )
     commands_misc = (
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "rebirth guide")} : What to do before rebirth\n'

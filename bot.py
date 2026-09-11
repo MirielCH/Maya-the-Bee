@@ -8,7 +8,7 @@ import discord
 from discord import utils
 from discord.ext import commands
 
-from database import errors, guilds
+from database import errors
 from database import settings as settings_db
 from resources import functions, settings
 
@@ -26,11 +26,11 @@ allowed_mentions = discord.AllowedMentions(everyone=False, roles=False, replied_
 
 
 if settings.DEBUG_MODE:
-    bot = commands.AutoShardedBot(command_prefix=guilds.get_all_prefixes, help_command=None,
+    bot = commands.AutoShardedBot(help_command=None,
                                   case_insensitive=True, intents=intents, owner_id=settings.OWNER_ID,
                                   allowed_mentions=allowed_mentions, debug_guilds=settings.DEV_GUILDS)
 else:
-    bot = commands.AutoShardedBot(command_prefix=guilds.get_all_prefixes, help_command=None,
+    bot = commands.AutoShardedBot(help_command=None,
                                   case_insensitive=True, intents=intents, allowed_mentions=allowed_mentions,
                                   owner_id=settings.OWNER_ID)
 
@@ -85,6 +85,7 @@ EXTENSIONS = [
         'cogs.dev',
         'cogs.main',
         'cogs.misc',
+        'cogs.prefix_migration',
         'cogs.ready',
         'cogs.rebirth',
         'cogs.reminders',

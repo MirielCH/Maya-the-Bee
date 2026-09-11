@@ -8,9 +8,8 @@ from typing import List, Optional
 import discord
 from discord import utils
 
-from database import guilds, reminders, tracking, users
+from database import reminders, tracking, users
 from resources import emojis, exceptions, functions, settings, strings, views
-from resources.enums import ReadyPopupMode
 
 
 # --- Commands ---
@@ -341,16 +340,6 @@ async def command_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationC
     await view.wait()
 
 
-async def command_settings_server(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
-    """Server settings command"""
-    guild_settings: guilds.Guild = await guilds.get_guild(ctx.guild.id)
-    view = views.SettingsServerView(ctx, bot, guild_settings, embed_settings_server)
-    embed = await embed_settings_server(bot, ctx, guild_settings)
-    interaction = await ctx.respond(embed=embed, view=view)
-    view.interaction = interaction
-    await view.wait()
-
-
 async def command_settings_user(bot: discord.Bot, ctx: discord.ApplicationContext,
                                 switch_view: Optional[discord.ui.DesignerView] = None) -> None:
     """User settings command"""
@@ -422,29 +411,14 @@ async def embed_settings_helpers(bot: discord.Bot, ctx: discord.ApplicationConte
         f'{emojis.BP} **Rebirth summary**: {await functions.bool_to_text(user_settings.helper_rebirth_enabled)}\n'
         f'{emojis.DETAIL2} _Shows a summary of your last rebirth after rebirth._\n'
         f'{emojis.DETAIL} _**Only works with slash {strings.SLASH_COMMANDS["rebirth"]}!**_\n'
-        f'{emojis.BP} **Trophy progress popup**: {await functions.bool_to_text(user_settings.helper_trophies_enabled)}\n'
-        f'{emojis.DETAIL} _Shows your trophy progress after every raid and in `tree league`._\n'
     )
     if user_settings.helper_prune_progress_bar_color == 'random':
         progress_bar_prune_color = '`Make it random!`'
     else:
         progress_bar_prune_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_prune_progress_bar_color.upper()}', '')
         progress_bar_prune_color = f'{progress_bar_prune_color_emoji} `{user_settings.helper_prune_progress_bar_color.capitalize()}`'
-    if user_settings.helper_trophies_trophy_progress_bar_color == 'random':
-        progress_bar_trophy_color = '`Make it random!`'
-    else:
-        progress_bar_trophy_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_trophies_trophy_progress_bar_color.upper()}', '')
-        progress_bar_trophy_color = f'{progress_bar_trophy_color_emoji} `{user_settings.helper_trophies_trophy_progress_bar_color.capitalize()}`'
-    if user_settings.helper_trophies_diamond_progress_bar_color == 'random':
-        progress_bar_diamond_color = '`Make it random!`'
-    else:
-        progress_bar_diamond_color_emoji = getattr(emojis, f'PROGRESS_100_{user_settings.helper_trophies_diamond_progress_bar_color.upper()}', '')
-        progress_bar_diamond_color = f'{progress_bar_diamond_color_emoji} `{user_settings.helper_trophies_diamond_progress_bar_color.capitalize()}`'
     helper_settings = (
         f'{emojis.BP} **Level XP progress bar color**: {progress_bar_prune_color}\n'
-        f'{emojis.BP} **Trophy progress bar colors**:\n'
-        f'{emojis.DETAIL2} Trophy bar: {progress_bar_trophy_color}\n'
-        f'{emojis.DETAIL} Diamond trophy bar: {progress_bar_diamond_color}\n'
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
@@ -574,20 +548,6 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
     )
     embed.add_field(name='Reminders (I)', value=command_reminders, inline=False)
     embed.add_field(name='Reminders (II)', value=command_reminders2, inline=False)
-    return embed
-
-
-async def embed_settings_server(bot: discord.Bot, ctx: discord.ApplicationContext,
-                                guild_settings: guilds.Guild) -> discord.Embed:
-    """Server settings embed"""
-    server_settings = (
-        f'{emojis.BP} **Prefix**: `{guild_settings.prefix}`\n'
-    )
-    embed = discord.Embed(
-        color = settings.EMBED_COLOR,
-        title = f'{ctx.guild.name} server settings',
-    )
-    embed.add_field(name='Settings', value=server_settings, inline=False)
     return embed
 
 
