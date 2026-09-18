@@ -263,11 +263,11 @@ async def create_nugget_alert(message: discord.Message, embed_data: Dict, user: 
         if not user_settings.bot_enabled or not user_settings.alert_nugget_enabled: return add_reaction
 
         dropped_nuggets = {}
-        nugget_wooden_match = re.search(r'\*\*`(.+?)`\*\*.+woodennugget', fields.lower())
-        nugget_copper_match = re.search(r'\*\*`(.+?)`\*\*.+coppernugget', fields.lower())
-        nugget_silver_match = re.search(r'\*\*`(.+?)`\*\*.+silvernugget', fields.lower())
-        nugget_golden_match = re.search(r'\*\*`(.+?)`\*\*.+goldennugget', fields.lower())
-        nugget_diamond_match = re.search(r'\*\*`(.+?)`\*\*.+diamondnugget', fields.lower())
+        nugget_wooden_match = re.search(r'\*\*`(.+?)`\*\*.+wood', fields.lower())
+        nugget_copper_match = re.search(r'\*\*`(.+?)`\*\*.+copper_nugget', fields.lower())
+        nugget_silver_match = re.search(r'\*\*`(.+?)`\*\*.+silver_nugget', fields.lower())
+        nugget_golden_match = re.search(r'\*\*`(.+?)`\*\*.+golden_nugget', fields.lower())
+        nugget_diamond_match = re.search(r'\*\*`(.+?)`\*\*.+diamond_nugget', fields.lower())
         if nugget_wooden_match:
             nugget_wooden_amount = int(re.sub(r'\D', '', nugget_wooden_match.group(1)))
             dropped_nuggets['Wooden'] = nugget_wooden_amount

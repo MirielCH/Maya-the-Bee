@@ -76,11 +76,11 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         current_time = utils.utcnow().replace(microsecond=0)
         if user_settings.tracking_enabled:
             await tracking.insert_log_entry(user.id, message.guild.id, 'prune', current_time)
-        nugget_wooden_match = re.search(r'woodennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-        nugget_copper_match = re.search(r'coppernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-        nugget_silver_match = re.search(r'silvernugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-        nugget_golden_match = re.search(r'goldennugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
-        nugget_diamond_match = re.search(r'diamondnugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_wooden_match = re.search(r'wood_3:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_copper_match = re.search(r'copper_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_silver_match = re.search(r'silver_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_golden_match = re.search(r'golden_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_diamond_match = re.search(r'diamond_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         bee_bread_match = re.search(r'beebread:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         royal_jelly_match = re.search(r'royaljelly:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         if nugget_wooden_match:

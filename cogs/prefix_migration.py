@@ -36,7 +36,7 @@ class PrefixMigrationCog(commands.Cog):
             cur=settings.DATABASE.cursor()
             cur.execute("SELECT prefix FROM guilds WHERE guild_id=?", (message.guild.id,))
             record = cur.fetchone()
-            prefix = record['prefix'].replace('"','') if record else 'navi '
+            prefix = record['prefix'].replace('"','') if record else 'maya '
         except sqlite3.Error as error:
             return
         

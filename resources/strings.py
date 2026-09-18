@@ -132,7 +132,7 @@ ACTIVITIES_BOOSTS_EMOJIS = {
     'drop-chance-boost': emojis.BOOST_DROP_CHANCE,
     'easter-candy': emojis.CANDY,
     'insecticide': emojis.INSECTICIDE,
-    'queen-bee-boost': emojis.QUEEN_BEE_S,
+    'queen-bee-boost': emojis.QUEEN_BEE,
     'raid-shield': emojis.BOOST_RAID_SHIELD,
     'spooky-boost': emojis.PUMPKIN,
     'sweet-apple': emojis.SWEET_APPLE,
@@ -347,7 +347,7 @@ SKIN_XMAS = 'skin_xmas'
 SKIN_PHOENIX = 'skin_phoenix'
 
 NUGGETS = {
-    'Wooden': emojis.NUGGET_WOODEN,
+    'Wooden': emojis.WOOD,
     'Copper': emojis.NUGGET_COPPER,
     'Silver': emojis.NUGGET_SILVER,
     'Golden': emojis.NUGGET_GOLDEN,
@@ -369,7 +369,7 @@ PRUNER_TYPES = {
 }
 
 NUMBERS_ROMAN_ARABIC = {
-    'ix': 1,
+    'i': 1,
     'ii': 2,
     'iii': 3,
     'iv': 4,

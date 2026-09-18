@@ -61,7 +61,7 @@ async def call_helpers_on_failed_raid(message: discord.Message, embed_data: Dict
         message_content = None
         if user_settings.helper_context_enabled:
             message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
-            if 'chest' in embed_data['field0']['value'].lower():
+            if 'chest' in embed_data['field1']['value'].lower():
                 message_content = f"➜ {strings.SLASH_COMMANDS['chests']}\n{message_content}"
         if message_content:
             await message.reply(message_content)
@@ -101,13 +101,13 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
 
-        if 'chest' in embed_data['field0']['value'].lower():
+        if 'chest' in embed_data['field1']['value'].lower():
             await user_settings.update(chests_in_queue=user_settings.chests_in_queue + 1)
         
         message_content = None
         if user_settings.helper_context_enabled:
             message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
-            if 'chest' in embed_data['field0']['value'].lower():
+            if 'chest' in embed_data['field1']['value'].lower():
                 message_content = f"➜ {strings.SLASH_COMMANDS['chests']}\n{message_content}"
         if message_content:
             await message.reply(message_content)

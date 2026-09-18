@@ -42,21 +42,20 @@ async def command_rebirth_guide(
         text_displays = await functions.parse_text_displays(bot_message)
         for text_display in text_displays:
             inventory = f'{inventory}{text_display}\n'
-    inventory_data['apple'] = await functions.get_inventory_item(inventory, 'apple')
-    inventory_data['chestnut_leaf'] = await functions.get_inventory_item(inventory, 'chestnutleaf')
-    inventory_data['copper_nugget'] = await functions.get_inventory_item(inventory, 'coppernugget')
-    inventory_data['energy_drink'] = await functions.get_inventory_item(inventory, 'energydrink')
-    inventory_data['epic_potion'] = await functions.get_inventory_item(inventory, 'epicpotion')
-    inventory_data['golden_nugget'] = await functions.get_inventory_item(inventory, 'goldennugget')
-    inventory_data['golden_sapling'] = await functions.get_inventory_item(inventory, 'golden_sapling')
-    inventory_data['honey'] = await functions.get_inventory_item(inventory, 'honey')
-    inventory_data['honey_pot'] = await functions.get_inventory_item(inventory, 'honeypot')
-    inventory_data['insecticide'] = await functions.get_inventory_item(inventory, 'insecticide')
-    inventory_data['leaf'] = await functions.get_inventory_item(inventory, 'leaf')
-    inventory_data['silver_nugget'] = await functions.get_inventory_item(inventory, 'silvernugget')
-    inventory_data['sweet_apple'] = await functions.get_inventory_item(inventory, 'sweet_apple')
-    inventory_data['water_bottle'] = await functions.get_inventory_item(inventory, 'waterbottle')
-    inventory_data['wooden_nugget'] = await functions.get_inventory_item(inventory, 'woodennugget')
+    inventory_data['apple'] = await functions.get_inventory_item(inventory, 'apple_2')
+    inventory_data['chestnut_leaf'] = await functions.get_inventory_item(inventory, 'chestnut_leaf_2')
+    inventory_data['copper_nugget'] = await functions.get_inventory_item(inventory, 'copper_nugget_2')
+    inventory_data['energy_drink'] = await functions.get_inventory_item(inventory, 'edrink_2')
+    inventory_data['epic_potion'] = await functions.get_inventory_item(inventory, 'epic_potion_2')
+    inventory_data['golden_nugget'] = await functions.get_inventory_item(inventory, 'golden_nugget_2')
+    inventory_data['golden_sapling'] = await functions.get_inventory_item(inventory, 'golden_sapling_2')
+    inventory_data['honey'] = await functions.get_inventory_item(inventory, 'honey_3')
+    inventory_data['insecticide'] = await functions.get_inventory_item(inventory, 'insecticide_2')
+    inventory_data['leaf'] = await functions.get_inventory_item(inventory, 'leaf_2')
+    inventory_data['silver_nugget'] = await functions.get_inventory_item(inventory, 'silver_nugget_2')
+    inventory_data['sweet_apple'] = await functions.get_inventory_item(inventory, 'sweet_apple_2')
+    inventory_data['water_bottle'] = await functions.get_inventory_item(inventory, 'water_bottle_2')
+    inventory_data['wood'] = await functions.get_inventory_item(inventory, 'wood_3')
     embed = await embed_rebirth_guide(ctx_or_message, inventory_data, user, miri_mode, user_settings)
     if isinstance(ctx_or_message, discord.ApplicationContext):
         await ctx_or_message.respond(embed=embed)
@@ -69,7 +68,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
                               inventory_data: Dict, user: discord.User, miri_mode: bool, user_settings: users.User) -> discord.Embed:
     """Rebirth guide embed"""
     copper_nuggets = inventory_data['copper_nugget'] + (inventory_data['silver_nugget'] * 8)
-    wooden_nuggets = inventory_data['wooden_nugget']
+    wooden_nuggets = inventory_data['wood']
     copper_nuggets_crafted = 0
     copper_nuggets_dismantled = 0
     insecticides_crafted = 0
@@ -91,17 +90,9 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             break
     apples = inventory_data['apple']
     honey = inventory_data['honey']
-    honey_pots = inventory_data['honey_pot']
-    sweet_apples_crafted_without_crafting = min(honey // 10, honey_pots // 2)
-    honey_left_after_sweet_apples_craft = honey - (sweet_apples_crafted_without_crafting * 10)
-    if honey_left_after_sweet_apples_craft < 0: honey_left_after_sweet_apples_craft = 0
-    honey_pots_left_after_sweet_apples_craft = honey_pots - (sweet_apples_crafted_without_crafting * 2)
-    if honey_pots_left_after_sweet_apples_craft < 0: honey_pots_left_after_sweet_apples_craft = 0
-    sweet_apples_crafted = min((sweet_apples_crafted_without_crafting + (honey_left_after_sweet_apples_craft // 30)), apples // 10)
+    sweet_apples_crafted = min(honey // 30, apples // 10)
     apples = apples - (sweet_apples_crafted * 10)
-    honey_pots_crafted = sweet_apples_crafted * 2 - honey_pots
-    if honey_pots_crafted < 0: honey_pots_crafted = 0
-    honey = honey - (honey_pots_crafted * 10)
+    honey = honey - (sweet_apples_crafted * 30)
     leaves = inventory_data['leaf']
     epic_potions_crafted = min(inventory_data['golden_sapling'], honey // 10, leaves)
     honey = honey - (epic_potions_crafted * 10)
@@ -120,7 +111,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         f'{emojis.ENERGY} {strings.SLASH_COMMANDS["raid"]} to empty your energy\n'
         f'{emojis.READY} {strings.SLASH_COMMANDS["hive claim energy"]} if ready\n'
         f'{emojis.ENERGY} {strings.SLASH_COMMANDS["raid"]} to empty your energy\n'
-        f'{emojis.ENERGY_DRINK} {strings.SLASH_COMMANDS["use"]} as many energy drinks as you can if you have any\n'
+        f'{emojis.ENERGY_DRINK} {strings.SLASH_COMMANDS["use"]} your energy drink if you can\n'
         f'{emojis.ENERGY} {strings.SLASH_COMMANDS["raid"]} to empty your energy\n'
         f'{emojis.CHEST_WOODEN} If you have chests ready, do **not** open them until after rebirth\n'
     )
@@ -146,13 +137,8 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{craft_dismantle}\n'
             f'{emojis.INSECTICIDE} {strings.SLASH_COMMANDS["craft"]} `all` insecticides'
         )
-    if honey_pots_crafted > 0:
-        craft_dismantle = (
-            f'{craft_dismantle}\n'
-            f'{emojis.HONEY_POT} {strings.SLASH_COMMANDS["craft"]} `{honey_pots_crafted:,}` honey pots'
-        )
     if sweet_apples_crafted > 0:
-        if apples < 10 or (sweet_apples_crafted == (honey_pots + honey_pots_crafted) // 2):
+        if apples < 10 or (sweet_apples_crafted == (honey + sweet_apples_crafted) // 30):
             sweet_apples_amount = 'all'
         else:
             sweet_apples_amount = f'{sweet_apples_crafted:,}'
@@ -169,11 +155,6 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         craft_dismantle = (
             f'{craft_dismantle}\n'
             f'{emojis.WATER_BOTTLE} {strings.SLASH_COMMANDS["craft"]} `all` water bottles'
-        )
-    if honey >= 10 and not miri_mode:
-        craft_dismantle = (
-            f'{craft_dismantle}\n'
-            f'{emojis.HONEY_POT} {strings.SLASH_COMMANDS["craft"]} `all` honey pots'
         )
     if craft_dismantle == '':
         craft_dismantle = f'{emojis.ENABLED} All done!'
@@ -245,11 +226,6 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         sell = (
             f'{sell}\n'
             f'{emojis.WATER_BOTTLE} {strings.SLASH_COMMANDS["sell"]} `all` water bottles'
-        )
-    if inventory_data['honey_pot'] > 0 or honey_pots_crafted > 0 and not miri_mode:
-        sell = (
-            f'{sell}\n'
-            f'{emojis.HONEY_POT} {strings.SLASH_COMMANDS["sell"]} `all` honey pots'
         )
     if leaves > 0 and not miri_mode:
         sell = (

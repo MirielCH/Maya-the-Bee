@@ -145,8 +145,8 @@ async def embed_skins(active_skin: str = 'skin_default') -> tuple[discord.Embed,
             )
         case strings.SKIN_DIAMOND:
             source = (
-                f'Available in the **seasonal** {strings.SLASH_COMMANDS["shop"]} for '
-                f'100 {emojis.GEM} + 10,000 {emojis.COIN} + 45,000 {emojis.DIAMOND_RING}'
+                f'Available in the **skinpack** {strings.SLASH_COMMANDS["shop"]} for '
+                f'100 {emojis.GEM} + 10,000 {emojis.COIN} + 350,000 {emojis.MEDAL_GOLDEN} + 50,000 {emojis.MEDAL_DIAMOND}'
             )
         case strings.SKIN_EASTER:
             source = (

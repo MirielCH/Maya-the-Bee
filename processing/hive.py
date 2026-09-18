@@ -1,10 +1,11 @@
 # hive.py
 
 from datetime import timedelta
+import random
 from typing import Dict, Optional
 
 import discord
-from discord import message
+from discord import utils
 
 from cache import messages
 from database import reminders, users
@@ -55,11 +56,14 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         if not user_settings.bot_enabled: return add_reaction
         if user_settings.reminder_hive_energy.enabled or user_settings.ready_show_hive_energy:
             user_command = await functions.get_game_command(user_settings, 'hive claim energy')
-            time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'hive-energy')
-            if time_left < timedelta(0): return add_reaction
+            current_time = utils.utcnow()
+            midnight_today = current_time.replace(hour=0, minute=0, microsecond=0)
+            end_time = midnight_today + timedelta(days=1, seconds=random.randint(0, 300))
+            time_to_midnight = end_time - current_time
+            user_command = await functions.get_game_command(user_settings, 'calendar')
             reminder_message = user_settings.reminder_hive_energy.message.replace('{command}', user_command)
             reminder: reminders.Reminder = (
-                await reminders.insert_reminder(user.id, 'hive-energy', time_left,
+                await reminders.insert_reminder(user.id, 'hive-energy', time_to_midnight,
                                                 message.channel.id, reminder_message)
             )
             if user_settings.reactions_enabled and reminder.record_exists:
