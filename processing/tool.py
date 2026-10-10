@@ -111,9 +111,9 @@ async def create_reminder_when_active(message: discord.Message, embed_data: Dict
         if not user_settings.bot_enabled: return add_reaction
 
         level_tier_match = re.search(r'level (\d+?) tier (.+?) ', embed_data['title'].lower())
-        type_match = re.search(r':(.+?)pruner:', embed_data['title'].lower())
+        type_match = re.search(r':(.+?)[pr]{2}uner:', embed_data['title'].lower())
         pruner_level = int(level_tier_match.group(1))
-        pruner_tier = int(strings.NUMBERS_ROMAN_ARABIC[level_tier_match.group(2)])
+        pruner_tier = int(strings.NUMBERS_ROMAN_ARABIC[level_tier_match.group(2)])      
         pruner_type = type_match.group(1)
 
         await user_settings.update(pruner_level=pruner_level, pruner_tier=pruner_tier, pruner_type=pruner_type)

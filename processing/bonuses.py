@@ -76,7 +76,11 @@ async def create_reminders(message: discord.Message, embed_data: Dict, interacti
                 if boost_name in line.lower():
                     activity = strings.ACTIVITIES_NAME_BOOSTS[boost_name]
                     break
-            timestring_match = re.search(r"ends in \*\*(.+?)\*\*", line.lower())
+            timestring_patterns = [
+                    r'\*\*`(.+?)`\*\*',
+                    r'ends in \*\*(.+?)\*\*',
+                ]
+            timestring_match = await functions.get_match_from_patterns(timestring_patterns, line.lower())
             if timestring_match:
                 time_left = await functions.calculate_time_left_from_timestring(message,
                                                                                 timestring_match.group(1).lower())

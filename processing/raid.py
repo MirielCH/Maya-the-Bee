@@ -8,6 +8,7 @@ import discord
 from cache import messages
 from database import users
 from resources import exceptions, functions, regex, strings
+from resources.enums import ReadyPopupMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -104,13 +105,17 @@ async def call_helpers_on_successful_raid(message: discord.Message, embed_data: 
         if 'chest' in embed_data['field1']['value'].lower():
             await user_settings.update(chests_in_queue=user_settings.chests_in_queue + 1)
         
-        message_content = None
+        message_content = ready_embed = None
         if user_settings.helper_context_enabled:
             message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
             if 'chest' in embed_data['field1']['value'].lower():
                 message_content = f"➜ {strings.SLASH_COMMANDS['chests']}\n{message_content}"
-        if message_content:
-            await message.reply(message_content)
+
+        if user_settings.ready_popup_mode == ReadyPopupMode.SHOW_AFTER_EVERY_COMMAND:
+            ready_embed = await functions.design_embed_ready_list(user, user_settings)
+                        
+        if message_content or ready_embed:
+            await message.reply(message_content, embed=ready_embed)
     return add_reaction
 
 

@@ -71,7 +71,7 @@ async def track_rebirth_and_show_summary(message: discord.Message, embed_data: D
                 f'{emojis.BP} Started on {utils.format_dt(user_settings.last_rebirth)}\n'
                 f'{emojis.BP} Time spent: {format_timespan(current_time - user_settings.last_rebirth.replace(microsecond=0))}\n'
                 f'{emojis.BP} `prune`: {report.prune_amount:,}\n'
-                f'{emojis.DETAIL2} {emojis.NUGGET_WOODEN} {report.nugget_wooden_amount:,}\n'
+                f'{emojis.DETAIL2} {emojis.WOOD} {report.nugget_wooden_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.NUGGET_COPPER} {report.nugget_copper_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.NUGGET_SILVER} {report.nugget_silver_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.NUGGET_GOLDEN} {report.nugget_golden_amount:,}\n'

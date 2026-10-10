@@ -58,7 +58,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         if not user_settings.bot_enabled: return add_reaction
         if not user_settings.reminder_vote.enabled and not user_settings.ready_show_vote: return add_reaction
         if user_settings.helper_context_enabled:
-            streak_match = re.search(r'\*\*(\d)\*\*/7', embed_data['field1']['value'])
+            streak_match = re.search(r'\*\*(\d)\*\*/7', embed_data['field2']['value'])
             if streak_match:
                 await user_settings.update(streak_vote=int(streak_match.group(1)))
         if 'cooldown ready!' in embed_data['title'].lower():

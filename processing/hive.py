@@ -60,7 +60,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             midnight_today = current_time.replace(hour=0, minute=0, microsecond=0)
             end_time = midnight_today + timedelta(days=1, seconds=random.randint(0, 300))
             time_to_midnight = end_time - current_time
-            user_command = await functions.get_game_command(user_settings, 'calendar')
             reminder_message = user_settings.reminder_hive_energy.message.replace('{command}', user_command)
             reminder: reminders.Reminder = (
                 await reminders.insert_reminder(user.id, 'hive-energy', time_to_midnight,

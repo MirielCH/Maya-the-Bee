@@ -445,11 +445,6 @@ async def calculate_percentage(item_amount: int, total_amount: int) -> float:
             percentage = 0
         return percentage
 
-async def call_ready_command(bot: commands.Bot, message: discord.Message, user: discord.User) -> None:
-    """Calls the ready command as a reply to the current message"""
-    command = bot.get_application_command(name='ready')
-    if command is not None: await command.callback(command.cog, message, user=user)
-
 
 async def get_game_command(user_settings: users.User, command_name: str) -> str:
     """Gets a game command. Slash or text, depending on user setting."""
