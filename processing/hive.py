@@ -54,6 +54,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
+        ready_embed = message_content = None
         if user_settings.reminder_hive_energy.enabled or user_settings.ready_show_hive_energy:
             user_command = await functions.get_game_command(user_settings, 'hive claim energy')
             current_time = utils.utcnow()
@@ -68,14 +69,14 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if user_settings.reactions_enabled and reminder.record_exists:
                 add_reaction = True
 
-            ready_embed = message_content = None
-            if user_settings.helper_context_enabled:
-                message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
-
             if user_settings.ready_popup_mode == ReadyPopupMode.SHOW_AFTER_EVERY_COMMAND:
                ready_embed = await functions.design_embed_ready_list(user, user_settings)
-            if ready_embed or message_content:
-                await message.reply(content=message_content, embed=ready_embed)
+
+        if user_settings.helper_context_enabled:
+            message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
+
+        if ready_embed or message_content:
+            await message.reply(content=message_content, embed=ready_embed)
                 
     return add_reaction
 

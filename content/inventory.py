@@ -123,16 +123,16 @@ async def embed_inventory_calculator(ctx_or_message: Union[discord.ApplicationCo
     epic_potions = inventory_data['epic_potion'] + min(inventory_data['golden_sapling'], inventory_data['honey'] // 10, inventory_data['leaf'])
 
     nuggets = (
-        f'{emojis.WOOD} `{wooden_nuggets:,}` wooden nuggets.\n'
-        f'{emojis.NUGGET_COPPER} `{copper_nuggets:,}` copper nuggets.\n'
-        f'{emojis.NUGGET_SILVER} `{silver_nuggets:,}` silver nuggets.\n'
-        f'{emojis.NUGGET_GOLDEN} `{golden_nuggets:,}` golden nuggets.\n'
+        f'{emojis.WOOD} `{wooden_nuggets:,}` wooden nuggets\n'
+        f'{emojis.NUGGET_COPPER} `{copper_nuggets:,}` copper nuggets\n'
+        f'{emojis.NUGGET_SILVER} `{silver_nuggets:,}` silver nuggets\n'
+        f'{emojis.NUGGET_GOLDEN} `{golden_nuggets:,}` golden nuggets\n'
     )
     consumables = (
-        f'{emojis.INSECTICIDE} `{insecticides:,}` insecticides.\n'
-        f'{emojis.SWEET_APPLE} `{sweet_apples:,}` sweet apples.\n'
-        f'{emojis.WATER_BOTTLE} `{water_bottles:,}` water bottles.\n'
-        f'{emojis.EPIC_POTION} `{epic_potions:,}` epic potions.\n'
+        f'{emojis.INSECTICIDE} `{insecticides:,}` insecticides\n'
+        f'{emojis.SWEET_APPLE} `{sweet_apples:,}` sweet apples\n'
+        f'{emojis.WATER_BOTTLE} `{water_bottles:,}` water bottles\n'
+        f'{emojis.EPIC_POTION} `{epic_potions:,}` epic potions\n'
     )
         
     embed = discord.Embed(

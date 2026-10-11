@@ -755,6 +755,8 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
                 slash_command = strings.SLASH_COMMANDS[strings.ACTIVITIES_SLASH_COMMANDS[activity]]
             else:
                 slash_command = strings.SLASH_COMMANDS[activity]
+            if activity == 'energy-drink':
+                slash_command = f'{slash_command} `energy drink`'
             ready_list = f'{ready_list}\n- {slash_command}'
 
     if len(pruner_ready) >= 2 and user_settings.ready_show_pruner:

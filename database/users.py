@@ -54,6 +54,7 @@ class User():
     ready_show_chests: bool
     ready_show_clean: bool
     ready_show_daily: bool
+    ready_show_energy_drink: bool
     ready_show_fusion: bool
     ready_show_hal_afterlife: bool
     ready_show_hive_energy: bool
@@ -70,6 +71,7 @@ class User():
     reminder_chests: UserReminder
     reminder_clean: UserReminder
     reminder_daily: UserReminder
+    reminder_energy_drink: UserReminder
     reminder_fusion: UserReminder
     reminder_hal_afterlife: UserReminder
     reminder_hive_energy: UserReminder
@@ -127,6 +129,7 @@ class User():
         self.ready_show_chests = new_settings.ready_show_chests
         self.ready_show_clean = new_settings.ready_show_clean
         self.ready_show_daily = new_settings.ready_show_daily
+        self.ready_show_energy_drink = new_settings.ready_show_energy_drink
         self.ready_show_fusion = new_settings.ready_show_fusion
         self.ready_show_hal_afterlife = new_settings.ready_show_hal_afterlife
         self.ready_show_hive_energy = new_settings.ready_show_hive_energy
@@ -143,6 +146,7 @@ class User():
         self.reminder_chests = new_settings.reminder_chests
         self.reminder_clean = new_settings.reminder_clean
         self.reminder_daily = new_settings.reminder_daily
+        self.reminder_energy_drink = new_settings.reminder_energy_drink
         self.reminder_fusion = new_settings.reminder_fusion
         self.reminder_hal_afterlife = new_settings.reminder_hal_afterlife
         self.reminder_hive_energy = new_settings.reminder_hive_energy
@@ -203,6 +207,7 @@ class User():
             ready_show_chests: bool
             ready_show_clean: bool
             ready_show_daily: bool
+            ready_show_energy_drink: bool
             ready_show_fusion: bool
             ready_show_hal_afterlife: bool
             ready_show_hive_energy: bool
@@ -224,6 +229,8 @@ class User():
             reminder_clean_message: str
             reminder_daily_enabled: bool
             reminder_daily_message: str
+            reminder_energy_drink_enabled: bool
+            reminder_energy_drink_message: str
             reminder_fusion_enabled: bool
             reminder_fusion_message: str
             reminder_hal_afterlife: bool
@@ -310,6 +317,7 @@ async def _dict_to_user(record: dict) -> User:
             ready_show_chests = bool(record['ready_show_chests']),
             ready_show_clean = bool(record['ready_show_clean']),
             ready_show_daily = bool(record['ready_show_daily']),
+            ready_show_energy_drink = bool(record['ready_show_energy_drink']),
             ready_show_fusion = bool(record['ready_show_fusion']),
             ready_show_hal_afterlife = bool(record['ready_show_hal_afterlife']),
             ready_show_hive_energy = bool(record['ready_show_hive_energy']),
@@ -331,6 +339,8 @@ async def _dict_to_user(record: dict) -> User:
                                           message=record['reminder_clean_message']),
             reminder_daily = UserReminder(enabled=bool(record['reminder_daily_enabled']),
                                           message=record['reminder_daily_message']),
+            reminder_energy_drink = UserReminder(enabled=bool(record['reminder_energy_drink_enabled']),
+                                                message=record['reminder_energy_drink_message']),
             reminder_fusion = UserReminder(enabled=bool(record['reminder_fusion_enabled']),
                                            message=record['reminder_fusion_message']),
             reminder_hal_afterlife = UserReminder(enabled=bool(record['reminder_hal_afterlife_enabled']),
@@ -517,6 +527,7 @@ async def _update_user(user: User, **kwargs) -> None:
         ready_show_chests: bool
         ready_show_clean: bool
         ready_show_daily: bool
+        ready_show_energy_drink: bool
         ready_show_fusion: bool
         ready_show_hal_afterlife: bool
         ready_show_hive_energy: bool
@@ -538,6 +549,8 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_clean_message: str
         reminder_daily_enabled: bool
         reminder_daily_message: str
+        reminder_energy_drink_enabled: bool
+        reminder_energy_drink_message: str
         reminder_fusion_enabled: bool
         reminder_fusion_message: str
         reminder_hal_afterlife_enabled: bool

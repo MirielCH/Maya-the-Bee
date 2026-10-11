@@ -17,12 +17,12 @@ SKINS_NAMES = {
     'skin_dragon': 'FAM\'s Purple Dragon',
     'skin_fashalin': 'Fort Fashalin',
     'skin_golden': 'Golden',
-    'skin_halloween': 'Halloween Event',
     'skin_vector': 'Innovative Vector',
     'skin_patreon': 'Patreon Member',
     'skin_phoenix': 'Phoenix',
     'skin_shinobi': 'Shinobi Skirmishes',
     'skin_silver': 'Silver',
+    'skin_halloween': 'Spooky',
     'skin_valentine': 'Valentine Event',
     'skin_xmas': 'XMAS Event',
 }
@@ -35,13 +35,13 @@ SKINS_EMOJIS = {
     strings.SKIN_EASTER: emojis.SKIN_EASTER,
     strings.SKIN_DRAGON: emojis.SKIN_DRAGON,
     strings.SKIN_GOLDEN: emojis.SKIN_GOLDEN,
-    strings.SKIN_HALLOWEEN: emojis.SKIN_HALLOWEEN,
     strings.SKIN_VECTOR: emojis.SKIN_VECTOR,
     strings.SKIN_PATREON: emojis.SKIN_PATREON,
     strings.SKIN_PHOENIX: emojis.SKIN_PHOENIX,
     strings.SKIN_FASHALIN: emojis.SKIN_FASHALIN,
     strings.SKIN_SHINOBI: emojis.SKIN_SHINOBI,
     strings.SKIN_SILVER: emojis.SKIN_SILVER,
+    strings.SKIN_HALLOWEEN: emojis.SKIN_HALLOWEEN,
     strings.SKIN_VALENTINE: emojis.SKIN_VALENTINE,
     strings.SKIN_XMAS: emojis.SKIN_XMAS,
 }
@@ -154,7 +154,7 @@ async def embed_skins(active_skin: str = 'skin_default') -> tuple[discord.Embed,
             )
         case strings.SKIN_HALLOWEEN:
             source = (
-                f'Available in the event shop during the halloween event.\n'
+                f'Unlocked by completing the `/halloween quest` during the halloween event.\n'
             )
         case strings.SKIN_XMAS:
             source = (

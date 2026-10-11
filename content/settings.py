@@ -497,10 +497,11 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
         f'{emojis.BP} **Chests**: {await functions.bool_to_text(user_settings.ready_show_chests)}\n'
         f'{emojis.BP} **Clean**: {await functions.bool_to_text(user_settings.ready_show_clean)}\n'
         f'{emojis.BP} **Daily**: {await functions.bool_to_text(user_settings.ready_show_daily)}\n'
+        f'{emojis.BP} **Energy Drink**: {await functions.bool_to_text(user_settings.ready_show_energy_drink)}\n'
         f'{emojis.BP} **Fusion**: {await functions.bool_to_text(user_settings.ready_show_fusion)}\n'
-        f'{emojis.BP} **Hive Energy**: {await functions.bool_to_text(user_settings.ready_show_hive_energy)}\n'
     )
     cooldowns_2 = (
+        f'{emojis.BP} **Hive Energy**: {await functions.bool_to_text(user_settings.ready_show_hive_energy)}\n'
         f'{emojis.BP} **Incubator**: {await functions.bool_to_text(user_settings.ready_show_incubator)}\n'
         f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.ready_show_prune)}\n'
         f'{emojis.BP} **Pruner**: {await functions.bool_to_text(user_settings.ready_show_pruner)}\n'
@@ -534,11 +535,12 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
         f'{emojis.BP} **Chests**: {await functions.bool_to_text(user_settings.reminder_chests.enabled)}\n'
         f'{emojis.BP} **Clean**: {await functions.bool_to_text(user_settings.reminder_clean.enabled)}\n'
         f'{emojis.BP} **Daily**: {await functions.bool_to_text(user_settings.reminder_daily.enabled)}\n'
+        f'{emojis.BP} **Energy Drink**: {await functions.bool_to_text(user_settings.reminder_energy_drink.enabled)}\n'
         f'{emojis.BP} **Fusion**: {await functions.bool_to_text(user_settings.reminder_fusion.enabled)}\n'
         f'{emojis.BP} **Hive Energy**: {await functions.bool_to_text(user_settings.reminder_hive_energy.enabled)}\n'
-        f'{emojis.BP} **Incubator Upgrade**: {await functions.bool_to_text(user_settings.reminder_incubator_upgrade.enabled)}\n'
     )
     command_reminders2 = (
+        f'{emojis.BP} **Incubator Upgrade**: {await functions.bool_to_text(user_settings.reminder_incubator_upgrade.enabled)}\n'
         f'{emojis.BP} **Larva Growing**: {await functions.bool_to_text(user_settings.reminder_larva.enabled)}\n'
         f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.reminder_prune.enabled)}\n'
         f'{emojis.BP} **Pruner Research**: {await functions.bool_to_text(user_settings.reminder_research.enabled)}\n'

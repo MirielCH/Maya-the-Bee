@@ -1,6 +1,7 @@
 # use.py
 
 from datetime import datetime, timedelta, timezone
+import random
 import re
 from typing import Dict, Optional
 
@@ -10,6 +11,7 @@ from discord import utils
 from cache import messages
 from database import reminders, users
 from resources import emojis, exceptions, functions, regex, strings
+from resources.enums import ReadyPopupMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -22,7 +24,8 @@ async def process_message(message: discord.Message, embed_data: Dict, text_displ
     - False otherwise
     """
     return_values = []
-    return_values.append(await call_context_helper_on_energy_drink(message, embed_data, user, user_settings))
+    return_values.append(await create_reminder_on_energy_drink(message, embed_data, user, user_settings))
+    return_values.append(await create_reminder_on_energy_drink_cooldown(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_on_easter_candy(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_on_insecticide(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_on_sweet_apple(message, embed_data, user, user_settings))
@@ -31,9 +34,9 @@ async def process_message(message: discord.Message, embed_data: Dict, text_displ
     return any(return_values)
 
 
-async def call_context_helper_on_energy_drink(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
-                                              user_settings: Optional[users.User]) -> bool:
-    """Call the context helper when using an energy drink
+async def create_reminder_on_energy_drink(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                          user_settings: Optional[users.User]) -> bool:
+    """Create a reminder and call the context helper when an energy drink is used.
 
     Returns
     -------
@@ -64,8 +67,90 @@ async def call_context_helper_on_energy_drink(message: discord.Message, embed_da
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.helper_context_enabled: return add_reaction
-        await message.reply(f"➜ {strings.SLASH_COMMANDS['raid']}")
+        if not user_settings.bot_enabled: return add_reaction
+        ready_embed = message_content = None
+        if user_settings.reminder_energy_drink.enabled or user_settings.ready_show_energy_drink:
+            user_command = await functions.get_game_command(user_settings, 'use')
+            current_time = utils.utcnow()
+            midnight_today = current_time.replace(hour=0, minute=0, microsecond=0)
+            end_time = midnight_today + timedelta(days=1, seconds=random.randint(0, 300))
+            time_to_midnight = end_time - current_time
+            reminder_message = (
+                user_settings.reminder_energy_drink.message
+                .replace('{command}', user_command)
+                .replace('{drink_emoji}', emojis.ENERGY_DRINK)
+            )
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, 'energy-drink', time_to_midnight,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists:
+                add_reaction = True
+
+            if user_settings.ready_popup_mode == ReadyPopupMode.SHOW_AFTER_EVERY_COMMAND:
+                ready_embed = await functions.design_embed_ready_list(user, user_settings)
+
+        if user_settings.helper_context_enabled:
+            message_content = f"➜ {strings.SLASH_COMMANDS['raid']}"
+
+        if ready_embed or message_content:
+            await message.reply(content=message_content, embed=ready_embed)
+                    
+    return add_reaction
+
+
+async def create_reminder_on_energy_drink_cooldown(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                                   user_settings: Optional[users.User]) -> bool:
+    """Create a reminder and call the context helper when an energy drink is used and is on cooldown.
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings_1 = [
+        'you can only use', #English
+    ]
+    search_strings_2 = [
+        'energy drink', #English
+    ]
+    if (any(search_string in embed_data['description'].lower() for search_string in search_strings_1)
+        and any(search_string in embed_data['description'].lower() for search_string in search_strings_2)):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_name = embed_data['author']['name']
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_USE_ENERGY_DRINK, user_name=user_name)
+                )
+                user = user_command_message.author
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
+        if user_settings.reminder_energy_drink.enabled or user_settings.ready_show_energy_drink:
+            user_command = await functions.get_game_command(user_settings, 'use')
+            current_time = utils.utcnow()
+            midnight_today = current_time.replace(hour=0, minute=0, microsecond=0)
+            end_time = midnight_today + timedelta(days=1, seconds=random.randint(0, 300))
+            time_to_midnight = end_time - current_time
+            reminder_message = (
+                user_settings.reminder_energy_drink.message
+                .replace('{command}', user_command)
+                .replace('{drink_emoji}', emojis.ENERGY_DRINK)
+            )
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(user.id, 'energy-drink', time_to_midnight,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists:
+                add_reaction = True
+                    
     return add_reaction
 
 
