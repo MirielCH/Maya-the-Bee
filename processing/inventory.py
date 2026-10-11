@@ -7,9 +7,9 @@ from typing import Dict, Optional
 import discord
 
 from cache import messages
-from content import rebirth
+from content import inventory, rebirth
 from database import users
-from resources import exceptions, functions, regex
+from resources import exceptions, regex
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],
@@ -82,5 +82,9 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, text_di
         if rebirth_guide_match:
             miri_mode = True if 'miri' in user_command_message.content.lower() else False
             asyncio.ensure_future(rebirth.command_rebirth_guide(message, interaction_user, miri_mode))
+            
+        inventory_calculator_match = re.search(regex.COMMAND_INVENTORY_CALCULATOR, user_command_message.content.lower())
+        if inventory_calculator_match:
+            asyncio.ensure_future(inventory.command_inventory_calculator(message, interaction_user))
 
     return add_reaction

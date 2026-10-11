@@ -6,11 +6,10 @@ from discord.commands import SlashCommandGroup
 from discord.ext import commands
 
 from content import rebirth
-from resources import settings
 
 
 class RebirthCog(commands.Cog):
-    """Cog with user settings commands"""
+    """Cog with rebirth commands"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 

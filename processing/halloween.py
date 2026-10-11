@@ -10,7 +10,7 @@ from discord import utils
 
 from cache import messages
 from database import reminders, users
-from resources import emojis, exceptions, functions, regex, strings
+from resources import exceptions, functions, regex, strings
 from resources.enums import ReadyPopupMode
 
 

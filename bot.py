@@ -83,6 +83,7 @@ EXTENSIONS = [
         'cogs.cache',
         'cogs.detection',
         'cogs.dev',
+        'cogs.inventory',
         'cogs.main',
         'cogs.misc',
         'cogs.ready',
