@@ -3,7 +3,7 @@
 import asyncio
 from collections import deque
 from datetime import timedelta
-from math import ceil, floor
+from math import floor
 import random
 import re
 from typing import Any, Coroutine, List, Optional, Union
@@ -11,7 +11,6 @@ from typing import Any, Coroutine, List, Optional, Union
 import discord
 from discord.ext import commands
 from discord import utils
-from humanfriendly import format_timespan
 
 from database import cooldowns, errors, reminders, users
 from resources import emojis, exceptions, functions, regex, settings, strings, views
@@ -756,7 +755,7 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             else:
                 slash_command = strings.SLASH_COMMANDS[activity]
             if activity == 'energy-drink':
-                slash_command = f'{slash_command} `energy drink`'
+                slash_command = f'{slash_command} energy drink'
             ready_list = f'{ready_list}\n- {slash_command}'
 
     if len(pruner_ready) >= 2 and user_settings.ready_show_pruner:

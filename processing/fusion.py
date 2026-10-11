@@ -1,7 +1,6 @@
 # fusion.py
 
 from datetime import timedelta
-import re
 from typing import Dict, Optional
 
 import discord

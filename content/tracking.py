@@ -10,7 +10,7 @@ from discord.ext import commands
 from humanfriendly import format_timespan
 
 from database import users, tracking
-from resources import emojis, functions, exceptions, settings, strings, views
+from resources import emojis, functions, exceptions, settings, views
 
 
 # --- Commands ---

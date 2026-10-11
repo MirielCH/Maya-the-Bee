@@ -8,7 +8,7 @@ import discord
 
 from cache import messages
 from database import errors, reminders, users
-from resources import emojis, exceptions, functions, regex, strings
+from resources import exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],

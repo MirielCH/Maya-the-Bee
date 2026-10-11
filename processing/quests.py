@@ -8,9 +8,8 @@ import discord
 from discord import utils
 
 from cache import messages
-from database import errors, reminders, users
+from database import reminders, users
 from resources import exceptions, functions, regex
-from resources.enums import ReadyPopupMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, user: Optional[discord.User],

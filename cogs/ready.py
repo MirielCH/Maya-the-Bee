@@ -5,7 +5,7 @@ import discord
 from discord.commands import SlashCommandGroup, Option
 from discord.ext import commands
 
-from content import list_ready, reminders_custom
+from content import list_ready
 from resources import functions
 
 

@@ -10,7 +10,7 @@ from discord.commands import SlashCommandGroup, Option
 from discord.ext import commands
 
 from database import cooldowns
-from resources import emojis, exceptions, functions, logs, settings, strings, views
+from resources import emojis, exceptions, functions, logs, settings, views
 
 
 EVENT_REDUCTION_TYPES = [
@@ -214,7 +214,7 @@ class DevCog(commands.Cog):
         from datetime import datetime
         import asyncio
         from humanfriendly import format_timespan
-        from database import tracking, users
+        from database import tracking
         start_time = datetime.utcnow().replace(microsecond=0)
         log_entry_count = 0
         try:

@@ -1,7 +1,6 @@
 # calendar.py
 
 from collections import deque
-from content import list_ready
 from datetime import timedelta
 import random
 import re
