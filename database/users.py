@@ -55,6 +55,7 @@ class User():
     ready_show_clean: bool
     ready_show_daily: bool
     ready_show_fusion: bool
+    ready_show_hal_afterlife: bool
     ready_show_hive_energy: bool
     ready_show_incubator: bool
     ready_show_prune: bool
@@ -70,6 +71,7 @@ class User():
     reminder_clean: UserReminder
     reminder_daily: UserReminder
     reminder_fusion: UserReminder
+    reminder_hal_afterlife: UserReminder
     reminder_hive_energy: UserReminder
     reminder_incubator_upgrade: UserReminder
     reminder_larva: UserReminder
@@ -126,6 +128,7 @@ class User():
         self.ready_show_clean = new_settings.ready_show_clean
         self.ready_show_daily = new_settings.ready_show_daily
         self.ready_show_fusion = new_settings.ready_show_fusion
+        self.ready_show_hal_afterlife = new_settings.ready_show_hal_afterlife
         self.ready_show_hive_energy = new_settings.ready_show_hive_energy
         self.ready_show_incubator = new_settings.ready_show_incubator
         self.ready_show_prune = new_settings.ready_show_prune
@@ -141,6 +144,7 @@ class User():
         self.reminder_clean = new_settings.reminder_clean
         self.reminder_daily = new_settings.reminder_daily
         self.reminder_fusion = new_settings.reminder_fusion
+        self.reminder_hal_afterlife = new_settings.reminder_hal_afterlife
         self.reminder_hive_energy = new_settings.reminder_hive_energy
         self.reminder_incubator_upgrade = new_settings.reminder_incubator_upgrade
         self.reminder_larva = new_settings.reminder_larva
@@ -200,6 +204,7 @@ class User():
             ready_show_clean: bool
             ready_show_daily: bool
             ready_show_fusion: bool
+            ready_show_hal_afterlife: bool
             ready_show_hive_energy: bool
             ready_show_incubator: bool
             ready_show_prune: bool
@@ -221,6 +226,8 @@ class User():
             reminder_daily_message: str
             reminder_fusion_enabled: bool
             reminder_fusion_message: str
+            reminder_hal_afterlife: bool
+            reminder_hal_afterlife_message: str
             reminder_hive_energy_enabled: bool
             reminder_hive_energy_message: str
             reminder_incubator_upgrade_enabled: bool
@@ -304,6 +311,7 @@ async def _dict_to_user(record: dict) -> User:
             ready_show_clean = bool(record['ready_show_clean']),
             ready_show_daily = bool(record['ready_show_daily']),
             ready_show_fusion = bool(record['ready_show_fusion']),
+            ready_show_hal_afterlife = bool(record['ready_show_hal_afterlife']),
             ready_show_hive_energy = bool(record['ready_show_hive_energy']),
             ready_show_incubator = bool(record['ready_show_incubator']),
             ready_show_prune = bool(record['ready_show_prune']),
@@ -325,6 +333,8 @@ async def _dict_to_user(record: dict) -> User:
                                           message=record['reminder_daily_message']),
             reminder_fusion = UserReminder(enabled=bool(record['reminder_fusion_enabled']),
                                            message=record['reminder_fusion_message']),
+            reminder_hal_afterlife = UserReminder(enabled=bool(record['reminder_hal_afterlife_enabled']),
+                                                message=record['reminder_hal_afterlife_message']),
             reminder_hive_energy = UserReminder(enabled=bool(record['reminder_hive_energy_enabled']),
                                                 message=record['reminder_hive_energy_message']),
             reminder_incubator_upgrade = UserReminder(enabled=bool(record['reminder_incubator_upgrade_enabled']),
@@ -508,6 +518,7 @@ async def _update_user(user: User, **kwargs) -> None:
         ready_show_clean: bool
         ready_show_daily: bool
         ready_show_fusion: bool
+        ready_show_hal_afterlife: bool
         ready_show_hive_energy: bool
         ready_show_incubator: bool
         ready_show_prune: bool
@@ -529,6 +540,8 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_daily_message: str
         reminder_fusion_enabled: bool
         reminder_fusion_message: str
+        reminder_hal_afterlife_enabled: bool
+        reminder_hal_afterlife_message: str
         reminder_hive_energy_enabled: bool
         reminder_hive_energy_message: str
         reminder_incubator_upgrade_enabled: bool

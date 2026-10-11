@@ -85,7 +85,6 @@ EXTENSIONS = [
         'cogs.dev',
         'cogs.main',
         'cogs.misc',
-        'cogs.prefix_migration',
         'cogs.ready',
         'cogs.rebirth',
         'cogs.reminders',

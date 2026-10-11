@@ -368,6 +368,7 @@ class SettingsReadyListView(discord.ui.DesignerView):
             'Pruner': 'ready_show_pruner',
             'Quests': 'ready_show_quests',
             'Vote': 'ready_show_vote',
+            'Halloween: Afterlife': 'ready_show_hal_afterlife',
         }
         toggled_settings_other = {
             'Ready to rebirth': 'ready_show_rebirth',
@@ -438,6 +439,7 @@ class SettingsRemindersView(discord.ui.DesignerView):
             'Pruner Upgrade': 'reminder_upgrade_enabled',
             'Quests': 'reminder_quests_enabled',
             'Vote': 'reminder_vote_enabled',
+            'Halloween: Afterlife': 'reminder_hal_afterlife_enabled',
         }
 
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_commands, 'Toggle reminders',

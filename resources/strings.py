@@ -97,6 +97,7 @@ LINK_TERMS = 'https://github.com/MirielCH/Maya-the-Bee/blob/master/TERMS.md'
 DEFAULT_MESSAGE_CUSTOM_REMINDER = 'Bzzt! This is your reminder for **{message}**!'
 
 DEFAULT_MESSAGES = {
+    'afterlife': '{name} Bzzt! You can attack the hives in {command} again!',
     'boosts': '{name} Bzzt! Your {boost_emoji} {boost_name} just ran out!',
     'calendar': '{name} Bzzt! Today\'s {command} reward is ready to claim!',
     'chests': '{name} Bzzt! A {chest_emoji} {chest_type} chest is ready! Use {command} to open it.',
@@ -129,11 +130,14 @@ PLACEHOLDER_DESCRIPTIONS = {
 MSG_ERROR = 'Whoops, something went wrong here. You should probably tell Miriel#0001 about this.'
 
 ACTIVITIES_BOOSTS_EMOJIS = {
+    'bulbs-potion': emojis.POTION_BULBS,
     'drop-chance-boost': emojis.BOOST_DROP_CHANCE,
     'easter-candy': emojis.CANDY,
     'insecticide': emojis.INSECTICIDE,
     'queen-bee-boost': emojis.QUEEN_BEE,
     'raid-shield': emojis.BOOST_RAID_SHIELD,
+    'radioactive-potion': emojis.POTION_RADIOACTIVE,
+    'skull-potion': emojis.POTION_SKULL,
     'spooky-boost': emojis.PUMPKIN,
     'sweet-apple': emojis.SWEET_APPLE,
     'xp-boost': emojis.BOOST_XP,
@@ -149,6 +153,7 @@ DONOR_TIERS_EMOJIS = {
 }
 
 ACTIVITIES = (
+    'afterlife',
     'boosts',
     'calendar',
     'chests',
@@ -188,11 +193,14 @@ ACTIVITIES_COMMANDS = (
 )
 
 ACTIVITIES_BOOSTS = (
+    'bulbs-potion',
     'drop-chance-boost',
     'easter-candy',
     'insecticide',
     'queen-bee-boost',
     'raid-shield',
+    'radioactive-potion',
+    'skull-potion',
     'spooky-boost',
     'sweet-apple',
     'xp-boost',
@@ -208,13 +216,15 @@ ACTIVITIES_READY_COMMANDS = ( # Sorted by cooldown length, shortest first
     'prune',
     'clean',
     'fusion',
-    'hive-energy',
+    'afterlife',
     'vote',
+    'hive-energy',
     'calendar',
     'daily',
 )
 
 ACTIVITIES_READY_COMMANDS_SETTINGS = {
+    'afterlife': 'ready_show_hal_afterlife',
     'calendar': 'ready_show_calendar',
     'clean': 'ready_show_clean',
     'daily': 'ready_show_daily',
@@ -230,6 +240,7 @@ ACTIVITIES_TOOL = (
 )
 
 ACTIVITIES_SLASH_COMMANDS = {
+    'afterlife': 'halloween afterlife',
     'chest-1': 'chests',
     'chest-2': 'chests',
     'chest-3': 'chests',
@@ -244,6 +255,7 @@ ACTIVITIES_SLASH_COMMANDS = {
 }
 
 ACTIVITIES_COLUMNS = {
+    'afterlife': 'reminder_hal_afterlife',
     'boosts': 'reminder_boosts',
     'calendar': 'reminder_calendar',
     'chest-1': 'reminder_chests',
@@ -275,12 +287,15 @@ ACTIVITIES_COLUMNS = {
 }
 
 ACTIVITIES_NAME_BOOSTS = {
+    'bulbs potion': 'bulbs-potion',
     'drop chance boost': 'drop-chance-boost',
     'easter candy': 'easter-candy',
     'insecticide': 'insecticide',
     'drop chance': 'drop-chance-boost',
     'queen bee hp': 'queen-bee-boost',
     'raid shield': 'raid-shield',
+    'radioactive potion': 'radioactive-potion',
+    'skull potion': 'skull-potion',
     'spooky boost': 'spooky-boost',
     'sweet apple': 'sweet-apple',
     'xp boost': 'xp-boost',
@@ -301,6 +316,7 @@ SLASH_COMMANDS = {
     'dismantle': '</dismantle:960947259627958295>',
     'easter hutch': '</easter hutch:1488594985782874143>',
     'fusion': '</fusion:976919525415071826>',
+    'halloween afterlife': '</halloween afterlife:0>', # TODO: Add afterlife command ID
     'hive claim energy': '</hive claim-energy:976919525415071824>',
     'hive claim honey': '</hive claim-honey:976919525415071824>',
     'hive equip-chip': '</hive equip-chip:976919525415071824>',

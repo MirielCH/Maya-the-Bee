@@ -10,7 +10,7 @@ from discord import utils
 from discord.ext import commands
 
 from database import users
-from processing import bonuses, calendar, easter, chests, clean, cooldowns, daily, fusion, hive, incubator, inventory
+from processing import bonuses, calendar, easter, chests, clean, cooldowns, daily, fusion, halloween, hive, incubator, inventory
 from processing import laboratory, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, logs, regex, settings
 
@@ -28,10 +28,11 @@ class DetectionCog(commands.Cog):
 
         embed_data_before = await parse_embed(message_before)
         embed_data = await parse_embed(message_after)
+        text_displays = await functions.parse_text_displays(message_after)
         if (message_before.content == message_after.content and embed_data_before == embed_data
             and message_before.components == message_after.components): return
-        if await check_edited_message_never_allowed(message_before, message_after, embed_data): return
-        if await check_edited_message_always_allowed(message_before, message_after, embed_data):
+        if await check_edited_message_never_allowed(message_before, message_after, embed_data, text_displays): return
+        if await check_edited_message_always_allowed(message_before, message_after, embed_data, text_displays):
             await self.on_message(message_after)
             return
         if message_before.components and not message_after.components: return
@@ -91,30 +92,14 @@ class DetectionCog(commands.Cog):
                     embed_user_settings = None
             embed_data['embed_user_settings'] = embed_user_settings
         return_values = []
-        helper_bunny_enabled = getattr(user_settings, 'helper_bunny_enabled', True)
-        helper_context_enabled = getattr(user_settings, 'helper_context_enabled', True)
-        helper_prune_enabled = getattr(user_settings, 'helper_prune_enabled', True)
-        reminder_boosts_enabled = getattr(getattr(user_settings, 'reminder_boosts', None), 'enabled', True)
-        reminder_chests_enabled = getattr(getattr(user_settings, 'reminder_chests', None), 'enabled', True)
-        reminder_clean_enabled = getattr(getattr(user_settings, 'reminder_clean', None), 'enabled', True)
-        reminder_daily_enabled = getattr(getattr(user_settings, 'reminder_daily', None), 'enabled', True)
-        reminder_hive_enabled = getattr(getattr(user_settings, 'reminder_hive_energy', None), 'enabled', True)
-        reminder_incubator_enabled = getattr(getattr(user_settings, 'reminder_incubator', None), 'enabled', True)
-        reminder_quests_enabled = getattr(getattr(user_settings, 'reminder_quests', None), 'enabled', True)
-        reminder_research_enabled = getattr(getattr(user_settings, 'reminder_research', None), 'enabled', True)
-        reminder_upgrade_enabled = getattr(getattr(user_settings, 'reminder_upgrade', None), 'enabled', True)
-        reminder_vote_enabled = getattr(getattr(user_settings, 'reminder_vote', None), 'enabled', True)
-        tracking_enabled = getattr(user_settings, 'tracking_enabled', True)
 
         # Bonuses
-        if reminder_boosts_enabled:
-            add_reaction = await bonuses.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await bonuses.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
 
         # Bunnies
-        if helper_bunny_enabled:
-            add_reaction = await easter.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await easter.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
 
          # Calendar
         add_reaction = await calendar.process_message(message, embed_data, text_displays, interaction_user, user_settings)
@@ -126,33 +111,32 @@ class DetectionCog(commands.Cog):
         return_values.append(add_reaction)
             
         # Chests
-        if reminder_chests_enabled or helper_context_enabled:
-            add_reaction = await chests.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await chests.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Clean
-        if reminder_clean_enabled or tracking_enabled:
-            add_reaction = await clean.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await clean.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Daily
-        if reminder_daily_enabled:
-            add_reaction = await daily.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await daily.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
 
         # Fusion
         add_reaction = await fusion.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
-            
+
+        # Halloween
+        add_reaction = await halloween.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
+                
         # Hive
-        if reminder_hive_enabled:
-            add_reaction = await hive.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await hive.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Incubator
-        if reminder_incubator_enabled:
-            add_reaction = await incubator.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await incubator.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
         
         # Inventory
         add_reaction = await inventory.process_message(message, embed_data, text_displays, interaction_user, user_settings)
@@ -163,57 +147,48 @@ class DetectionCog(commands.Cog):
         return_values.append(add_reaction)
             
         # Laboratory
-        if reminder_research_enabled or helper_context_enabled:
-            add_reaction = await laboratory.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await laboratory.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Patreon
         add_reaction = await patreon.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Profile & Stats
-        if reminder_research_enabled or reminder_upgrade_enabled or helper_prune_enabled:
-            add_reaction = await profile.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await profile.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
 
         # Quests
-        if reminder_quests_enabled:
-            add_reaction = await quests.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await quests.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Raid
-        if helper_context_enabled:
-            add_reaction = await raid.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await raid.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Rebirth
         add_reaction = await rebirth.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Tool upgrade
-        if reminder_upgrade_enabled or helper_context_enabled:
-            add_reaction = await tool.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await tool.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Tracking
-        if tracking_enabled:
-            add_reaction = await tracking.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await tracking.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
 
         # Use items
-        if reminder_boosts_enabled or helper_prune_enabled:
-            add_reaction = await use.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await use.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Vote
-        if reminder_vote_enabled:
-            add_reaction = await vote.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await vote.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
             
         # Shop
-        if reminder_boosts_enabled:
-            add_reaction = await shop.process_message(message, embed_data, text_displays, interaction_user, user_settings)
-            return_values.append(add_reaction)
+        add_reaction = await shop.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
 
         if any(return_values): await functions.add_logo_reaction(message)
 
@@ -308,7 +283,7 @@ async def check_message_for_active_components(message: discord.Message) -> Union
 
 
 async def check_edited_message_always_allowed(message_before: discord.Message,
-                                             message_after: discord.Message, embed_data: Dict) -> Union[bool, None]:
+                                             message_after: discord.Message, embed_data: Dict, text_displays: list) -> Union[bool, None]:
     """Check if the edited message should be allowed to process regardless of its components.
     
     Returns
@@ -346,11 +321,16 @@ async def check_edited_message_always_allowed(message_before: discord.Message,
     ]
     if any(search_string in embed_data['description'].lower() for search_string in search_strings):
         return True
+    search_strings = [
+        'contributing on defeating the spooky biome hives!', #English
+    ]
+    if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
+        return True
     return False
 
 
 async def check_edited_message_never_allowed(message_before: discord.Message,
-                                             message_after: discord.Message, embed_data: Dict) -> Union[bool, None]:
+                                             message_after: discord.Message, embed_data: Dict, text_displays: list) -> Union[bool, None]:
     """Check if the edited message should never be allowed to process.
     
     Returns

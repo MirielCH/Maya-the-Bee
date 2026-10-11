@@ -36,6 +36,6 @@ async def command_ready(
         embed.description = f'{emojis.ENABLED} All done!'
         embed.set_footer(text = 'Use "/settings ready-list" to change the content of this list.')
     if isinstance(ctx, discord.ApplicationContext):
-        interaction_message = await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed)
     else:
-        interaction_message = await ctx.reply(embed=embed)
+        await ctx.reply(embed=embed)

@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from cache import messages
 from database import reminders, users
-from resources import emojis, exceptions, functions, regex
+from resources import emojis, exceptions, functions, regex, settings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, interaction_user: Optional[discord.User],
@@ -197,8 +197,18 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                     .replace('  ', ' ')
                 )
                 cooldowns.append(['prune', timestring_match.group(1).lower(), reminder_message])
+        if (user_settings.reminder_hal_afterlife.enabled or user_settings.ready_show_hal_afterlife) and settings.EVENT_HALLOWEEN_ACTIVE:
+            timestring_match = re.search(r"afterlife\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
+            if timestring_match:
+                user_command = await functions.get_game_command(user_settings, 'halloween afterlife')
+                reminder_message = (
+                    user_settings.reminder_hal_afterlife.message
+                    .replace('{command}', user_command)
+                    .replace('  ', ' ')
+                )
+                cooldowns.append(['afterlife', timestring_match.group(1).lower(), reminder_message])
             else:
-                ready_commands.append('prune')
+                ready_commands.append('afterlife')
         if user_settings.reminder_quests.enabled or user_settings.ready_show_quests:
             timestring_daily_match = re.search(r"daily\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())
             timestring_weekly_match = re.search(r"weekly\*\* • \*\*`(.+?)`\*\*", embed_field_quests.lower())

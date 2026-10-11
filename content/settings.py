@@ -507,6 +507,9 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
         f'{emojis.BP} **Quests**: {await functions.bool_to_text(user_settings.ready_show_quests)}\n'
         f'{emojis.BP} **Vote**: {await functions.bool_to_text(user_settings.ready_show_vote)}\n'
     )
+    event_cooldowns = (
+        f'{emojis.BP} **Halloween: Afterlife**: {await functions.bool_to_text(user_settings.ready_show_hal_afterlife)}\n'
+    )
     other = (
         f'{emojis.BP} **Ready to rebirth**: {await functions.bool_to_text(user_settings.ready_show_rebirth)}\n'
     )
@@ -517,6 +520,7 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
     embed.add_field(name='Settings', value=main, inline=False)
     embed.add_field(name='Cooldowns (I)', value=cooldowns_1, inline=False)
     embed.add_field(name='Cooldowns (II)', value=cooldowns_2, inline=False)
+    embed.add_field(name='Event Cooldowns', value=event_cooldowns, inline=False)
     embed.add_field(name='Other activities', value=other, inline=False)
     return embed
 
@@ -542,12 +546,16 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
         f'{emojis.BP} **Quests**: {await functions.bool_to_text(user_settings.reminder_quests.enabled)}\n'
         f'{emojis.BP} **Vote**: {await functions.bool_to_text(user_settings.reminder_vote.enabled)}\n'
     )
+    command_event_reminders = (
+        f'{emojis.BP} **Halloween: Afterlife**: {await functions.bool_to_text(user_settings.reminder_hal_afterlife.enabled)}\n'
+    )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = f'{ctx.author.global_name}\'s reminder settings',
     )
     embed.add_field(name='Reminders (I)', value=command_reminders, inline=False)
     embed.add_field(name='Reminders (II)', value=command_reminders2, inline=False)
+    embed.add_field(name='Event Reminders', value=command_event_reminders, inline=False)
     return embed
 
 
