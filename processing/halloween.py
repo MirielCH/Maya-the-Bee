@@ -67,7 +67,7 @@ async def create_reminder_from_afterlife_overview(message: discord.Message, embe
             return add_reaction
 
         time_left = await functions.parse_timestring_to_timedelta(timestring_match.group(1))
-        user_command = await functions.get_game_command(user_settings, 'halloweenafterlife')
+        user_command = await functions.get_game_command(user_settings, 'halloween afterlife')
         reminder_message = user_settings.reminder_hal_afterlife.message.replace('{command}', user_command)
         reminder: reminders.Reminder = (
             await reminders.insert_reminder(user.id, 'afterlife', time_left,
@@ -90,6 +90,7 @@ async def create_reminder_from_afterlife_attack(message: discord.Message, embed_
     add_reaction = False
     search_strings = [
         'contributing on defeating the spooky biome hives!', #English
+        'soldiers! Never mind', #English
     ]
     if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
         if user is None:

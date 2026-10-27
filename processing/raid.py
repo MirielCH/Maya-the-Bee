@@ -6,7 +6,7 @@ from typing import Dict, Optional
 import discord
 
 from cache import messages
-from database import users
+from database import reminders,users
 from resources import exceptions, functions, regex, strings
 from resources.enums import ReadyPopupMode
 
@@ -148,9 +148,17 @@ async def call_context_helper_on_empty_energy(message: discord.Message, embed_da
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled or not user_settings.helper_context_enabled: return add_reaction
-        answer = (
-            f"➜ {strings.SLASH_COMMANDS['hive claim energy']}\n"
-            f"➜ {strings.SLASH_COMMANDS['use']} `item: Energy Drink`"
-        )
-        await message.reply(answer)
+        
+        answer = ''
+        try:
+            await reminders.get_reminder(user.id, 'hive-energy')
+        except exceptions.NoDataFoundError:
+            answer = f"➜ {strings.SLASH_COMMANDS['hive claim energy']}"
+        try:
+            await reminders.get_reminder(user.id, 'energy-drink')
+        except exceptions.NoDataFoundError:
+            answer = f"{answer}\n➜ {strings.SLASH_COMMANDS['use']} `energy drink`"
+        if answer:
+            await message.reply(answer.strip())
+            
     return add_reaction

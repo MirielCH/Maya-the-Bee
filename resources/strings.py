@@ -263,6 +263,7 @@ ACTIVITIES_SLASH_COMMANDS = {
 ACTIVITIES_COLUMNS = {
     'afterlife': 'reminder_hal_afterlife',
     'boosts': 'reminder_boosts',
+    'bulbs-potion': 'reminder_boosts',
     'calendar': 'reminder_calendar',
     'chest-1': 'reminder_chests',
     'chest-2': 'reminder_chests',
@@ -286,7 +287,9 @@ ACTIVITIES_COLUMNS = {
     'quest-monthly': 'reminder_quests',
     'quest-weekly': 'reminder_quests',
     'quests': 'reminder_quests',
+    'radioactive-potion': 'reminder_boosts',
     'raid-shield': 'reminder_boosts',
+    'skull-potion': 'reminder_boosts',
     'spooky-boost': 'reminder_boosts',
     'sweet-apple': 'reminder_boosts',
     'vote': 'reminder_vote',
@@ -323,7 +326,7 @@ SLASH_COMMANDS = {
     'dismantle': '</dismantle:960947259627958295>',
     'easter hutch': '</easter hutch:1488594985782874143>',
     'fusion': '</fusion:976919525415071826>',
-    'halloween afterlife': '</halloween afterlife:0>', # TODO: Add afterlife command ID
+    'halloween afterlife': '</halloween afterlife:1558483461143007384>',
     'hive claim energy': '</hive claim-energy:976919525415071824>',
     'hive claim honey': '</hive claim-honey:976919525415071824>',
     'hive equip-chip': '</hive equip-chip:976919525415071824>',

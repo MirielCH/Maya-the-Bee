@@ -197,7 +197,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                     .replace('  ', ' ')
                 )
                 cooldowns.append(['prune', timestring_match.group(1).lower(), reminder_message])
-        if (user_settings.reminder_hal_afterlife.enabled or user_settings.ready_show_hal_afterlife) and settings.EVENT_HALLOWEEN_ACTIVE:
+        if user_settings.reminder_hal_afterlife.enabled or user_settings.ready_show_hal_afterlife:
             timestring_match = re.search(r"afterlife\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'halloween afterlife')

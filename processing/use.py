@@ -111,6 +111,7 @@ async def create_reminder_on_energy_drink_cooldown(message: discord.Message, emb
     add_reaction = False
     search_strings_1 = [
         'you can only use', #English
+        'maximum you can use', #English
     ]
     search_strings_2 = [
         'energy drink', #English

@@ -1,6 +1,7 @@
 # settings.py
 """Contains global settings"""
 
+from datetime import datetime, timezone
 import os
 import sqlite3
 import sys
@@ -103,5 +104,6 @@ EMBED_COLOR = 0xFFBB01
 ABORT_TIMEOUT = 60
 INTERACTION_TIMEOUT = 300
 
-# Event toggles
-EVENT_HALLOWEEN_ACTIVE = True
+# Event settings
+EVENT_HALLOWEEN_START = datetime(2026, 10, 14, 12, 0, 0, tzinfo=timezone.utc)
+EVENT_HALLOWEEN_END = datetime(2026, 11, 15, 23, 0, 0, tzinfo=timezone.utc)

@@ -138,7 +138,11 @@ async def embed_inventory_calculator(ctx_or_message: Union[discord.ApplicationCo
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = f'{user.global_name}\'s inventory calculator',
-        description = f'Each amount assumes you use your whole inventory **on that item only**. You can\'t craft all of these items with the same materials.'
+        description = (
+            f'_Each amount assumes you use your whole inventory **on that item only**. You can\'t craft all of these '
+            f'items with the same materials._\n'
+            f'_Diamond nuggets are not included in the calculation._'
+        )
     )
     embed.add_field(name='Nuggets', value=nuggets, inline=False)
     embed.add_field(name='Consumables', value=consumables, inline=False)

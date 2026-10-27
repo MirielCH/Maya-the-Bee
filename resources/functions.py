@@ -718,9 +718,9 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
     """Embed with ready activities"""
     current_time = utils.utcnow().replace(microsecond=0)
     commands_ready = list(strings.ACTIVITIES_READY_COMMANDS)
-    if not settings.EVENT_HALLOWEEN_ACTIVE and 'afterlife' in commands_ready:
-        commands_ready.remove('afterlife')
-    
+    if 'afterlife' in commands_ready and not settings.EVENT_HALLOWEEN_START <= utils.utcnow() < settings.EVENT_HALLOWEEN_END:
+            commands_ready.remove('afterlife')
+
     reminders_chests = []
     quests_ready = list(strings.ACTIVITIES_QUEST)
     reminders_larvae = []
