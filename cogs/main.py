@@ -176,13 +176,13 @@ class MainCog(commands.Cog):
         print(startup_info)
         logs.logger.info(startup_info)
         await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing,
-                                                                 name='Boo!'))
+                                                                 name='Let\'s go island hopping!'))
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild) -> None:
         """Fires when bot joins a guild. Sends a welcome message to the system channel."""
         try:
             welcome_message = (
-                f'Bzzt! **{guild.name}**! I\'m here to remind you to do your Tree commands!\n'
+                f'Bzzt! **{guild.name}**! I\'m here to remind you to do your Elder Arborium commands!\n'
                 f'Note that reminders are off by default. Players who want to get reminded, need to use '
                 f'{await functions.get_maya_slash_command(self.bot, "on")} to activate me.\n'
             )

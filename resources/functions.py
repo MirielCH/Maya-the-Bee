@@ -627,7 +627,7 @@ async def wait_for_bot_or_abort(ctx: discord.ApplicationContext, bot_message_tas
 
 
 async def wait_for_inventory_message(bot: commands.Bot, ctx: discord.ApplicationContext) -> discord.Message:
-    """Waits for and returns the message with the inventory embed from Tree"""
+    """Waits for and returns the message with the inventory embed from Elder Arborium"""
     def game_check(message_before: discord.Message, message_after: Optional[discord.Message] = None):
         correct_message = False
         message = message_after if message_after is not None else message_before

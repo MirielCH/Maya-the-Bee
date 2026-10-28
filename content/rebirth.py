@@ -50,10 +50,8 @@ async def command_rebirth_guide(
     inventory_data['golden_nugget'] = await functions.get_inventory_item(inventory, 'golden_nugget_2')
     inventory_data['golden_sapling'] = await functions.get_inventory_item(inventory, 'golden_sapling_2')
     inventory_data['honey'] = await functions.get_inventory_item(inventory, 'honey_3')
-    inventory_data['insecticide'] = await functions.get_inventory_item(inventory, 'insecticide_2')
     inventory_data['leaf'] = await functions.get_inventory_item(inventory, 'leaf_2')
     inventory_data['silver_nugget'] = await functions.get_inventory_item(inventory, 'silver_nugget_2')
-    inventory_data['sweet_apple'] = await functions.get_inventory_item(inventory, 'sweet_apple_2')
     inventory_data['water_bottle'] = await functions.get_inventory_item(inventory, 'water_bottle_2')
     inventory_data['wood'] = await functions.get_inventory_item(inventory, 'wood_3')
     embed = await embed_rebirth_guide(ctx_or_message, inventory_data, user, miri_mode, user_settings)
@@ -67,32 +65,16 @@ async def command_rebirth_guide(
 async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, discord.Message],
                               inventory_data: Dict, user: discord.User, miri_mode: bool, user_settings: users.User) -> discord.Embed:
     """Rebirth guide embed"""
-    copper_nuggets = inventory_data['copper_nugget'] + (inventory_data['silver_nugget'] * 8)
-    wooden_nuggets = inventory_data['wood']
-    copper_nuggets_crafted = 0
-    copper_nuggets_dismantled = 0
-    insecticides_crafted = 0
-    while True:
-        if copper_nuggets >= 1 and wooden_nuggets >= 5:
-            insecticides_crafted += 1
-            copper_nuggets -= 1
-            wooden_nuggets -= 5
-        elif copper_nuggets < 1 and wooden_nuggets >= 20:
-            copper_nuggets += 1
-            wooden_nuggets -= 15
-            copper_nuggets_crafted += 1
-        elif copper_nuggets > 1 and wooden_nuggets < 5:
-            copper_nuggets -= 1
-            wooden_nuggets += 12
-            copper_nuggets_dismantled += 1
-        else:
-            if wooden_nuggets >= 15: copper_nuggets_dismantled -= 1
-            break
-    apples = inventory_data['apple']
+    wooden_nuggets = inventory_data['wood'] % 15
+    copper_nuggets_crafted = inventory_data['wood'] // 15
+    copper_nuggets = inventory_data['copper_nugget'] + copper_nuggets_crafted
+    silver_nuggets_crafted = copper_nuggets // 10
+    copper_nuggets = copper_nuggets % 10
+    silver_nuggets = inventory_data['silver_nugget'] + silver_nuggets_crafted
+    golden_nuggets_crafted = silver_nuggets // 5
+    silver_nuggets = silver_nuggets % 5
+    golden_nuggets = inventory_data['golden_nugget'] + golden_nuggets_crafted
     honey = inventory_data['honey']
-    sweet_apples_crafted = min(honey // 30, apples // 10)
-    apples = apples - (sweet_apples_crafted * 10)
-    honey = honey - (sweet_apples_crafted * 30)
     leaves = inventory_data['leaf']
     epic_potions_crafted = min(inventory_data['golden_sapling'], honey // 10, leaves)
     honey = honey - (epic_potions_crafted * 10)
@@ -117,36 +99,22 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
     )
 
     craft_dismantle = ''
-    if inventory_data['silver_nugget'] > 0 and not miri_mode:
-        craft_dismantle = (
-            f'{emojis.NUGGET_SILVER} {strings.SLASH_COMMANDS["dismantle"]} `all` silver nuggets'
-        )
-    if copper_nuggets_dismantled > 0 and not miri_mode:
-        craft_dismantle = (
-            f'{craft_dismantle}\n'
-            f'{emojis.NUGGET_COPPER} {strings.SLASH_COMMANDS["dismantle"]} `{copper_nuggets_dismantled:,}` copper nuggets'
-        )
     if copper_nuggets_crafted > 0 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
-            f'{emojis.NUGGET_COPPER} {strings.SLASH_COMMANDS["craft"]} `{copper_nuggets_crafted:,}` copper nuggets'
+            f'{emojis.NUGGET_COPPER} {strings.SLASH_COMMANDS["craft"]} `all` copper nuggets'
         )
-        
-    if insecticides_crafted > 0 and not miri_mode:
+    if silver_nuggets_crafted > 0 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
-            f'{emojis.INSECTICIDE} {strings.SLASH_COMMANDS["craft"]} `all` insecticides'
+            f'{emojis.NUGGET_SILVER} {strings.SLASH_COMMANDS["craft"]} `all` silver nuggets'
         )
-    if sweet_apples_crafted > 0:
-        if apples < 10 or (sweet_apples_crafted == (honey + sweet_apples_crafted) // 30):
-            sweet_apples_amount = 'all'
-        else:
-            sweet_apples_amount = f'{sweet_apples_crafted:,}'
+    if golden_nuggets_crafted > 0 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
-            f'{emojis.SWEET_APPLE} {strings.SLASH_COMMANDS["craft"]} `{sweet_apples_amount}` sweet apples'
+            f'{emojis.NUGGET_GOLDEN} {strings.SLASH_COMMANDS["craft"]} `all` golden nuggets'
         )
-    if epic_potions_crafted > 0:
+    if epic_potions_crafted > 0 and not miri_mode:
         craft_dismantle = (
             f'{craft_dismantle}\n'
             f'{emojis.EPIC_POTION} {strings.SLASH_COMMANDS["craft"]} `all` epic potions'
@@ -160,24 +128,12 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         craft_dismantle = f'{emojis.ENABLED} All done!'
         
     use = ''
-    if inventory_data['epic_potion'] > 0 or epic_potions_crafted > 0:
+    if (inventory_data['epic_potion'] > 0 or epic_potions_crafted > 0) and not miri_mode:
         epic_potions = inventory_data['epic_potion'] + epic_potions_crafted
         use = (
             f'{use}\n'  
             f'{emojis.EPIC_POTION} {strings.SLASH_COMMANDS["use"]} `all` epic potions (you have `{epic_potions:,}`)\n'
             f'{emojis.DETAIL} _Only sell them if you are in dire need of money._'
-        )
-    if inventory_data['insecticide'] > 0 or insecticides_crafted > 0:
-        insecticides = inventory_data['insecticide'] + insecticides_crafted
-        use = (
-            f'{use}\n'
-            f'{emojis.INSECTICIDE} {strings.SLASH_COMMANDS["use"]} insecticides if you need to (you have `{insecticides:,}`)'        
-        )
-    if inventory_data['sweet_apple'] > 0 or sweet_apples_crafted > 0:
-        sweet_apples = inventory_data['sweet_apple'] + sweet_apples_crafted
-        use = (
-            f'{use}\n'
-            f'{emojis.SWEET_APPLE} {strings.SLASH_COMMANDS["use"]} sweet apples if you need to (you have `{sweet_apples:,}`)'
         )
     if inventory_data['chestnut_leaf'] > 0:
         use = (
@@ -188,31 +144,32 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         use = f'{emojis.ENABLED} All done!'
     
     sell = ''
-    if inventory_data['golden_nugget'] > 0 and not miri_mode:
+    if wooden_nuggets > 0 and not miri_mode:
         sell = (
-            f'{emojis.NUGGET_GOLDEN} {strings.SLASH_COMMANDS["sell"]} `all` golden nuggets'
+            f'{sell}\n'
+            f'{emojis.WOOD} {strings.SLASH_COMMANDS["sell"]} `all` wooden nuggets'
         )
     if copper_nuggets > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.NUGGET_COPPER} {strings.SLASH_COMMANDS["sell"]} `all` copper nuggets'
         )
-    if (inventory_data['insecticide'] > 0 or insecticides_crafted > 0) and not miri_mode:
+    if silver_nuggets > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
-            f'{emojis.INSECTICIDE} {strings.SLASH_COMMANDS["sell"]} `all` insecticides'
+            f'{emojis.NUGGET_SILVER} {strings.SLASH_COMMANDS["sell"]} `all` silver nuggets'
+        )
+    if golden_nuggets > 0 and not miri_mode:
+        sell = (
+            f'{sell}\n'
+            f'{emojis.NUGGET_GOLDEN} {strings.SLASH_COMMANDS["sell"]} `all` golden nuggets'
         )
     if (inventory_data['epic_potion'] > 0 or epic_potions_crafted > 0) and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.EPIC_POTION} {strings.SLASH_COMMANDS["sell"]} `all` epic potions'
         )
-    if inventory_data['sweet_apple'] > 0 or sweet_apples_crafted > 0:
-        sell = (
-            f'{sell}\n'
-            f'{emojis.SWEET_APPLE} {strings.SLASH_COMMANDS["sell"]} `all` sweet apples'
-        )
-    if inventory_data['chestnut_leaf'] > 0:
+    if inventory_data['chestnut_leaf'] > 0 and not miri_mode:
         sell = (
             f'{sell}\n'
             f'{emojis.LEAF_CHESTNUT} {strings.SLASH_COMMANDS["sell"]} `all` chestnut leaves'
@@ -227,7 +184,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{sell}\n'
             f'{emojis.WATER_BOTTLE} {strings.SLASH_COMMANDS["sell"]} `all` water bottles'
         )
-    if leaves > 0 and not miri_mode:
+    if leaves > 0:
         sell = (
             f'{sell}\n'
             f'{emojis.LEAF} {strings.SLASH_COMMANDS["sell"]} `all` leaves'
@@ -237,7 +194,7 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{sell}\n'
             f'{emojis.HONEY} {strings.SLASH_COMMANDS["sell"]} `all` honey'
         )
-    if apples > 0 and not miri_mode:
+    if inventory_data['apple'] > 0:
         sell = (
             f'{sell}\n'
             f'{emojis.APPLE} {strings.SLASH_COMMANDS["sell"]} `all` apples'

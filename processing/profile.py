@@ -1,11 +1,10 @@
 # profile.py
 
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 import re
 from typing import Dict, Optional
 
 import discord
-from discord import utils
 
 from cache import messages
 from database import errors, reminders, users
@@ -45,27 +44,18 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
     ]
     if (any(search_string in embed_data['author']['name'].lower() for search_string in search_strings)
         or any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings)):
-        if embed_data['embed_user'] is not None and interaction_user is not None:
-            if interaction_user != embed_data['embed_user']:
-                return add_reaction
-        embed_users = []
         if interaction_user is None:
             user_command_message = (
                 await messages.find_message(message.channel.id, regex.COMMAND_PROFILE_STATS)
             )
             interaction_user = user_command_message.author
-        if embed_data['embed_user'] is None:
-            user_id_match = re.search(regex.USER_ID_FROM_ICON_URL, embed_data['author']['icon_url'])
-            if user_id_match:
-                user_id = int(user_id_match.group(1))
-                embed_users.append(message.guild.get_member(user_id))
-            else:
-                user_name_match = re.search(regex.USERNAME_FROM_EMBED_AUTHOR, embed_data['author']['name'])
+        user_name = ''
+        for text_display in text_displays:    
+            user_name_match = re.search(r'### (.+?)\'s profile', text_display)
+            if user_name_match:
                 user_name = user_name_match.group(1)
-                embed_users = await functions.get_guild_member_by_name(message.guild, user_name)
-        else:
-            embed_users.append(embed_data['embed_user'])
-        if interaction_user not in embed_users: return add_reaction
+                break
+        if user_name != interaction_user.name: return add_reaction
         if user_settings is None:
             try:
                 user_settings: users.User = await users.get_user(interaction_user.id)
@@ -73,33 +63,16 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
 
-        # Insecticide & Raid shield boost reminder
+        # Raid shield boost reminder
         # Store level, xp and rebirth
         level = rebirth = xp = xp_target = -1
-        field_statistics = ''
-        for key, value in embed_data.items():
-            if 'field' in key.lower():
-                if 'statistics' in value['name'].lower():
-                    field_statistics = value['value']
-                    break
-        for line in field_statistics.split('\n'):
-            if 'insecticide' in line.lower():
-                boost_end_match = re.search(r'<t:(\d+?):r>', line.lower())
-                activity = 'insecticide'
-                if boost_end_match:
-                    end_time = datetime.fromtimestamp(int(boost_end_match.group(1)), timezone.utc).replace(microsecond=0)
-                    current_time = utils.utcnow().replace(microsecond=0)
-                    time_left = end_time - current_time
-                    reminder_message = (
-                        user_settings.reminder_boosts.message
-                        .replace('{boost_emoji}', emojis.INSECTICIDE)
-                        .replace('{boost_name}', 'insecticide')
-                    )
-                    cooldowns.append([activity, time_left, reminder_message])
-                else:
-                    ready_commands.append(activity)
-
-            elif 'raid shield' in line.lower():
+        text_display_statistics = ''
+        for text_display in text_displays:
+            if 'statistics' in text_display.lower():
+                text_display_statistics = text_display
+                break
+        for line in text_display_statistics.split('\n'):
+            if 'raid shield' in line.lower():
                 timestring_match = re.search(r"\*\*`(.+?)`\*\*", line.lower())
                 activity = 'raid-shield'
                 if timestring_match:
@@ -133,34 +106,16 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
             )
         await user_settings.update(level=level, rebirth=rebirth, xp=xp, xp_target=xp_target)
 
-        # Sweet apple boost
-        if 'boost active' in embed_data['description'].lower():
-            boost_end_match = re.search(r'<t:(\d+?):r>', embed_data['description'].lower())
-            activity = 'sweet-apple'
-            if boost_end_match:
-                end_time = datetime.fromtimestamp(int(boost_end_match.group(1)), timezone.utc).replace(microsecond=0)
-                current_time = utils.utcnow().replace(microsecond=0)
-                time_left = end_time - current_time
-                reminder_message = (
-                    user_settings.reminder_boosts.message
-                    .replace('{boost_emoji}', emojis.SWEET_APPLE)
-                    .replace('{boost_name}', 'sweet apple')
-                )
-                cooldowns.append([activity, time_left, reminder_message])
-            else:
-                ready_commands.append(activity)
-
         # Research & Upgrade cooldowns
-        field_tool_status = ''
-        for key, value in embed_data.items():
-            if 'field' in key.lower():
-                if 'tool status' in value['name'].lower():
-                    field_tool_status = value['value']
-                    break
-        
-        if field_tool_status:
+        text_display_tool_status = ''
+        for text_display in text_displays:
+            if 'tool status' in text_display.lower():
+                text_display_tool_status = text_display
+                break
+
+        if text_display_tool_status:
             if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
-                timestring_match = re.search(r"researching: `(.+?)` remaining", embed_data['field3']['value'].lower())
+                timestring_match = re.search(r"researching: `(.+?)` remaining", text_display_tool_status.lower())
                 if timestring_match:
                     user_command = await functions.get_game_command(user_settings, 'laboratory')
                     reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
@@ -170,7 +125,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 else:
                     ready_commands.append('pruner-research')
             if user_settings.reminder_upgrade.enabled or user_settings.ready_show_pruner:
-                timestring_match = re.search(r"upgrading: `(.+?)` remaining", embed_data['field3']['value'].lower())
+                timestring_match = re.search(r"upgrading: `(.+?)` remaining", text_display_tool_status.lower())
                 if timestring_match:
                     user_command = await functions.get_game_command(user_settings, 'tool')
                     reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
@@ -185,13 +140,6 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
             cd_time_left = cooldown[1]
             cd_message = cooldown[2]
             if cd_time_left < timedelta(0): continue
-            if cd_activity == 'sweet-apple':
-                try:
-                    active_reminder: reminders.Reminder= await reminders.get_reminder(interaction_user.id, 'sweet-apple')
-                    if active_reminder.triggered:
-                        await user_settings.update(xp_gain_average=0)
-                except exceptions.NoDataFoundError:
-                    await user_settings.update(xp_gain_average=0)
             reminder: reminders.Reminder = (
                 await reminders.insert_reminder(interaction_user.id, cd_activity, cd_time_left,
                                                 message.channel.id, cd_message)

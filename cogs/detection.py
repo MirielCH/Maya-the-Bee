@@ -1,5 +1,5 @@
 # detection.py
-"""Collects and parses Tree messages"""
+"""Collects and parses Elder Arborium messages"""
 
 from datetime import timedelta
 import re

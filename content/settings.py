@@ -44,7 +44,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
             f'Please also use {strings.SLASH_COMMANDS["profile"]} or {strings.SLASH_COMMANDS["stats"]} once so I can read it.'
         )
         field_tracking = (
-            f'I track the amount of some Tree commands you use and count your nugget drops. Check '
+            f'I track the amount of some Elder Arborium commands you use and count your nugget drops. Check '
             f'{await functions.get_maya_slash_command(bot, "stats")} to see what is tracked.\n'
             f'**__No personal data is processed or stored in any way!__**\n'
             f'You can opt-out of tracking in {await functions.get_maya_slash_command(bot, "stats")} '
@@ -60,7 +60,7 @@ async def command_on(bot: discord.Bot, ctx: discord.ApplicationContext) -> None:
         embed = discord.Embed(
             title = f'Bzzt {ctx.author.global_name}!',
             description = (
-                f'I am here to remind you of Tree commands!\n'
+                f'I am here to remind you of Elder Arborium commands!\n'
                 f'Have a look at {await functions.get_maya_slash_command(bot, "help")} for a list of my own commands.'
             ),
             color =  settings.EMBED_COLOR,

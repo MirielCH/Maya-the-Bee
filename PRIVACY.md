@@ -1,14 +1,15 @@
 # Maya the Bee Privacy Policy
 
-This policy is effective as of 10 March 2023 and was last updated on 19 October 2023.  
+This policy is effective as of 10 March 2023 and was last updated on 27 October 2026.  
 
 ## User information the bot collects
 
-Maya does neither collect nor store any personal user data.  
+Maya uses user IDs and server IDs to store settings. All IDs are encrypted before they are stored in the database.  
+Maya does neither collect nor store any other personal user data.  
 
 ## Command tracking
 
-When you turn on the bot, it starts tracking some of your Tree commands. The term “tracking” refers to the name of these commands and the time when they were used.  
+When you turn on the bot, it starts tracking some of your Elder Arborium commands. The term “tracking” refers to the name of these commands and the time when they were used.  
 This information is used to calculate how many commands you used in `/stats`.  
 You will get a warning that you enabled this when you use `/on`.  
 
@@ -19,10 +20,10 @@ Important things to note:
 
 ## Message content access
 
-Maya has access to the content of all messages it can see. This access is necessary to create reminders.  
-Maya reads Tree messages and also reads the commands you issue to trigger said messages (e.g. if a prune message is detected, it will also read your `/prune` slash command or your `tree prune` message).  
+Maya has access to the content of all messages it can see. This access is necessary to create reminders and help you with the game.  
+Maya reads Elder Arborium messages and also reads the commands you issue to trigger said messages (e.g. if a prune message is detected, it will also read your `/prune` slash command or your `tree prune` message).  
 
-The bot caches all messages sent by users that either mention the Tree bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 10 minutes and **not** stored permanently.  
+The bot caches all messages sent by users that either mention the Elder Arborium bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 10 minutes and **not** stored permanently.  
 
 ## Limits of this policy
 
@@ -30,7 +31,7 @@ Please be aware that I have no control over the code and policies of forks and o
 
 This policy therefore only applies to:  
 • The code in the [main repository](https://github.com/MirielCH/Maya-the-Bee), maintained by myself.  
-• The bot instance with the username `Maya the Bee#7702`, hosted by myself. If you encounter another Maya with another discriminator, it is outside of the scope of this privacy policy, even if it falsely links to this document.  
+• The bot instance with the user ID 1082304094842146897, hosted by myself. If you encounter another Maya with another user ID, it is outside of the scope of this privacy policy, even if it falsely links to this document.  
 
 The bot may also link to external sites that are not operated by me. The same limits apply to those sites.  
 

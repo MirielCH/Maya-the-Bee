@@ -14,7 +14,7 @@ class SkinsCog(commands.Cog):
         self.bot = bot
 
     # Commands
-    @slash_command(name='skins', description='A list of all obtainable Tree skins')
+    @slash_command(name='skins', description='A list of all obtainable Elder Arborium skins')
     async def command_skins(
         self,
         ctx: discord.ApplicationContext,

@@ -135,13 +135,11 @@ ACTIVITIES_BOOSTS_EMOJIS = {
     'bulbs-potion': emojis.POTION_BULBS,
     'drop-chance-boost': emojis.BOOST_DROP_CHANCE,
     'easter-candy': emojis.CANDY,
-    'insecticide': emojis.INSECTICIDE,
     'queen-bee-boost': emojis.QUEEN_BEE,
     'raid-shield': emojis.BOOST_RAID_SHIELD,
     'radioactive-potion': emojis.POTION_RADIOACTIVE,
     'skull-potion': emojis.POTION_SKULL,
     'spooky-boost': emojis.PUMPKIN,
-    'sweet-apple': emojis.SWEET_APPLE,
     'xp-boost': emojis.BOOST_XP,
 }
 
@@ -199,13 +197,11 @@ ACTIVITIES_BOOSTS = (
     'bulbs-potion',
     'drop-chance-boost',
     'easter-candy',
-    'insecticide',
     'queen-bee-boost',
     'raid-shield',
     'radioactive-potion',
     'skull-potion',
     'spooky-boost',
-    'sweet-apple',
     'xp-boost',
 )
 
@@ -276,7 +272,6 @@ ACTIVITIES_COLUMNS = {
     'energy-drink': 'reminder_energy_drink',
     'fusion': 'reminder_fusion',
     'hive-energy': 'reminder_hive_energy',
-    'insecticide': 'reminder_boosts',
     'incubator-upgrade': 'reminder_incubator_upgrade',
     'larva': 'reminder_larva',
     'prune': 'reminder_prune',
@@ -291,7 +286,6 @@ ACTIVITIES_COLUMNS = {
     'raid-shield': 'reminder_boosts',
     'skull-potion': 'reminder_boosts',
     'spooky-boost': 'reminder_boosts',
-    'sweet-apple': 'reminder_boosts',
     'vote': 'reminder_vote',
     'xp-boost': 'reminder_boosts',
 }
@@ -300,14 +294,12 @@ ACTIVITIES_NAME_BOOSTS = {
     'bulbs potion': 'bulbs-potion',
     'drop chance boost': 'drop-chance-boost',
     'easter candy': 'easter-candy',
-    'insecticide': 'insecticide',
     'drop chance': 'drop-chance-boost',
     'queen bee hp': 'queen-bee-boost',
     'raid shield': 'raid-shield',
     'radioactive potion': 'radioactive-potion',
     'skull potion': 'skull-potion',
     'spooky boost': 'spooky-boost',
-    'sweet apple': 'sweet-apple',
     'xp boost': 'xp-boost',
 }
 
@@ -400,17 +392,4 @@ PRUNER_TYPES = {
     'silver': 3,
     'golden': 4,
     'diamond': 5,
-}
-
-NUMBERS_ROMAN_ARABIC = {
-    'i': 1,
-    'ii': 2,
-    'iii': 3,
-    'iv': 4,
-    'v': 5,
-    'vi': 6,
-    'vii': 7,
-    'viii': 8,
-    'ix': 9,
-    'x': 10,
 }

@@ -118,7 +118,7 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
     )
     commands_misc = (
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "rebirth guide")} : What to do before rebirth\n'
-        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "skins")} : A list of all Tree skins\n'
+        f'{emojis.BP} {await functions.get_maya_slash_command(bot, "skins")} : A list of all Elder Arborium skins\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "calculator")} : A basic calculator\n'
         f'{emojis.BP} {await functions.get_maya_slash_command(bot, "event-reductions")} : Check active event reductions\n'
     )
@@ -127,7 +127,7 @@ async def embed_help(bot: discord.Bot, ctx: discord.ApplicationContext) -> disco
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = 'Hi! I\'m Maya the Bee!',
-        description = '_I can help you with that important Tree business!_',
+        description = '_I can help you with that important Elder Arborium business!_',
     )
     embed.add_field(name='Reminder management', value=commands_reminders, inline=False)
     embed.add_field(name='Settings', value=commands_settings, inline=False)

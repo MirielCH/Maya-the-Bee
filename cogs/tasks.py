@@ -79,8 +79,6 @@ class TasksCog(commands.Cog):
                 allowed_mentions = discord.AllowedMentions(users=[user,])
                 for activity_message in messages.values():
                     activity, message = activity_message
-                    if activity == 'sweet-apple':
-                        await user_settings.update(xp_gain_average=0)
                     if message:
                         await channel.send(message.strip(), allowed_mentions=allowed_mentions)
                 if larva_reminders > 0:

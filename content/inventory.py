@@ -50,10 +50,8 @@ async def command_inventory_calculator(
     inventory_data['golden_nugget'] = await functions.get_inventory_item(inventory, 'golden_nugget_2')
     inventory_data['golden_sapling'] = await functions.get_inventory_item(inventory, 'golden_sapling_2')
     inventory_data['honey'] = await functions.get_inventory_item(inventory, 'honey_3')
-    inventory_data['insecticide'] = await functions.get_inventory_item(inventory, 'insecticide_2')
     inventory_data['leaf'] = await functions.get_inventory_item(inventory, 'leaf_2')
     inventory_data['silver_nugget'] = await functions.get_inventory_item(inventory, 'silver_nugget_2')
-    inventory_data['sweet_apple'] = await functions.get_inventory_item(inventory, 'sweet_apple_2')
     inventory_data['water_bottle'] = await functions.get_inventory_item(inventory, 'water_bottle_2')
     inventory_data['wood'] = await functions.get_inventory_item(inventory, 'wood_3')
     embed = await embed_inventory_calculator(ctx_or_message, inventory_data, user, user_settings)
@@ -94,28 +92,6 @@ async def embed_inventory_calculator(ctx_or_message: Union[discord.ApplicationCo
         + inventory_data['golden_nugget']
     )
 
-    # Insecticides
-    insecticides_crafted = 0
-    copper_nuggets_calc = inventory_data['copper_nugget'] + inventory_data['silver_nugget'] * 8 + inventory_data['golden_nugget'] * 8 * 4
-    wooden_nuggets_calc = inventory_data['wood']
-    while True:
-        if copper_nuggets_calc >= 1 and wooden_nuggets_calc >= 5:
-            insecticides_crafted += 1
-            copper_nuggets_calc -= 1
-            wooden_nuggets_calc -= 5
-        elif copper_nuggets_calc < 1 and wooden_nuggets_calc >= 20:
-            copper_nuggets_calc += 1
-            wooden_nuggets_calc -= 15
-        elif copper_nuggets_calc > 1 and wooden_nuggets_calc < 5:
-            copper_nuggets_calc -= 1
-            wooden_nuggets_calc += 12
-        else:
-            break
-    insecticides = inventory_data['insecticide'] + insecticides_crafted
-
-    # Sweet apples
-    sweet_apples =  inventory_data['sweet_apple'] + min(inventory_data['honey'] // 30, inventory_data['apple'] // 10)
-
     # Water bottles
     water_bottles = inventory_data['water_bottle'] + min(inventory_data['leaf'] // 40, inventory_data['honey'] // 3)
 
@@ -129,8 +105,6 @@ async def embed_inventory_calculator(ctx_or_message: Union[discord.ApplicationCo
         f'{emojis.NUGGET_GOLDEN} `{golden_nuggets:,}` golden nuggets\n'
     )
     consumables = (
-        f'{emojis.INSECTICIDE} `{insecticides:,}` insecticides\n'
-        f'{emojis.SWEET_APPLE} `{sweet_apples:,}` sweet apples\n'
         f'{emojis.WATER_BOTTLE} `{water_bottles:,}` water bottles\n'
         f'{emojis.EPIC_POTION} `{epic_potions:,}` epic potions\n'
     )
