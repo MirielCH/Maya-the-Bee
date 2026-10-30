@@ -2,6 +2,7 @@
 """Internal dev commands"""
 
 import importlib
+import re
 import sys
 from typing import List
 
@@ -225,16 +226,16 @@ class DevCog(commands.Cog):
         entries = {}
         for log_entry in old_log_entries:
             date_time = log_entry.date_time.replace(hour=23, minute=59, second=59, microsecond=999999)
-            key = (log_entry.user_id, log_entry.guild_id, log_entry.command, date_time)
+            key = (log_entry.user_id, log_entry.command_or_drop, date_time)
             amount = entries.get(key, 0)
             entries[key] = amount + 1
             log_entry_count += 1
         for key, amount in entries.items():
-            user_id, guild_id, command, date_time = key
-            summary_log_entry = await tracking.insert_log_summary(user_id, guild_id, command, date_time, amount)
+            user_id, command, date_time = key
+            summary_log_entry = await tracking.insert_log_summary(user_id, command, date_time, amount)
             date_time_min = date_time.replace(hour=0, minute=0, second=0, microsecond=0)
             date_time_max = date_time.replace(hour=23, minute=59, second=59, microsecond=999999)
-            await tracking.delete_log_entries(user_id, guild_id, command, date_time_min, date_time_max)
+            await tracking.delete_log_entries(user_id, command, date_time_min, date_time_max)
             await asyncio.sleep(0.01)
         cur = settings.NAVI_DB.cursor()
         cur.execute('VACUUM')
@@ -242,6 +243,184 @@ class DevCog(commands.Cog):
         time_passed = end_time - start_time
         logs.logger.info(f'Consolidated {log_entry_count:,} log entries in {format_timespan(time_passed)} manually.')
         await ctx.respond(f'Consolidated {log_entry_count:,} log entries in {format_timespan(time_passed)}.')
+
+    @dev.command(name='create-hash')
+    async def dev_create_hash(
+        self,
+        ctx: discord.ApplicationContext,
+        value: Option(str, 'Value to create a hash for'),
+    ) -> None:
+        """Creates a hash of the given value"""
+        if ctx.author.id not in settings.DEV_IDS:
+            await ctx.respond(MSG_NOT_DEV, ephemeral=True)
+            return
+
+        await ctx.respond(
+            f'Hash of `{value}`:\n```{functions.create_hash(value)}```'
+        )
+
+    @dev.command(name='migrate-users')
+    async def dev_migrate_users(
+        self,
+        ctx: discord.ApplicationContext,
+    ) -> None:
+        """Migrates the users table to a new one with encrypted user ids"""
+
+        if ctx.author.id not in settings.DEV_IDS:
+            await ctx.respond(MSG_NOT_DEV, ephemeral=True)
+            return
+
+        def quotes(name: str) -> str:
+            return '"' + name.replace('"', '""') + '"'
+
+        settings.DATABASE.create_function("uid_hash", 1, lambda value: functions.create_hash(value))
+        settings.DATABASE.create_function("uid_token", 1, lambda value: functions.encrypt(value))
+        db_create_users_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").fetchone()[0]
+        db_create_reminders_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='reminders'").fetchone()[0]
+        db_create_bunnies_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='bunnies'").fetchone()[0]
+        db_create_tracking_log_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='tracking_log'").fetchone()[0]
+        db_extras_users = [
+            record[0] for record in settings.DATABASE.execute(
+                "SELECT sql FROM sqlite_master WHERE tbl_name='users' "
+                "AND type IN ('index','trigger') AND sql IS NOT NULL"
+            )
+        ]
+        db_extras_reminders = [
+            record[0] for record in settings.DATABASE.execute(
+                "SELECT sql FROM sqlite_master WHERE tbl_name='reminders' "
+                "AND type IN ('index','trigger') AND sql IS NOT NULL"
+            )
+        ]
+        db_extras_bunnies = [
+            record[0] for record in settings.DATABASE.execute(
+                "SELECT sql FROM sqlite_master WHERE tbl_name='bunnies' "
+                "AND type IN ('index','trigger') AND sql IS NOT NULL"
+            )
+        ]
+        db_extras_tracking_log = [
+            record[0] for record in settings.DATABASE.execute(
+                "SELECT sql FROM sqlite_master WHERE tbl_name='tracking_log' "
+                "AND type IN ('index','trigger') AND sql IS NOT NULL"
+            )
+        ]
+        db_columns_users = [record[1] for record in settings.DATABASE.execute("PRAGMA table_info(users)")]
+
+        try:
+            settings.DATABASE.execute("BEGIN")
+
+            # Migrate table "users"
+            new_sql_users = re.sub(r'^CREATE TABLE\s+\S+', 'CREATE TABLE users_new', db_create_users_sql, flags=re.IGNORECASE)
+            new_sql_users, number_of_replacements = re.subn(r'\buser_id\b.+?\b,', 'user_id_hash TEXT UNIQUE PRIMARY KEY NOT NULL, user_id_token BLOB NOT NULL,',
+                                                            new_sql_users, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column user_id not found in table 'users', check db_create_users_sql")
+            settings.DATABASE.execute(new_sql_users)
+
+            insert_columns = ", ".join(column for column in db_columns_users).replace('user_id,', 'user_id_hash, user_id_token,')
+            select_columns = ", ".join(column for column in db_columns_users).replace('user_id,', 'uid_hash(user_id), uid_token(user_id),')
+            settings.DATABASE.execute(f"INSERT INTO users_new ({insert_columns}) SELECT {select_columns} FROM users")
+
+            user_count_old = settings.DATABASE.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+            user_count_new = settings.DATABASE.execute("SELECT COUNT(*) FROM users_new").fetchone()[0]
+            if user_count_old != user_count_new:
+                raise Exception(f"Row count mismatch: Found {user_count_old} old users, but only migrated {user_count_new} users.")
+
+            settings.DATABASE.execute("DROP TABLE users")
+            settings.DATABASE.execute("ALTER TABLE users_new RENAME TO users")
+
+            for sql in db_extras_users:
+                settings.DATABASE.execute(sql.replace('user_id', 'user_id_hash'))
+
+
+            # Migrate table "reminders"
+            new_sql_reminders = re.sub(r'^CREATE TABLE\s+\S+', 'CREATE TABLE reminders_new', db_create_reminders_sql, flags=re.IGNORECASE)
+            new_sql_reminders, number_of_replacements = re.subn(r'\buser_id\b\s+INTEGER\b', 'user_id_hash TEXT',
+                                                            new_sql_reminders, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column user_id not found in table 'reminders', check db_create_reminders_sql")
+            new_sql_reminders, number_of_replacements = re.subn(r'\buser_id\b,', 'user_id_hash,',
+                                                            new_sql_reminders, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column user_id not found in table 'reminders', check db_create_reminders_sql")
+            settings.DATABASE.execute(new_sql_reminders)
+
+            insert_columns = "user_id_hash, activity, channel_id, end_time, message, triggered, custom_id"
+            select_columns = "uid_hash(user_id), activity, channel_id, end_time, message, triggered, custom_id"
+            settings.DATABASE.execute(f"INSERT INTO reminders_new ({insert_columns}) SELECT {select_columns} FROM reminders")
+
+            reminders_count_old = settings.DATABASE.execute("SELECT COUNT(*) FROM reminders").fetchone()[0]
+            reminders_count_new = settings.DATABASE.execute("SELECT COUNT(*) FROM reminders_new").fetchone()[0]
+            if reminders_count_old != reminders_count_new:
+                raise Exception(f"Row count mismatch: Found {reminders_count_old} old reminders, but only migrated {reminders_count_new} reminders.")
+
+            settings.DATABASE.execute("DROP TABLE reminders")
+            settings.DATABASE.execute("ALTER TABLE reminders_new RENAME TO reminders")
+
+            for sql in db_extras_reminders:
+                settings.DATABASE.execute(sql.replace('user_id', 'user_id_hash'))
+                
+
+            # Migrate table "bunnies"
+            new_sql_bunnies = re.sub(r'^CREATE TABLE\s+\S+', 'CREATE TABLE bunnies_new', db_create_bunnies_sql, flags=re.IGNORECASE)
+            new_sql_bunnies, number_of_replacements = re.subn(r'\buser_id\b\s+INTEGER\b', 'user_id_hash TEXT',
+                                                            new_sql_bunnies, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column user_id not found in table 'bunnies', check db_create_bunnies_sql")
+            settings.DATABASE.execute(new_sql_bunnies)
+
+            insert_columns = "user_id_hash, name, fertility, epicness"
+            select_columns = "uid_hash(user_id), name, fertility, epicness"
+            settings.DATABASE.execute(f"INSERT INTO bunnies_new ({insert_columns}) SELECT {select_columns} FROM bunnies")
+
+            bunnies_count_old = settings.DATABASE.execute("SELECT COUNT(*) FROM bunnies").fetchone()[0]
+            bunnies_count_new = settings.DATABASE.execute("SELECT COUNT(*) FROM bunnies_new").fetchone()[0]
+            if bunnies_count_old != bunnies_count_new:
+                raise Exception(f"Row count mismatch: Found {bunnies_count_old} old bunnies, but only migrated {bunnies_count_new} bunnies.")
+
+            settings.DATABASE.execute("DROP TABLE bunnies")
+            settings.DATABASE.execute("ALTER TABLE bunnies_new RENAME TO bunnies")
+
+            for sql in db_extras_bunnies:
+                settings.DATABASE.execute(sql.replace('user_id', 'user_id_hash'))
+                
+            
+            # Migrate table "tracking_log"
+            new_sql_tracking_log = re.sub(r'^CREATE TABLE\s+\S+', 'CREATE TABLE tracking_log_new', db_create_tracking_log_sql, flags=re.IGNORECASE)
+            new_sql_tracking_log, number_of_replacements = re.subn(r'\buser_id\b\s+INTEGER\b', 'user_id_hash TEXT',
+                                                            new_sql_tracking_log, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column user_id not found in table 'tracking_log', check db_create_tracking_log_sql")
+            new_sql_tracking_log, number_of_replacements = re.subn(r'\bguild_id\b.+?,', '',
+                                                            new_sql_tracking_log, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column guild_id not found in table 'tracking_log', check db_create_tracking_log_sql")
+            settings.DATABASE.execute(new_sql_tracking_log)
+
+            insert_columns = "user_id_hash, command_or_drop, amount, date_time, type"
+            select_columns = "uid_hash(user_id), command_or_drop, amount, date_time, type"
+            settings.DATABASE.execute(f"INSERT INTO tracking_log_new ({insert_columns}) SELECT {select_columns} FROM tracking_log")
+
+            tracking_log_count_old = settings.DATABASE.execute("SELECT COUNT(*) FROM tracking_log").fetchone()[0]
+            tracking_log_count_new = settings.DATABASE.execute("SELECT COUNT(*) FROM tracking_log_new").fetchone()[0]
+            if tracking_log_count_old != tracking_log_count_new:
+                raise Exception(f"Row count mismatch: Found {tracking_log_count_old} old tracking records, but only migrated {tracking_log_count_new} tracking records.")
+
+            settings.DATABASE.execute("DROP TABLE tracking_log")
+            settings.DATABASE.execute("ALTER TABLE tracking_log_new RENAME TO tracking_log")
+
+            for sql in db_extras_tracking_log:
+                settings.DATABASE.execute(sql.replace('user_id', 'user_id_hash'))
+
+
+            # Commit
+            settings.DATABASE.execute("COMMIT")
+            settings.DATABASE.execute("VACUUM")
+            answer = f'Done.'
+        except Exception as error:
+            settings.DATABASE.execute("ROLLBACK")
+            answer = f'Migration failed:\n```{str(error)}```'
+
+        await ctx.respond(answer)
 
 
 def setup(bot):

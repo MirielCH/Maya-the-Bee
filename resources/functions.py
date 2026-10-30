@@ -2,7 +2,10 @@
 
 import asyncio
 from collections import deque
+from cryptography.fernet import Fernet
 from datetime import timedelta
+import hashlib
+import hmac
 from math import floor
 import random
 import re
@@ -96,6 +99,19 @@ async def get_match_from_patterns(patterns: List[str], string: str) -> re.Match:
         match = re.search(pattern, string, re.IGNORECASE)
         if match: break
     return match
+
+
+# --- Encryption ---
+def create_hash(value: Any) -> str:
+    return hmac.new(settings.HMAC_KEY, str(value).encode(), hashlib.sha256).hexdigest()
+
+def encrypt(value: Any) -> bytes:
+    f = Fernet(settings.FERNET_KEY)
+    return f.encrypt(str(value).encode())
+
+def decrypt(value: bytes) -> str:
+    f = Fernet(settings.FERNET_KEY)
+    return f.decrypt(value).decode()
 
 
 # --- Time calculations ---

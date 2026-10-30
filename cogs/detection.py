@@ -323,6 +323,8 @@ async def check_edited_message_always_allowed(message_before: discord.Message,
         return True
     search_strings = [
         'contributing on defeating the spooky biome hives!', #English
+        '**afterlife**', #English
+        'soldiers! never mind', #English
     ]
     if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
         return True

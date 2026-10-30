@@ -4,7 +4,7 @@ This policy is effective as of 10 March 2023 and was last updated on 27 October 
 
 ## User information the bot collects
 
-Maya uses user IDs and server IDs to store settings. All IDs are encrypted before they are stored in the database.  
+Maya uses user IDs to store settings and tracked data. All user IDs are encrypted before they are stored in the database.  
 Maya does neither collect nor store any other personal user data.  
 
 ## Command tracking

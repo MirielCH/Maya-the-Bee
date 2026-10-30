@@ -74,7 +74,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         dropped_nuggets = {}
         current_time = utils.utcnow().replace(microsecond=0)
         if user_settings.tracking_enabled:
-            await tracking.insert_log_entry(user.id, message.guild.id, 'prune', current_time)
+            await tracking.insert_log_entry(user.id, 'prune', current_time)
         nugget_wooden_match = re.search(r'wood_3:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_copper_match = re.search(r'copper_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_silver_match = re.search(r'silver_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
@@ -85,42 +85,42 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         if nugget_wooden_match:
             nugget_wooden_amount = get_amount(nugget_wooden_match.group(1))
             if user_settings.tracking_enabled:
-                await tracking.insert_log_entry(user.id, message.guild.id, 'wooden-nugget', current_time,
+                await tracking.insert_log_entry(user.id, 'wooden-nugget', current_time,
                                                 nugget_wooden_amount)
             dropped_nuggets['Wooden'] = nugget_wooden_amount
         if nugget_copper_match:
             nugget_copper_amount = get_amount(nugget_copper_match.group(1))
             if user_settings.tracking_enabled:
-                await tracking.insert_log_entry(user.id, message.guild.id, 'copper-nugget', current_time,
+                await tracking.insert_log_entry(user.id, 'copper-nugget', current_time,
                                                 nugget_copper_amount)
             dropped_nuggets['Copper'] = nugget_copper_amount
         if nugget_silver_match:
             nugget_silver_amount = get_amount(nugget_silver_match.group(1))
             if user_settings.tracking_enabled:
-                await tracking.insert_log_entry(user.id, message.guild.id, 'silver-nugget', current_time,
+                await tracking.insert_log_entry(user.id, 'silver-nugget', current_time,
                                                 nugget_silver_amount)
             dropped_nuggets['Silver'] = nugget_silver_amount
         if nugget_golden_match:
             nugget_golden_amount = get_amount(nugget_golden_match.group(1))
             if user_settings.tracking_enabled:
-                await tracking.insert_log_entry(user.id, message.guild.id, 'golden-nugget', current_time,
+                await tracking.insert_log_entry(user.id, 'golden-nugget', current_time,
                                                 nugget_golden_amount)
             dropped_nuggets['Golden'] = nugget_golden_amount
         if nugget_diamond_match:
             nugget_diamond_amount = get_amount(nugget_diamond_match.group(1))
             if user_settings.tracking_enabled:
-                await tracking.insert_log_entry(user.id, message.guild.id, 'diamond-nugget', current_time,
+                await tracking.insert_log_entry(user.id, 'diamond-nugget', current_time,
                                                 nugget_diamond_amount)
             dropped_nuggets['Diamond'] = nugget_diamond_amount
         if bee_bread_match:
             bee_bread_amount = get_amount(bee_bread_match.group(1))
             if user_settings.tracking_enabled:
-                await tracking.insert_log_entry(user.id, message.guild.id, 'bee-bread', current_time,
+                await tracking.insert_log_entry(user.id, 'bee-bread', current_time,
                                                 bee_bread_amount)
         if royal_jelly_match:
             royal_jelly_amount = get_amount(royal_jelly_match.group(1))
             if user_settings.tracking_enabled:
-                await tracking.insert_log_entry(user.id, message.guild.id, 'royal-jelly', current_time,
+                await tracking.insert_log_entry(user.id, 'royal-jelly', current_time,
                                                 royal_jelly_amount)
         if user_settings.reminder_prune.enabled or user_settings.ready_show_prune:
             user_command = await functions.get_game_command(user_settings, 'prune')

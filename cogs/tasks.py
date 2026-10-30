@@ -37,7 +37,7 @@ class TasksCog(commands.Cog):
         try:
             channel = await functions.get_discord_channel(self.bot, first_reminder.channel_id)
             if channel is None: return
-            user = await functions.get_discord_user(self.bot, first_reminder.user_id)
+            user = await functions.get_discord_user(self.bot, user_id=first_reminder.user_id)
             user_settings = await users.get_user(user.id)            
             message_no = 1
             messages = {message_no: ('', '')}
@@ -172,16 +172,16 @@ class TasksCog(commands.Cog):
             entries = {}
             for log_entry in old_log_entries:
                 date_time = log_entry.date_time.replace(hour=23, minute=59, second=59, microsecond=999999)
-                key = (log_entry.user_id, log_entry.guild_id, log_entry.command_or_drop, date_time)
+                key = (log_entry.user_id, log_entry.command_or_drop, date_time)
                 amount = entries.get(key, 0)
                 entries[key] = amount + 1
                 log_entry_count += 1
             for key, amount in entries.items():
-                user_id, guild_id, command, date_time = key
-                summary_log_entry = await tracking.insert_log_summary(user_id, guild_id, command, date_time, amount)
+                user_id, command, date_time = key
+                summary_log_entry = await tracking.insert_log_summary(user_id, command, date_time, amount)
                 date_time_min = date_time.replace(hour=0, minute=0, second=0, microsecond=0)
                 date_time_max = date_time.replace(hour=23, minute=59, second=59, microsecond=999999)
-                await tracking.delete_log_entries(user_id, guild_id, command, date_time_min, date_time_max)
+                await tracking.delete_log_entries(user_id, command, date_time_min, date_time_max)
                 await asyncio.sleep(0.01)
             cur = settings.DATABASE.cursor()
             date_time = utils.utcnow() - timedelta(days=366)

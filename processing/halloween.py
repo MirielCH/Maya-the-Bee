@@ -90,7 +90,7 @@ async def create_reminder_from_afterlife_attack(message: discord.Message, embed_
     add_reaction = False
     search_strings = [
         'contributing on defeating the spooky biome hives!', #English
-        'soldiers! Never mind', #English
+        'soldiers! never mind', #English
     ]
     if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
         if user is None:
@@ -99,7 +99,7 @@ async def create_reminder_from_afterlife_attack(message: discord.Message, embed_
             )
             user = user_command_message.author
         if user_settings is None:
-            try: 
+            try:
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction

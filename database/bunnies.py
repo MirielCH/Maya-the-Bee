@@ -6,7 +6,7 @@ import sqlite3
 from typing import Tuple
 
 from database import errors
-from resources import exceptions, settings, strings
+from resources import exceptions, functions, settings, strings
 
 
 # Containers
@@ -65,7 +65,7 @@ class Bunny():
 
 
 # Miscellaneous functions
-async def _dict_to_bunny(record: dict) -> Bunny:
+async def _dict_to_bunny(record: dict, user_id: int) -> Bunny:
     """Creates a Bunny object from a database record
 
     Arguments
@@ -86,7 +86,7 @@ async def _dict_to_bunny(record: dict) -> Bunny:
             epicness = record['epicness'],
             fertility = record['fertility'],
             name = record['name'],
-            user_id = record['user_id'],
+            user_id = user_id,
             record_exists = True,
         )
     except Exception as error:
@@ -120,10 +120,10 @@ async def get_bunny(user_id: int, name: str) -> Bunny:
     """
     table = 'bunnies'
     function_name = 'get_bunny'
-    sql = f'SELECT * FROM {table} WHERE user_id=? AND name=?'
+    sql = f'SELECT * FROM {table} WHERE user_id_hash=? AND name=?'
     try:
         cur = settings.DATABASE.cursor()
-        cur.execute(sql, (user_id, name))
+        cur.execute(sql, (functions.create_hash(user_id), name))
         record = cur.fetchone()
     except sqlite3.Error as error:
         await errors.log_error(
@@ -134,7 +134,7 @@ async def get_bunny(user_id: int, name: str) -> Bunny:
         raise exceptions.NoDataFoundError(
             f'No bunny data found in database for user "{user_id}" and name "{name}".'
         )
-    bunny = await _dict_to_bunny(dict(record))
+    bunny = await _dict_to_bunny(dict(record), user_id)
 
     return bunny
 
@@ -159,10 +159,10 @@ async def get_bunnies_by_user_id(user_id: int) -> Tuple[Bunny]:
     """
     table = 'bunnies'
     function_name = 'get_bunnies_by_user_id'
-    sql = f'SELECT * FROM {table} WHERE user_id=? ORDER BY epicness ASC, fertility ASC'
+    sql = f'SELECT * FROM {table} WHERE user_id_hash=? ORDER BY epicness ASC, fertility ASC'
     try:
         cur = settings.DATABASE.cursor()
-        cur.execute(sql, (user_id,))
+        cur.execute(sql, (functions.create_hash(user_id),))
         records = cur.fetchall()
     except sqlite3.Error as error:
         await errors.log_error(
@@ -176,7 +176,7 @@ async def get_bunnies_by_user_id(user_id: int) -> Tuple[Bunny]:
         raise exceptions.NoDataFoundError(error_message)
     bunnies = []
     for record in records:
-        bunny = await _dict_to_bunny(dict(record))
+        bunny = await _dict_to_bunny(dict(record), user_id)
         bunnies.append(bunny)
 
     return tuple(bunnies)
@@ -194,10 +194,10 @@ async def _delete_bunny(bunny: Bunny) -> None:
     """
     function_name = '_delete_bunny'
     table = 'bunnies'
-    sql = f'DELETE FROM {table} WHERE user_id=? AND name=?'
+    sql = f'DELETE FROM {table} WHERE user_id_hash=? AND name=?'
     try:
         cur = settings.DATABASE.cursor()
-        cur.execute(sql, (bunny.user_id, bunny.name,))
+        cur.execute(sql, (functions.create_hash(bunny.user_id), bunny.name,))
     except sqlite3.Error as error:
         await errors.log_error(
             strings.INTERNAL_ERROR_SQLITE3.format(error=error, table=table, function=function_name, sql=sql)
@@ -236,9 +236,9 @@ async def _update_bunny(bunny: Bunny, **kwargs) -> None:
         for kwarg in kwargs:
             sql = f'{sql} {kwarg} = :{kwarg},'
         sql = sql.strip(",")
-        kwargs['user_id_old'] = bunny.user_id
+        kwargs['user_id_hash_old'] = functions.create_hash(bunny.user_id)
         kwargs['name_old'] = bunny.name
-        sql = f'{sql} WHERE user_id = :user_id_old AND name = :name_old'
+        sql = f'{sql} WHERE user_id_hash = :user_id_hash_old AND name = :name_old'
         cur.execute(sql, kwargs)
     except sqlite3.Error as error:
         await errors.log_error(
@@ -279,10 +279,10 @@ async def insert_bunny(user_id: int, name: str, epicness: int, fertility: int) -
         await bunny.update(epicness=epicness, fertility=fertility)
     else:
         sql = (
-            f'INSERT INTO {table} (user_id, name, fertility, epicness) VALUES (?, ?, ?, ?)'
+            f'INSERT INTO {table} (user_id_hash, name, fertility, epicness) VALUES (?, ?, ?, ?)'
         )
         try:
-            cur.execute(sql, (user_id, name, fertility, epicness))
+            cur.execute(sql, (functions.create_hash(user_id), name, fertility, epicness))
         except sqlite3.Error as error:
             await errors.log_error(
                 strings.INTERNAL_ERROR_SQLITE3.format(error=error, table=table, function=function_name, sql=sql)

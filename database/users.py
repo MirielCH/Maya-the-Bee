@@ -4,10 +4,10 @@
 from dataclasses import dataclass
 from datetime import datetime
 import sqlite3
-from typing import NamedTuple, Tuple
+from typing import NamedTuple
 
 from database import errors
-from resources import exceptions, settings, strings
+from resources import exceptions, functions, settings, strings
 from resources.enums import ReadyPopupMode
 
 
@@ -265,7 +265,7 @@ class User():
 
 
 # Miscellaneous functions
-async def _dict_to_user(record: dict) -> User:
+async def _dict_to_user(record: dict, user_id: int | None = None) -> User:
     """Creates a User object from a database record
 
     Arguments
@@ -282,6 +282,15 @@ async def _dict_to_user(record: dict) -> User:
     """
     function_name = '_dict_to_user'
     try:
+        user_id_db = int(functions.decrypt(record['user_id_token']))
+        if user_id:
+            if user_id != user_id_db:
+                sql = 'UPDATE users SET user_id_token = ? WHERE user_id_hash = ?'
+                cur = settings.DATABASE.cursor()
+                cur.execute(sql, (functions.encrypt(user_id), record['user_id_hash']))
+        else:
+            user_id = user_id_db
+            
         user = User(
             alert_captcha_dm = bool(record['alert_captcha_dm']),
             alert_captcha_enabled = bool(record['alert_captcha_enabled']),
@@ -369,7 +378,7 @@ async def _dict_to_user(record: dict) -> User:
             xp_gain_average = float(record['xp_gain_average']),
             xp_prune_count = record['xp_prune_count'],
             xp_target = record['xp_target'],
-            user_id = record['user_id'],
+            user_id = user_id,
         )
     except Exception as error:
         await errors.log_error(
@@ -397,10 +406,10 @@ async def get_user(user_id: int) -> User:
     """
     table = 'users'
     function_name = 'get_user'
-    sql = f'SELECT * FROM {table} WHERE user_id=?'
+    sql = f'SELECT * FROM {table} WHERE user_id_hash=?'
     try:
         cur = settings.DATABASE.cursor()
-        cur.execute(sql, (user_id,))
+        cur.execute(sql, (functions.create_hash(user_id),))
         record = cur.fetchone()
     except sqlite3.Error as error:
         await errors.log_error(
@@ -409,45 +418,9 @@ async def get_user(user_id: int) -> User:
         raise
     if not record:
         raise exceptions.FirstTimeUserError(f'No user data found in database for user "{user_id}".')
-    user = await _dict_to_user(dict(record))
+    user = await _dict_to_user(dict(record), user_id)
 
     return user
-
-
-async def get_all_users() -> Tuple[User]:
-    """Gets all user settings of all users.
-
-    Returns
-    -------
-    Tuple with User objects
-
-    Raises
-    ------
-    sqlite3.Error if something happened within the database.
-    exceptions.NoDataFoundError if no guild was found.
-    LookupError if something goes wrong reading the dict.
-    Also logs all errors to the database.
-    """
-    table = 'users'
-    function_name = 'get_all_users'
-    sql = f'SELECT * FROM {table}'
-    try:
-        cur = settings.DATABASE.cursor()
-        cur.execute(sql)
-        records = cur.fetchall()
-    except sqlite3.Error as error:
-        await errors.log_error(
-            strings.INTERNAL_ERROR_SQLITE3.format(error=error, table=table, function=function_name, sql=sql)
-        )
-        raise
-    if not records:
-        raise exceptions.FirstTimeUserError(f'No user data found in database (how likely is that).')
-    users = []
-    for record in records:
-        user = await _dict_to_user(dict(record))
-        users.append(user)
-
-    return tuple(users)
 
 
 async def get_user_count() -> int:
@@ -463,7 +436,7 @@ async def get_user_count() -> int:
     """
     table = 'users'
     function_name = 'get_user_count'
-    sql = f'SELECT COUNT(user_id) FROM {table}'
+    sql = f'SELECT COUNT(user_id_hash) FROM {table}'
     try:
         cur = settings.DATABASE.cursor()
         cur.execute(sql)
@@ -599,12 +572,9 @@ async def _update_user(user: User, **kwargs) -> None:
         for kwarg in kwargs:
             sql = f'{sql} {kwarg} = :{kwarg},'
         sql = sql.strip(",")
-        kwargs['user_id'] = user.user_id
-        sql = f'{sql} WHERE user_id = :user_id'
+        kwargs['user_id_hash'] = functions.create_hash(user.user_id)
+        sql = f'{sql} WHERE user_id_hash = :user_id_hash'
         cur.execute(sql, kwargs)
-        if 'user_donor_tier' in kwargs and user.partner_id is not None:
-            partner = await get_user(user.partner_id)
-            await partner.update(partner_donor_tier=kwargs['user_donor_tier'])
     except sqlite3.Error as error:
         await errors.log_error(
             strings.INTERNAL_ERROR_SQLITE3.format(error=error, table=table, function=function_name, sql=sql)
@@ -627,11 +597,11 @@ async def insert_user(user_id: int) -> User:
     function_name = 'insert_user'
     table = 'users'
     columns = ''
-    values = [user_id,]
+    values = [functions.create_hash(user_id), functions.encrypt(user_id)]
     for activity, default_message in strings.DEFAULT_MESSAGES.items():
         columns = f'{columns},{strings.ACTIVITIES_COLUMNS[activity]}_message'
         values.append(default_message)
-    sql = f'INSERT INTO {table} (user_id{columns}) VALUES ('
+    sql = f'INSERT INTO {table} (user_id_hash, user_id_token{columns}) VALUES ('
     for value in values:
         sql = f'{sql}?,'
     sql = f'{sql.strip(",")})'
