@@ -373,6 +373,7 @@ class SettingsReadyListView(discord.ui.DesignerView):
         }
         toggled_settings_other = {
             'Ready to rebirth': 'ready_show_rebirth',
+            'No item brewing': 'ready_show_produce',
         }
 
         self.add_item(discord.ui.ActionRow(components.ManageReadyPopupModeSelect(self)))
@@ -436,6 +437,7 @@ class SettingsRemindersView(discord.ui.DesignerView):
             'Hive Energy': 'reminder_hive_energy_enabled',
             'Larva Growing': 'reminder_larva_enabled',
             'Incubator Upgrade': 'reminder_incubator_upgrade_enabled',
+            'Produce': 'reminder_produce_enabled',
             'Prune': 'reminder_prune_enabled',
             'Pruner Research': 'reminder_research_enabled',
             'Pruner Upgrade': 'reminder_upgrade_enabled',

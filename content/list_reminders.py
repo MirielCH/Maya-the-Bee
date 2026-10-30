@@ -56,7 +56,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
     reminders_chests_list = []
     reminders_quests_list = []
     reminders_incubator_list = []
-    reminders_tool_list = []
+    reminders_lab_list = []
     reminders_boosts_list = []
     reminders_custom_list = []
     for reminder in user_reminders:
@@ -79,8 +79,8 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             reminders_incubator_list.append(reminder)
         elif reminder.activity.startswith('quest'):
             reminders_quests_list.append(reminder)
-        elif reminder.activity in strings.ACTIVITIES_TOOL:
-            reminders_tool_list.append(reminder)
+        elif reminder.activity in strings.ACTIVITIES_LABORATORY:
+            reminders_lab_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_BOOSTS:
             if not user_settings.reminder_boosts.enabled: continue
             reminders_boosts_list.append(reminder)
@@ -191,10 +191,10 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 f'{field_incubator_reminders}\n'
                 f'{emoji} **{activity}** • {reminder_time}'
             )
-        embed.add_field(name='Incubator', value=field_incubator_reminders.strip(), inline=False)
-    if reminders_tool_list:
-        field_tool_reminders = ''
-        for reminder in reminders_tool_list:
+        embed.add_field(name=f'Incubator {emojis.INCUBATOR}', value=field_incubator_reminders.strip(), inline=False)
+    if reminders_lab_list:
+        field_lab_reminders = ''
+        for reminder in reminders_lab_list:
             if show_timestamps:
                 flag = 'T' if reminder.end_time.day == current_time.day else 'f'
                 reminder_time = utils.format_dt(reminder.end_time, style=flag)
@@ -202,16 +202,20 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
                 reminder_time = f'**`{timestring}`**'
-            activity = reminder.activity.replace('pruner-','').replace('-',' ').title()
-            field_tool_reminders = (
-                f'{field_tool_reminders}\n'
-                f'{emojis.LABORATORY} **{activity}** • {reminder_time}'
+            activity_emoji = ''
+            if reminder.activity.startswith('pruner') and user_settings.pruner_type is not None:
+                activity_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
+            elif reminder.activity.startswith('produce'):
+                produce_emoji_match = re.search(r'<:(.+?)>', reminder.message)
+                if produce_emoji_match:
+                    activity_emoji = f'<:{produce_emoji_match.group(1)}>'
+            activity = reminder.activity.replace('-',' ').title()
+            if not activity_emoji: activity_emoji = emojis.BP
+            field_lab_reminders = (
+                f'{field_lab_reminders}\n'
+                f'{activity_emoji} **{activity}** • {reminder_time}'
             )
-        if user_settings.pruner_type is not None:
-            pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
-        else:
-            pruner_emoji = ''
-        embed.add_field(name=f'Pruner {pruner_emoji}', value=field_tool_reminders.strip(), inline=False)
+        embed.add_field(name=f'Laboratory {emojis.LABORATORY}', value=field_lab_reminders.strip(), inline=False)
     if reminders_boosts_list:
         field_boosts_reminders = ''
         for reminder in reminders_boosts_list:

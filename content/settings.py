@@ -513,6 +513,7 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
     )
     other = (
         f'{emojis.BP} **Ready to rebirth**: {await functions.bool_to_text(user_settings.ready_show_rebirth)}\n'
+        f'{emojis.BP} **No item brewing**: {await functions.bool_to_text(user_settings.ready_show_produce)}\n'
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
@@ -542,6 +543,7 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
     command_reminders2 = (
         f'{emojis.BP} **Incubator Upgrade**: {await functions.bool_to_text(user_settings.reminder_incubator_upgrade.enabled)}\n'
         f'{emojis.BP} **Larva Growing**: {await functions.bool_to_text(user_settings.reminder_larva.enabled)}\n'
+        f'{emojis.BP} **Produce**: {await functions.bool_to_text(user_settings.reminder_produce.enabled)}\n'
         f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.reminder_prune.enabled)}\n'
         f'{emojis.BP} **Pruner Research**: {await functions.bool_to_text(user_settings.reminder_research.enabled)}\n'
         f'{emojis.BP} **Pruner Upgrade**: {await functions.bool_to_text(user_settings.reminder_upgrade.enabled)}\n'

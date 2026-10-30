@@ -747,6 +747,7 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
     except:
         active_reminders = []
 
+    produce_reminder_active = False
     for reminder in active_reminders:
         if reminder.end_time < current_time: continue
         if reminder.activity in commands_ready:
@@ -759,6 +760,8 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             quests_ready.remove(reminder.activity)
         elif reminder.activity in pruner_ready:
             pruner_ready.remove(reminder.activity)
+        elif reminder.activity.startswith('produce'):
+            produce_reminder_active = True
 
     ready_list = ''
 
@@ -802,6 +805,8 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             if user_settings.incubator_slots_empty > 0:
                 ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["incubator show"]}: {user_settings.incubator_slots_empty} slots empty'
 
+    if not produce_reminder_active and user_settings.ready_show_produce:
+        ready_list = f'{ready_list}\n- No produce brewing in {strings.SLASH_COMMANDS["laboratory"]}'
     if user_settings.rebirth <= 10:
         level_target = 5 + user_settings.rebirth
     else:
