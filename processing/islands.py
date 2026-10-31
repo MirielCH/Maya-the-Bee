@@ -37,7 +37,7 @@ async def create_travel_reminder(message: discord.Message, embed_data: Dict, tex
     add_reaction = False
     search_strings = [
         'travels', #English
-        'traveling', #English
+        'currently at', #English
     ]
     if all(any(search_string in text_display.lower() for text_display in text_displays) for search_string in search_strings):
         if interaction_user is None:
@@ -58,7 +58,7 @@ async def create_travel_reminder(message: discord.Message, embed_data: Dict, tex
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
-        if not user_settings.reminder_island_travel.enabled: return add_reaction
+        if not user_settings.reminder_island_travel.enabled and not user_settings.ready_show_location: return add_reaction
 
         
         island_name = island_emoji = ''
@@ -71,23 +71,34 @@ async def create_travel_reminder(message: discord.Message, embed_data: Dict, tex
                         if island_name_match:
                             island_name = island_name_match.group(1)
                             island_emoji = strings.ISLAND_EMOJIS.get(island_name, '')
+                            await user_settings.update(current_location=island_name)
+                            if user_settings.reactions_enabled: add_reaction = True
                     if 'traveling' in line:
                         timestring_match = re.search(r'`(.+?)`', line)
                         if not timestring_match: return add_reaction
                         time_left = await functions.parse_timestring_to_timedelta(timestring_match.group(1))
+            if 'idle' in text_display.lower():
+                for line in text_display.lower().split('\n'):
+                    if 'currently at' in line:
+                        island_name_match = re.search(r'\*\*\s+\*\*(.+?)\*\*', line)
+                        if island_name_match:
+                            island_name = island_name_match.group(1)
+                            await user_settings.update(current_location=island_name)
+                            if user_settings.reactions_enabled: add_reaction = True
 
         if time_left <= timedelta(seconds=1): return add_reaction
-        user_command = await functions.get_game_command(user_settings, 'island travel')
-        reminder_message = (
-            user_settings.reminder_island_travel.message
-            .replace('{command}', user_command)
-            .replace('{island_name}', island_name)
-            .replace('{island_emoji}', island_emoji)
-        ).strip()
-        reminder: reminders.Reminder = (
-            await reminders.insert_reminder(interaction_user.id, 'island-travel', time_left,
-                                            message.channel.id, reminder_message)
-        )
-        if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+        if user_settings.reminder_island_travel.enabled:
+            user_command = await functions.get_game_command(user_settings, 'island travel')
+            reminder_message = (
+                user_settings.reminder_island_travel.message
+                .replace('{command}', user_command)
+                .replace('{island_name}', island_name)
+                .replace('{island_emoji}', island_emoji)
+            ).strip()
+            reminder: reminders.Reminder = (
+                await reminders.insert_reminder(interaction_user.id, 'island-travel', time_left,
+                                                message.channel.id, reminder_message)
+            )
+            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
             
     return add_reaction

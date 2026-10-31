@@ -144,11 +144,6 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
         use = f'{emojis.ENABLED} All done!'
     
     sell = ''
-    if wooden_nuggets > 0 and not miri_mode:
-        sell = (
-            f'{sell}\n'
-            f'{emojis.WOOD} {strings.SLASH_COMMANDS["sell"]} `all` wooden nuggets'
-        )
     if copper_nuggets > 0 and not miri_mode:
         sell = (
             f'{sell}\n'

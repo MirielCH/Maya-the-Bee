@@ -375,6 +375,7 @@ class SettingsReadyListView(discord.ui.DesignerView):
             'No item brewing': 'ready_show_produce',
             'Laboratory power': 'ready_show_lab_power',
             'Ready to rebirth': 'ready_show_rebirth',
+            'Ship location': 'ready_show_location',
         }
 
         self.add_item(discord.ui.ActionRow(components.ManageReadyPopupModeSelect(self)))

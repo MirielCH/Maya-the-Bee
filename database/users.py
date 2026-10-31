@@ -31,6 +31,7 @@ class User():
     chests_in_queue: int
     chests_slots_empty: int
     chests_slots_ready: int
+    current_location: str
     dnd_mode_enabled: bool
     donor_tier: int
     helper_bunny_enabled: bool
@@ -60,6 +61,7 @@ class User():
     ready_show_hive_energy: bool
     ready_show_incubator: bool
     ready_show_lab_power: bool
+    ready_show_location: bool
     ready_show_produce: bool
     ready_show_prune: bool
     ready_show_pruner: bool
@@ -123,6 +125,7 @@ class User():
         self.chests_in_queue = new_settings.chests_in_queue
         self.chests_slots_empty = new_settings.chests_slots_empty
         self.chests_slots_ready = new_settings.chests_slots_ready
+        self.current_location = new_settings.current_location
         self.dnd_mode_enabled = new_settings.dnd_mode_enabled
         self.donor_tier = new_settings.donor_tier
         self.helper_bunny_enabled = new_settings.helper_bunny_enabled
@@ -152,6 +155,7 @@ class User():
         self.ready_show_hive_energy = new_settings.ready_show_hive_energy
         self.ready_show_incubator = new_settings.ready_show_incubator
         self.ready_show_lab_power = new_settings.ready_show_lab_power
+        self.ready_show_location = new_settings.ready_show_location
         self.ready_show_produce = new_settings.ready_show_produce
         self.ready_show_prune = new_settings.ready_show_prune
         self.ready_show_pruner = new_settings.ready_show_pruner
@@ -207,6 +211,7 @@ class User():
             chests_in_queue: int
             chests_slots_empty: int
             chests_slots_ready: int
+            current_location: str
             dnd_mode_enabled: bool
             donor_tier: int
             helper_bunny_enabled: bool
@@ -236,6 +241,7 @@ class User():
             ready_show_hive_energy: bool
             ready_show_incubator: bool
             ready_show_lab_power: bool
+            ready_show_location: bool
             ready_show_produce: bool
             ready_show_prune: bool
             ready_show_pruner: bool
@@ -335,6 +341,7 @@ async def _dict_to_user(record: dict, user_id: int | None = None) -> User:
             chests_in_queue = record['chests_in_queue'],
             chests_slots_empty = record['chests_slots_empty'],
             chests_slots_ready = record['chests_slots_ready'],
+            current_location = record['current_location'],
             dnd_mode_enabled = bool(record['dnd_mode_enabled']),
             donor_tier = record['donor_tier'],
             last_bunny_update = datetime.fromisoformat(record['last_bunny_update']) if record['last_bunny_update'] is not None else None,
@@ -364,6 +371,7 @@ async def _dict_to_user(record: dict, user_id: int | None = None) -> User:
             ready_show_hive_energy = bool(record['ready_show_hive_energy']),
             ready_show_incubator = bool(record['ready_show_incubator']),
             ready_show_lab_power =bool(record['ready_show_lab_power']),
+            ready_show_location =bool(record['ready_show_location']),
             ready_show_produce = bool(record['ready_show_produce']),
             ready_show_prune = bool(record['ready_show_prune']),
             ready_show_pruner = bool(record['ready_show_pruner']),
@@ -512,6 +520,7 @@ async def _update_user(user: User, **kwargs) -> None:
         chests_in_queue: int
         chests_slots_empty: int
         chests_slots_ready: int
+        current_location: str
         dnd_mode_enabled: bool
         donor_tier: int
         helper_bunny_enabled: bool
@@ -547,6 +556,7 @@ async def _update_user(user: User, **kwargs) -> None:
         ready_show_hive_energy: bool
         ready_show_incubator: bool
         ready_show_lab_power: bool
+        ready_show_location: bool
         ready_show_produce: bool
         ready_show_prune: bool
         ready_show_pruner: bool

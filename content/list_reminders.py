@@ -57,6 +57,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
     reminders_quests_list = []
     reminders_incubator_list = []
     reminders_lab_list = []
+    reminder_island_travel = None
     reminders_boosts_list = []
     reminders_custom_list = []
     for reminder in user_reminders:
@@ -79,6 +80,8 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             reminders_incubator_list.append(reminder)
         elif reminder.activity.startswith('quest'):
             reminders_quests_list.append(reminder)
+        elif reminder.activity.startswith('island-travel'):
+            reminder_island_travel = reminder
         elif reminder.activity in strings.ACTIVITIES_LABORATORY or reminder.activity.startswith('lab-power'):
             reminders_lab_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_BOOSTS:
@@ -210,9 +213,12 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 activity = reminder.activity.replace('-',' ').title()
             elif reminder.activity.startswith('produce'):
                 produce_emoji_match = re.search(r'<:(.+?)>', reminder.message)
+                activity = reminder.activity.replace('-',' ').title()
                 if produce_emoji_match:
                     activity_emoji = f'<:{produce_emoji_match.group(1)}>'
-                activity = reminder.activity.replace('-',' ').title()
+                    produce_name_match = re.search(r'<:(.+?):', activity_emoji)
+                    if produce_name_match:
+                        activity = f'Producing {" ".join(word.capitalize() for word in produce_name_match.group(1).replace('_', '').split())}'
             elif reminder.activity.startswith('lab-power'):
                 activity_emoji = emojis.LAB_POWER
                 activity = f'{reminder.activity.replace('lab-power-','')} power'.title()
@@ -222,6 +228,18 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 f'{activity_emoji} **{activity}** • {reminder_time}'
             )
         embed.add_field(name=f'Laboratory', value=field_lab_reminders.strip(), inline=False)
+    if reminder_island_travel:
+        if show_timestamps:
+            flag = 'T' if reminder_island_travel.end_time.day == current_time.day else 'f'
+            reminder_time = utils.format_dt(reminder_island_travel.end_time, style=flag)
+        else:
+            time_left = reminder_island_travel.end_time - current_time
+            timestring = await functions.parse_timedelta_to_timestring(time_left)
+            reminder_time = f'**`{timestring}`**'
+        field_ship_reminders = (
+            f'{emojis.SAILBOAT} **Sailing to {" ".join(word.capitalize() for word in user_settings.current_location.split())}** • {reminder_time}'
+        )
+        embed.add_field(name='Ship', value=field_ship_reminders.strip(), inline=False)
     if reminders_boosts_list:
         field_boosts_reminders = ''
         for reminder in reminders_boosts_list:

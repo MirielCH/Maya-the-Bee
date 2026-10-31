@@ -515,6 +515,7 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
         f'{emojis.BP} **No item brewing**: {await functions.bool_to_text(user_settings.ready_show_produce)}\n'
         f'{emojis.BP} **Laboratory power**: {await functions.bool_to_text(user_settings.ready_show_lab_power)}\n'
         f'{emojis.BP} **Ready to rebirth**: {await functions.bool_to_text(user_settings.ready_show_rebirth)}\n'
+        f'{emojis.BP} **Ship location**: {await functions.bool_to_text(user_settings.ready_show_location)}\n'
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,

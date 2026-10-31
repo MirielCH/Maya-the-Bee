@@ -749,6 +749,7 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
 
     produce_reminder_active = False
     power_full_reminder = None
+    island_travel_reminder = None
     for reminder in active_reminders:
         if reminder.end_time < current_time: continue
         if reminder.activity in commands_ready:
@@ -765,6 +766,8 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             produce_reminder_active = True
         if reminder.activity == 'lab-power-full':
             power_full_reminder = reminder
+        if reminder.activity == 'island-travel':
+            island_travel_reminder = reminder
 
     ready_list = ''
 
@@ -800,7 +803,7 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             quest_types = f'{quest_types}, {quest.replace("quest-", "").replace("-", " ")}'
         ready_list = f'{ready_list}\n{emojis.READY} {strings.SLASH_COMMANDS["quests"]}: {quest_types.strip(", ").capitalize()}'
         
-    ready_list_laboratory = ready_list_rebirth = ready_list_incubator = ''
+    ready_list_laboratory = ready_list_rebirth = ready_list_incubator = ready_list_location = ''
     if len(reminders_larvae) < user_settings.incubator_slots_total and user_settings.ready_show_incubator:
         if any([user_settings.incubator_slots_ready > 0, user_settings.incubator_slots_hungry > 0, user_settings.incubator_slots_empty > 0]):
             if user_settings.incubator_slots_ready > 0:
@@ -830,6 +833,15 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
     if user_settings.level >= level_target and user_settings.ready_show_rebirth:
         ready_list_rebirth = f'{emojis.REBIRTH} Rebirth level reached'
 
+    if user_settings.ready_show_location:
+        if not island_travel_reminder:
+            island_emoji = strings.ISLAND_EMOJIS.get(user_settings.current_location, emojis.BP)
+            ready_list_location = f'{island_emoji} Docked at {" ".join(word.capitalize() for word in user_settings.current_location.split())}'
+        else:
+            ready_list_location = (
+                f'{emojis.SAILBOAT} Sailing to {" ".join(word.capitalize() for word in user_settings.current_location.split())} '
+                f'(arriving {utils.format_dt(island_travel_reminder.end_time, 'R')})')
+
     embed = None
 
     if ready_list or ready_list_laboratory or ready_list_rebirth or ready_list_incubator:
@@ -838,13 +850,15 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             title = f'{user.global_name}\'s ready list'
         )
         if ready_list:
-            embed.add_field(name=f'Commands', value=ready_list, inline=False)
+            embed.add_field(name='Commands', value=ready_list, inline=False)
         if ready_list_incubator:
-            embed.add_field(name=f'Incubator', value=ready_list_incubator, inline=False)
+            embed.add_field(name='Incubator', value=ready_list_incubator, inline=False)
         if ready_list_laboratory:
-            embed.add_field(name=f'Laboratory', value=ready_list_laboratory, inline=False)
+            embed.add_field(name='Laboratory', value=ready_list_laboratory, inline=False)
         if ready_list_rebirth:
-            embed.add_field(name=f'Rebirth', value=ready_list_rebirth, inline=False)
+            embed.add_field(name='Rebirth', value=ready_list_rebirth, inline=False)
+        if ready_list_location:
+            embed.add_field(name='Ship location', value=ready_list_location, inline=False)
     else:
         embed = discord.Embed(
             color = settings.EMBED_COLOR,

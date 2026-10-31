@@ -286,6 +286,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                     .replace('{island_emoji}', island_emoji)
                 )
                 cooldowns.append(['island-travel', timestring_match.group(1).lower(), reminder_message])
+                await user_settings.update(current_location=island_name)
             else:
                 ready_commands.append('island-travel')
         if user_settings.reminder_vote.enabled or user_settings.ready_show_vote:
