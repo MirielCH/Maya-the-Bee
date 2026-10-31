@@ -25,7 +25,7 @@ Reminder / Helper for the Discord game bot "Elder Arborium" (formerly known as "
 • Replace all `.py` files.  
 • Upload emojis and change their ID in `resources/emojis.py` if there are new ones.  
 • Restart the bot.  
-• If the bot requires database changes, it will not start and tell you so. In that case, turn off the bot, **BACKUP YOUR DATABASE** and run `database/update_database.py`.  
+• If the bot requires database changes, it will not start. In that case, I recommend turning off the bot and manually update your database. You can check the default database to see what changed.  
 
 ## Required intents
 
@@ -44,8 +44,7 @@ Reminder / Helper for the Discord game bot "Elder Arborium" (formerly known as "
 
 ## Commands
 
-Maya uses slash commands but also supports some text commands.  
-Default prefix for text commands is `maya ` and is changeable in `/settings server`.  
+Maya uses slash commands.  
 Use `/help` for an overview.  
 
 ## Dev commands
@@ -81,6 +80,14 @@ It's not possible to reload the following files:
 • The file `tasks.py`. I had mixed results with this, just restart instead.  
 
 To reload files in subfolders, use `folder.file` (e.g. `resources.settings`). Cogs don't need that, the filename is enough (e.g. `prune`).  
+
+### `/dev dump-error-log`
+
+Exports the contents of the table `error_log` as a CSV file.  
+
+### `/dev create-hash`
+
+Creates a hash of a value using the secret key in your .env file.  
 
 ### `/dev server-list`
 
