@@ -77,7 +77,7 @@ async def create_reminders_on_lab_page(message: discord.Message, embed_data: Dic
                     if not end_time_match:
                         ready_commands.append('pruner-research')
                     else:
-                        user_command = await functions.get_game_command(user_settings, 'laboratory')
+                        user_command = await functions.get_game_command(user_settings, 'laboratory pruner')
                         reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
                         cooldowns.append(['pruner-research', end_time_match.group(1), reminder_message])
 
@@ -174,7 +174,7 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                         produce_name = strings.PRODUCE_FULL_NAMES[produce_name]
                     produce_emoji = strings.PRODUCE_EMOJIS.get(produce_name, '')
 
-                user_command = await functions.get_game_command(user_settings, 'laboratory')
+                user_command = await functions.get_game_command(user_settings, 'laboratory production')
                 reminder_message = (
                     user_settings.reminder_produce.message
                     .replace('{command}', user_command)
@@ -231,7 +231,7 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                         power_missing = power_total - power_current
                         power_until_next_25 = (25 - power_current % 25)
                         time_left_until_full = timedelta(minutes=(14 * (power_missing - 1)) + (time_until_next_power.total_seconds() / 60))
-                        user_command = await functions.get_game_command(user_settings, 'laboratory')
+                        user_command = await functions.get_game_command(user_settings, 'laboratory production')
                         reminder_message = (
                             user_settings.reminder_lab_power.message
                             .replace('{command}', user_command)
@@ -321,7 +321,7 @@ async def create_reminders_on_pruner_page(message: discord.Message, embed_data: 
             current_time = utils.utcnow().replace(microsecond=0)
             time_left = end_time - current_time
             if time_left <= timedelta(seconds=1): return add_reaction
-            user_command = await functions.get_game_command(user_settings, 'laboratory')
+            user_command = await functions.get_game_command(user_settings, 'laboratory pruner')
             reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
             reminder: reminders.Reminder = (
                 await reminders.insert_reminder(interaction_user.id, 'pruner-research', time_left,

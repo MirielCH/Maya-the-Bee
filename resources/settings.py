@@ -93,7 +93,7 @@ if not _encryption_secret_key:
         with open(ENV_FILE, "a") as file:
             file.write(
                 f"\n\n"
-                f"# Optional. Secret key the bot uses to hash/encrypt Discord API data with before storing it in the database.\n"
+                f"# Required. Secret key the bot uses to hash/encrypt Discord API data with before storing it in the database.\n"
                 f"# If no key is provided, the bot will generate one on the first start.\n"
                 f"# IF YOU LOSE THIS KEY, MAYA WILL NO LONGER BE ABLE TO MATCH ANY STORED DATA TO YOUR USERS AND ASK THEM TO REGISTER AGAIN.\n"
                 f"ENCRYPTION_SECRET_KEY={_encryption_secret_key}"

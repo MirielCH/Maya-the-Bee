@@ -62,7 +62,7 @@ async def call_context_helper_on_upgrade_claim(message: discord.Message, embed_d
         level_match = re.search(r'level (\d+?) tier', embed_data['title'].lower())
         level = int(level_match.group(1))
         if level == 10:
-            command = strings.SLASH_COMMANDS['laboratory']
+            command = strings.SLASH_COMMANDS['laboratory pruner']
         else:
             command = strings.SLASH_COMMANDS['tool']
         await message.reply(f"➜ {command}")

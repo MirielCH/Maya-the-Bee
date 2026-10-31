@@ -245,7 +245,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
         if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
             timestring_match = re.search(r"research\*\* • \*\*`(.+?)`\*\*", embed_field_tool.lower())
             if timestring_match:
-                user_command = await functions.get_game_command(user_settings, 'laboratory')
+                user_command = await functions.get_game_command(user_settings, 'laboratory pruner')
                 reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
                 cooldowns.append(['pruner-research', timestring_match.group(1).lower(), reminder_message])
             else:
@@ -261,7 +261,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
         if user_settings.reminder_produce.enabled or user_settings.ready_show_produce:
             timestring_match = re.search(r"brewing (.+?)\*\* • \*\*`(.+?)`\*\*", embed_field_tool.lower())
             if timestring_match:
-                user_command = await functions.get_game_command(user_settings, 'laboratory')
+                user_command = await functions.get_game_command(user_settings, 'laboratory production')
                 produce_name = timestring_match.group(1)
                 produce_emoji = strings.PRODUCE_EMOJIS.get(produce_name, '')
                 reminder_message = (
