@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from cache import messages
 from database import reminders, users
-from resources import emojis, exceptions, functions, regex, settings
+from resources import emojis, exceptions, functions, regex, strings
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, interaction_user: Optional[discord.User],
@@ -151,6 +151,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
         embed_field_quests = unicodedata.normalize('NFKD', embed_data['field1']['value'])
         embed_field_raid = unicodedata.normalize('NFKD', embed_data['field2']['value'])
         embed_field_tool = unicodedata.normalize('NFKD', embed_data['field3']['value'])
+        embed_field_island = unicodedata.normalize('NFKD', embed_data['field4']['value'])
         cooldowns = []
         ready_commands = []
         if user_settings.reminder_clean.enabled or user_settings.ready_show_clean:
@@ -242,7 +243,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             else:
                 ready_commands.append('quest-monthly')
         if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
-            timestring_match = re.search(r"researching: \*\*`(.+?)`\*\* remaining", embed_field_tool.lower())
+            timestring_match = re.search(r"research\*\* • \*\*`(.+?)`\*\*", embed_field_tool.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'laboratory')
                 reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
@@ -250,13 +251,43 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
             else:
                 ready_commands.append('pruner-research')
         if user_settings.reminder_upgrade.enabled or user_settings.ready_show_pruner:
-            timestring_match = re.search(r"upgrading: \*\*`(.+?)`\*\* remaining", embed_field_tool.lower())
+            timestring_match = re.search(r"upgrade\*\* • \*\*`(.+?)`\*\*", embed_field_tool.lower())
             if timestring_match:
                 user_command = await functions.get_game_command(user_settings, 'tool')
                 reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
                 cooldowns.append(['pruner-upgrade', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('pruner-upgrade')
+        if user_settings.reminder_produce.enabled or user_settings.ready_show_produce:
+            timestring_match = re.search(r"brewing (.+?)\*\* • \*\*`(.+?)`\*\*", embed_field_tool.lower())
+            if timestring_match:
+                user_command = await functions.get_game_command(user_settings, 'laboratory')
+                produce_name = timestring_match.group(1)
+                produce_emoji = strings.PRODUCE_EMOJIS.get(produce_name, '')
+                reminder_message = (
+                    user_settings.reminder_produce.message
+                    .replace('{command}', user_command)
+                    .replace('{produce_name}', produce_name)
+                    .replace('{produce_emoji}', produce_emoji)
+                )
+                cooldowns.append(['produce', timestring_match.group(1).lower(), reminder_message])
+            else:
+                ready_commands.append('produce')
+        if user_settings.reminder_island_travel.enabled:
+            timestring_match = re.search(r"\*\*(.+island)\*\* • \*\*`(.+?)`\*\*", embed_field_island.lower())
+            if timestring_match:
+                island_name = timestring_match.group(1)
+                island_emoji = strings.ISLAND_EMOJIS.get(island_name, '')
+                user_command = await functions.get_game_command(user_settings, 'island travel')
+                reminder_message = (
+                    user_settings.reminder_island_travel.message
+                    .replace('{command}', user_command)
+                    .replace('{island_name}', island_name)
+                    .replace('{island_emoji}', island_emoji)
+                )
+                cooldowns.append(['island-travel', timestring_match.group(1).lower(), reminder_message])
+            else:
+                ready_commands.append('island-travel')
         if user_settings.reminder_vote.enabled or user_settings.ready_show_vote:
             timestring_match = re.search(r"vote\*\* • \*\*`(.+?)`\*\*", embed_field_commands.lower())
             if timestring_match:

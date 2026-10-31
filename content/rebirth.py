@@ -199,6 +199,10 @@ async def embed_rebirth_guide(ctx_or_message: Union[discord.ApplicationContext, 
             f'{sell}\n'
             f'{emojis.APPLE} {strings.SLASH_COMMANDS["sell"]} `all` apples'
         )
+    sell = (
+        f'{sell}\n'
+        f'_If you have any sweet apples or insecticide left, sell them all!_\n'
+    )
     if sell == '':
         sell = f'{emojis.ENABLED} All done!'
         

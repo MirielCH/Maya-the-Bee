@@ -217,47 +217,52 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
 
             # Power
             if user_settings.reminder_lab_power.enabled or user_settings.ready_show_lab_power:
-                for line in power_text_display.lower().split('\n'):
-                    power_amount_match = re.search(r'\*\*(\d+)\*\*\/(\d+)$', line)
-                    if power_amount_match:
-                        power_current = int(power_amount_match.group(1))
-                        power_total = int(power_amount_match.group(2))
-                        if power_current != power_total:
-                            power_missing = power_total - power_current
-                            power_until_next_25 = (25 - power_current % 25)
-                            time_left_until_full = timedelta(minutes=14 * power_missing)
-                            user_command = await functions.get_game_command(user_settings, 'laboratory')
-                            reminder_message = (
-                                user_settings.reminder_lab_power.message
-                                .replace('{command}', user_command)
-                                .replace('{power_amount}', 'full')
-                                .replace('{power_emoji}', emojis.LAB_POWER)
-                            ).strip()
-                            reminder: reminders.Reminder = (
-                                await reminders.insert_reminder(interaction_user.id, 'lab-power-full', time_left_until_full,
-                                                                message.channel.id, reminder_message)
-                            )
-                            if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+                power_amount_match = re.search(r'\*\*(\d+)\*\*\/(\d+)', power_text_display.lower())
+                if power_amount_match:
+                    power_current = int(power_amount_match.group(1))
+                    power_total = int(power_amount_match.group(2))
+                    if power_current != power_total:
+                        next_power_time_match = re.search(r'<t:(\d+?):r>', power_text_display.lower())
+                        if next_power_time_match:
+                            current_time = utils.utcnow()
+                            time_until_next_power = datetime.fromtimestamp(int(next_power_time_match.group(1)), timezone.utc).replace(microsecond=0) - current_time
+                        else:
+                            time_until_next_power = timedelta(minutes=14)                            
+                        power_missing = power_total - power_current
+                        power_until_next_25 = (25 - power_current % 25)
+                        time_left_until_full = timedelta(minutes=(14 * (power_missing - 1)) + (time_until_next_power.total_seconds() / 60))
+                        user_command = await functions.get_game_command(user_settings, 'laboratory')
+                        reminder_message = (
+                            user_settings.reminder_lab_power.message
+                            .replace('{command}', user_command)
+                            .replace('{power_amount}', 'full')
+                            .replace('{power_emoji}', emojis.LAB_POWER)
+                        ).strip()
+                        reminder: reminders.Reminder = (
+                            await reminders.insert_reminder(interaction_user.id, 'lab-power-full', time_left_until_full,
+                                                            message.channel.id, reminder_message)
+                        )
+                        if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
 
-                            power_next_25 = power_until_next_25 + power_current
-                            if (power_next_25 < power_total
-                                and user_settings.reminder_lab_power.enabled
-                                and user_settings.reminder_lab_power_mode == LabPowerReminderMode.EVERY_TICK):
-                                power_ticks = list(range(power_next_25, power_total, 25))
-                                for power_tick in power_ticks:
-                                    time_left_until_power_tick = timedelta(minutes=14 * (power_tick - power_current))
-                                    reminder_message = (
-                                        user_settings.reminder_lab_power.message
-                                        .replace('{command}', user_command)
-                                        .replace('{power_amount}', str(power_tick))
-                                        .replace('{power_emoji}', emojis.LAB_POWER)
-                                    ).strip()
-                                    reminder: reminders.Reminder = (
-                                        await reminders.insert_reminder(interaction_user.id, f'lab-power-{power_tick}',
-                                                                        time_left_until_power_tick,
-                                                                        message.channel.id, reminder_message)
-                                    )
-                                    if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+                        power_next_25 = power_until_next_25 + power_current
+                        if (power_next_25 < power_total
+                            and user_settings.reminder_lab_power.enabled
+                            and user_settings.reminder_lab_power_mode == LabPowerReminderMode.EVERY_TICK):
+                            power_ticks = list(range(power_next_25, power_total, 25))
+                            for power_tick in power_ticks:
+                                time_left_until_power_tick = timedelta(minutes=(14 * (power_tick - power_current - 1)) + (time_until_next_power.total_seconds() / 60))
+                                reminder_message = (
+                                    user_settings.reminder_lab_power.message
+                                    .replace('{command}', user_command)
+                                    .replace('{power_amount}', str(power_tick))
+                                    .replace('{power_emoji}', emojis.LAB_POWER)
+                                ).strip()
+                                reminder: reminders.Reminder = (
+                                    await reminders.insert_reminder(interaction_user.id, f'lab-power-{power_tick}',
+                                                                    time_left_until_power_tick,
+                                                                    message.channel.id, reminder_message)
+                                )
+                                if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
 
     return add_reaction
 

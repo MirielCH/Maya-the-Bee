@@ -778,43 +778,40 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
                 slash_command = strings.SLASH_COMMANDS[activity]
             if activity == 'energy-drink':
                 slash_command = f'{slash_command} energy drink'
-            ready_list = f'{ready_list}\n- {slash_command}'
+            ready_list = f'{ready_list}\n{emojis.READY} {slash_command}'
 
     if len(pruner_ready) >= 2 and user_settings.ready_show_pruner:
         if any([strings.PRUNER_TYPES[user_settings.pruner_type] < 5, user_settings.pruner_level < 10, user_settings.pruner_tier < 10]):
+            pruner_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
             if user_settings.pruner_level < 10:
-                ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["tool"]} upgrade'
+                ready_list = f'{ready_list}\n{pruner_emoji} {strings.SLASH_COMMANDS["tool"]} upgrade'
             else:
-                ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["laboratory"]} research'
+                ready_list = f'{ready_list}\n{pruner_emoji} {strings.SLASH_COMMANDS["laboratory"]} research'
                 
     if len(reminders_chests) < 3 and user_settings.ready_show_chests:
         if user_settings.chests_slots_ready > 0:
-            ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS['chests']}: {user_settings.chests_slots_ready} chest(s) ready to open'
+            ready_list = f'{ready_list}\n{emojis.CHEST_WOODEN} {strings.SLASH_COMMANDS['chests']}: {user_settings.chests_slots_ready} chest(s) ready to open'
         if user_settings.chests_slots_empty > 0 and user_settings.chests_in_queue > 0:
-            ready_list = f'{ready_list}\n- {min(user_settings.chests_slots_empty, user_settings.chests_in_queue)} {strings.SLASH_COMMANDS['chests']} ready to start'
+            ready_list = f'{ready_list}\n{emojis.CHEST_WOODEN} {min(user_settings.chests_slots_empty, user_settings.chests_in_queue)} {strings.SLASH_COMMANDS['chests']} ready to start'
 
     if quests_ready and user_settings.ready_show_quests:
         quest_types = ''
         for quest in quests_ready:
             quest_types = f'{quest_types}, {quest.replace("quest-", "").replace("-", " ")}'
-        ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["quests"]}: {quest_types.strip(", ").capitalize()}'
+        ready_list = f'{ready_list}\n{emojis.READY} {strings.SLASH_COMMANDS["quests"]}: {quest_types.strip(", ").capitalize()}'
         
+    ready_list_laboratory = ready_list_rebirth = ready_list_incubator = ''
     if len(reminders_larvae) < user_settings.incubator_slots_total and user_settings.ready_show_incubator:
         if any([user_settings.incubator_slots_ready > 0, user_settings.incubator_slots_hungry > 0, user_settings.incubator_slots_empty > 0]):
             if user_settings.incubator_slots_ready > 0:
-                ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["incubator show"]}: {user_settings.incubator_slots_ready} larva(e) ready to claim'
+                ready_list_incubator = f'{ready_list_incubator}\n{emojis.LARVA_WORKER} {user_settings.incubator_slots_ready} larva(e) ready to claim'
             if user_settings.incubator_slots_hungry > 0:
-                ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["incubator show"]}: {user_settings.incubator_slots_hungry} larva(e) hungry'
+                ready_list_incubator = f'{ready_list_incubator}\n{emojis.LARVA_WORKER} {user_settings.incubator_slots_hungry} larva(e) hungry'
             if user_settings.incubator_slots_empty > 0:
-                ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["incubator show"]}: {user_settings.incubator_slots_empty} slots empty'
-
-    if not ready_list and user_settings.ready_show_when_empty:
-        ready_list = f'{emojis.ENABLED} All done!'
-    ready_list = f'### Commands\n{ready_list}'
+                ready_list_incubator = f'{ready_list_incubator}\n{emojis.LARVA_WORKER} {user_settings.incubator_slots_empty} slots empty'
     
-    ready_list_laboratory = ''
     if not produce_reminder_active and user_settings.ready_show_produce:
-        ready_list_laboratory = f'{ready_list_laboratory}\n- No produce brewing in {strings.SLASH_COMMANDS["laboratory"]}'
+        ready_list_laboratory = f'{ready_list_laboratory}\n{emojis.LABORATORY} No produce brewing'
 
     if user_settings.ready_show_lab_power:
         max_power = 150 if user_settings.donor_tier >= 3 else 100
@@ -824,23 +821,36 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             current_power = max_power - ceil(minutes_left / 14)
         else:
             current_power = max_power
-        ready_list_laboratory = f'{ready_list_laboratory}\n- Your {strings.SLASH_COMMANDS["laboratory"]} is at **{current_power}**/{max_power} {emojis.LAB_POWER} power'
-    if ready_list_laboratory:
-        ready_list = f'{ready_list}\n### Laboratory\n{ready_list_laboratory}'
+        ready_list_laboratory = f'{ready_list_laboratory}\n{emojis.LAB_POWER} **{current_power}**/{max_power} power'
+        
     if user_settings.rebirth <= 10:
         level_target = 5 + user_settings.rebirth
     else:
         level_target = 15 + ((user_settings.rebirth - 10) // 2)
     if user_settings.level >= level_target and user_settings.ready_show_rebirth:
-        ready_list = f'{ready_list}\n### Rebirth\n- {strings.SLASH_COMMANDS["rebirth"]} level reached'
+        ready_list_rebirth = f'{emojis.REBIRTH} Rebirth level reached'
 
     embed = None
 
-    if ready_list:
+    if ready_list or ready_list_laboratory or ready_list_rebirth or ready_list_incubator:
         embed = discord.Embed(
             color = settings.EMBED_COLOR,
             title = f'{user.global_name}\'s ready list'
         )
-        embed.description = ready_list
+        if ready_list:
+            embed.add_field(name=f'Commands', value=ready_list, inline=False)
+        if ready_list_incubator:
+            embed.add_field(name=f'Incubator', value=ready_list_incubator, inline=False)
+        if ready_list_laboratory:
+            embed.add_field(name=f'Laboratory', value=ready_list_laboratory, inline=False)
+        if ready_list_rebirth:
+            embed.add_field(name=f'Rebirth', value=ready_list_rebirth, inline=False)
+    else:
+        embed = discord.Embed(
+            color = settings.EMBED_COLOR,
+            title = f'{user.global_name}\'s ready list'
+        )
+        if user_settings.ready_show_when_empty:
+            embed.description = f'{emojis.ENABLED} All done!'
         
     return embed

@@ -107,35 +107,6 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
         await user_settings.update(level=level, rebirth=rebirth, xp=xp, xp_target=xp_target)
         if user_settings.reactions_enabled: add_reaction = True
 
-        # Research & Upgrade cooldowns
-        text_display_tool_status = ''
-        for text_display in text_displays:
-            if 'tool status' in text_display.lower():
-                text_display_tool_status = text_display
-                break
-
-        if text_display_tool_status:
-            if user_settings.reminder_research.enabled or user_settings.ready_show_pruner:
-                timestring_match = re.search(r"researching: `(.+?)` remaining", text_display_tool_status.lower())
-                if timestring_match:
-                    user_command = await functions.get_game_command(user_settings, 'laboratory')
-                    reminder_message = user_settings.reminder_research.message.replace('{command}', user_command)
-                    time_left = await functions.calculate_time_left_from_timestring(message,
-                                                                                    timestring_match.group(1).lower())
-                    cooldowns.append(['pruner-research', time_left, reminder_message])
-                else:
-                    ready_commands.append('pruner-research')
-            if user_settings.reminder_upgrade.enabled or user_settings.ready_show_pruner:
-                timestring_match = re.search(r"upgrading: `(.+?)` remaining", text_display_tool_status.lower())
-                if timestring_match:
-                    user_command = await functions.get_game_command(user_settings, 'tool')
-                    reminder_message = user_settings.reminder_upgrade.message.replace('{command}', user_command)
-                    time_left = await functions.calculate_time_left_from_timestring(message,
-                                                                                    timestring_match.group(1).lower())
-                    cooldowns.append(['pruner-upgrade', time_left, reminder_message])
-                else:
-                    ready_commands.append('pruner-upgrade')
-
         for cooldown in cooldowns:
             cd_activity = cooldown[0]
             cd_time_left = cooldown[1]

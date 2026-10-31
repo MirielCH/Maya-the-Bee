@@ -192,7 +192,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 f'{field_incubator_reminders}\n'
                 f'{emoji} **{activity}** • {reminder_time}'
             )
-        embed.add_field(name=f'Incubator {emojis.INCUBATOR}', value=field_incubator_reminders.strip(), inline=False)
+        embed.add_field(name=f'Incubator', value=field_incubator_reminders.strip(), inline=False)
     if reminders_lab_list:
         field_lab_reminders = ''
         for reminder in reminders_lab_list:
@@ -221,7 +221,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 f'{field_lab_reminders}\n'
                 f'{activity_emoji} **{activity}** • {reminder_time}'
             )
-        embed.add_field(name=f'Laboratory {emojis.LABORATORY}', value=field_lab_reminders.strip(), inline=False)
+        embed.add_field(name=f'Laboratory', value=field_lab_reminders.strip(), inline=False)
     if reminders_boosts_list:
         field_boosts_reminders = ''
         for reminder in reminders_boosts_list:
