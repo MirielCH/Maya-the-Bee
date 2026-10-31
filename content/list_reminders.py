@@ -79,7 +79,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             reminders_incubator_list.append(reminder)
         elif reminder.activity.startswith('quest'):
             reminders_quests_list.append(reminder)
-        elif reminder.activity in strings.ACTIVITIES_LABORATORY:
+        elif reminder.activity in strings.ACTIVITIES_LABORATORY or reminder.activity.startswith('lab-power'):
             reminders_lab_list.append(reminder)
         elif reminder.activity in strings.ACTIVITIES_BOOSTS:
             if not user_settings.reminder_boosts.enabled: continue
@@ -206,11 +206,15 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
             activity_emoji = ''
             if reminder.activity.startswith('pruner') and user_settings.pruner_type is not None:
                 activity_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
+                activity = reminder.activity.replace('-',' ').title()
             elif reminder.activity.startswith('produce'):
                 produce_emoji_match = re.search(r'<:(.+?)>', reminder.message)
                 if produce_emoji_match:
                     activity_emoji = f'<:{produce_emoji_match.group(1)}>'
-            activity = reminder.activity.replace('-',' ').title()
+                activity = reminder.activity.replace('-',' ').title()
+            elif reminder.activity.startswith('lab-power'):
+                activity_emoji = emojis.LAB_POWER
+                activity = f'{reminder.activity.replace('lab-power-','')} power'.title()
             if not activity_emoji: activity_emoji = emojis.BP
             field_lab_reminders = (
                 f'{field_lab_reminders}\n'

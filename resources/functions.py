@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 from datetime import timedelta
 import hashlib
 import hmac
-from math import floor
+from math import ceil, floor
 import random
 import re
 from typing import Any, Coroutine, List, Optional, Union
@@ -748,6 +748,7 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
         active_reminders = []
 
     produce_reminder_active = False
+    power_full_reminder = None
     for reminder in active_reminders:
         if reminder.end_time < current_time: continue
         if reminder.activity in commands_ready:
@@ -760,8 +761,10 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             quests_ready.remove(reminder.activity)
         elif reminder.activity in pruner_ready:
             pruner_ready.remove(reminder.activity)
-        elif reminder.activity.startswith('produce'):
+        if reminder.activity.startswith('produce'):
             produce_reminder_active = True
+        if reminder.activity == 'lab-power-full':
+            power_full_reminder = reminder
 
     ready_list = ''
 
@@ -805,17 +808,31 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             if user_settings.incubator_slots_empty > 0:
                 ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["incubator show"]}: {user_settings.incubator_slots_empty} slots empty'
 
+    if not ready_list and user_settings.ready_show_when_empty:
+        ready_list = f'{emojis.ENABLED} All done!'
+    ready_list = f'### Commands\n{ready_list}'
+    
+    ready_list_laboratory = ''
     if not produce_reminder_active and user_settings.ready_show_produce:
-        ready_list = f'{ready_list}\n- No produce brewing in {strings.SLASH_COMMANDS["laboratory"]}'
+        ready_list_laboratory = f'{ready_list_laboratory}\n- No produce brewing in {strings.SLASH_COMMANDS["laboratory"]}'
+
+    if user_settings.ready_show_lab_power:
+        max_power = 150 if user_settings.donor_tier >= 3 else 100
+        current_time = utils.utcnow()
+        if power_full_reminder:
+            minutes_left = (power_full_reminder.end_time - current_time).total_seconds() / 60
+            current_power = max_power - ceil(minutes_left / 14)
+        else:
+            current_power = max_power
+        ready_list_laboratory = f'{ready_list_laboratory}\n- Your {strings.SLASH_COMMANDS["laboratory"]} is at **{current_power}**/{max_power} {emojis.LAB_POWER} power'
+    if ready_list_laboratory:
+        ready_list = f'{ready_list}\n### Laboratory\n{ready_list_laboratory}'
     if user_settings.rebirth <= 10:
         level_target = 5 + user_settings.rebirth
     else:
         level_target = 15 + ((user_settings.rebirth - 10) // 2)
     if user_settings.level >= level_target and user_settings.ready_show_rebirth:
-        ready_list = f'{ready_list}\n- {strings.SLASH_COMMANDS["rebirth"]} level reached'
-
-    if not ready_list and user_settings.ready_show_when_empty:
-        ready_list = f'{emojis.ENABLED} All done!'
+        ready_list = f'{ready_list}\n### Rebirth\n- {strings.SLASH_COMMANDS["rebirth"]} level reached'
 
     embed = None
 

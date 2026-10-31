@@ -8,7 +8,7 @@ from typing import NamedTuple
 
 from database import errors
 from resources import exceptions, functions, settings, strings
-from resources.enums import ReadyPopupMode
+from resources.enums import LabPowerReminderMode, ReadyPopupMode
 
 
 # Containers
@@ -59,6 +59,7 @@ class User():
     ready_show_hal_afterlife: bool
     ready_show_hive_energy: bool
     ready_show_incubator: bool
+    ready_show_lab_power: bool
     ready_show_produce: bool
     ready_show_prune: bool
     ready_show_pruner: bool
@@ -78,6 +79,8 @@ class User():
     reminder_hive_energy: UserReminder
     reminder_incubator_upgrade: UserReminder
     reminder_island_travel: UserReminder
+    reminder_lab_power: UserReminder
+    reminder_lab_power_mode: LabPowerReminderMode
     reminder_larva: UserReminder
     reminder_produce: UserReminder
     reminder_prune: UserReminder
@@ -137,6 +140,7 @@ class User():
         self.ready_show_hal_afterlife = new_settings.ready_show_hal_afterlife
         self.ready_show_hive_energy = new_settings.ready_show_hive_energy
         self.ready_show_incubator = new_settings.ready_show_incubator
+        self.ready_show_lab_power = new_settings.ready_show_lab_power
         self.ready_show_produce = new_settings.ready_show_produce
         self.ready_show_prune = new_settings.ready_show_prune
         self.ready_show_pruner = new_settings.ready_show_pruner
@@ -156,6 +160,8 @@ class User():
         self.reminder_hive_energy = new_settings.reminder_hive_energy
         self.reminder_incubator_upgrade = new_settings.reminder_incubator_upgrade
         self.reminder_island_travel = new_settings.reminder_island_travel
+        self.reminder_lab_power = new_settings.reminder_lab_power
+        self.reminder_lab_power_mode = new_settings.reminder_lab_power_mode
         self.reminder_larva = new_settings.reminder_larva
         self.reminder_produce = new_settings.reminder_produce
         self.reminder_prune = new_settings.reminder_prune
@@ -218,6 +224,7 @@ class User():
             ready_show_hal_afterlife: bool
             ready_show_hive_energy: bool
             ready_show_incubator: bool
+            ready_show_lab_power: bool
             ready_show_produce: bool
             ready_show_prune: bool
             ready_show_pruner: bool
@@ -248,6 +255,9 @@ class User():
             reminder_incubator_upgrade_message: str
             reminder_island_travel_enabled: bool
             reminder_island_travel_message: str
+            reminder_lab_power_enabled: bool
+            reminder_lab_power_message: str
+            reminder_lab_power_mode: LabPowerReminderMode
             reminder_larva_enabled: bool
             reminder_larva_message: str
             reminder_produce_enabled: bool
@@ -342,6 +352,7 @@ async def _dict_to_user(record: dict, user_id: int | None = None) -> User:
             ready_show_hal_afterlife = bool(record['ready_show_hal_afterlife']),
             ready_show_hive_energy = bool(record['ready_show_hive_energy']),
             ready_show_incubator = bool(record['ready_show_incubator']),
+            ready_show_lab_power =bool(record['ready_show_lab_power']),
             ready_show_produce = bool(record['ready_show_produce']),
             ready_show_prune = bool(record['ready_show_prune']),
             ready_show_pruner = bool(record['ready_show_pruner']),
@@ -372,6 +383,9 @@ async def _dict_to_user(record: dict, user_id: int | None = None) -> User:
                                                       message=record['reminder_incubator_upgrade_message']),
             reminder_island_travel = UserReminder(enabled=bool(record['reminder_island_travel_enabled']),
                                                       message=record['reminder_island_travel_message']),
+            reminder_lab_power = UserReminder(enabled=bool(record['reminder_lab_power_enabled']),
+                                          message=record['reminder_lab_power_message']),
+            reminder_lab_power_mode = LabPowerReminderMode(record['reminder_lab_power_mode']),
             reminder_larva = UserReminder(enabled=bool(record['reminder_larva_enabled']),
                                           message=record['reminder_larva_message']),
             reminder_produce = UserReminder(enabled=bool(record['reminder_produce_enabled']),
@@ -521,6 +535,7 @@ async def _update_user(user: User, **kwargs) -> None:
         ready_show_hal_afterlife: bool
         ready_show_hive_energy: bool
         ready_show_incubator: bool
+        ready_show_lab_power: bool
         ready_show_produce: bool
         ready_show_prune: bool
         ready_show_pruner: bool
@@ -551,6 +566,9 @@ async def _update_user(user: User, **kwargs) -> None:
         reminder_incubator_upgrade_message: str
         reminder_island_travel_enabled: bool
         reminder_island_travel_message: str
+        reminder_lab_power_enabled: bool
+        reminder_lab_power_message: str
+        reminder_lab_power_mode: LabPowerReminderMode
         reminder_larva_enabled: bool
         reminder_larva_message: str
         reminder_produce_enabled: bool

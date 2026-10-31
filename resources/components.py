@@ -9,7 +9,7 @@ import discord
 
 from database import cooldowns, reminders, users
 from resources import emojis, modals, strings, views
-from resources.enums import ReadyPopupMode
+from resources.enums import LabPowerReminderMode, ReadyPopupMode
 
 
 # --- Miscellaneous ---
@@ -516,6 +516,27 @@ class ManageReadyPopupModeSelect(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         select_value = self.values[0]
         await self.view.user_settings.update(ready_popup_mode=select_value)
+        embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
+        if interaction.response.is_done():
+            await interaction.message.edit(embed=embed, view=self.view)
+        else:
+            await interaction.response.edit_message(embed=embed, view=self.view)
+
+            
+class ManageLabPowerReminderModeSelect(discord.ui.Select):
+    """Select to manage the laboratory power reminder mode"""
+    def __init__(self, view: discord.ui.DesignerView):
+        options = []
+        options.append(discord.SelectOption(label=LabPowerReminderMode.EVERY_TICK.label, value=str(LabPowerReminderMode.EVERY_TICK.value)))
+        options.append(discord.SelectOption(label=LabPowerReminderMode.ONLY_AT_FULL.label,
+                                            value=str(LabPowerReminderMode.ONLY_AT_FULL.value)))
+
+        super().__init__(placeholder='Change laboratory power reminder mode', min_values=1, max_values=1, options=options,
+                         custom_id='manage_lab_power_mode')
+
+    async def callback(self, interaction: discord.Interaction):
+        select_value = self.values[0]
+        await self.view.user_settings.update(reminder_lab_power_mode=select_value)
         embed = await self.view.embed_function(self.view.bot, self.view.ctx, self.view.user_settings)
         if interaction.response.is_done():
             await interaction.message.edit(embed=embed, view=self.view)

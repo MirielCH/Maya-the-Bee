@@ -372,8 +372,9 @@ class SettingsReadyListView(discord.ui.DesignerView):
             'Halloween: Afterlife': 'ready_show_hal_afterlife',
         }
         toggled_settings_other = {
-            'Ready to rebirth': 'ready_show_rebirth',
             'No item brewing': 'ready_show_produce',
+            'Laboratory power': 'ready_show_lab_power',
+            'Ready to rebirth': 'ready_show_rebirth',
         }
 
         self.add_item(discord.ui.ActionRow(components.ManageReadyPopupModeSelect(self)))
@@ -438,6 +439,7 @@ class SettingsRemindersView(discord.ui.DesignerView):
             'Larva Growing': 'reminder_larva_enabled',
             'Incubator Upgrade': 'reminder_incubator_upgrade_enabled',
             'Island Travel': 'reminder_island_travel_enabled',
+            'Laboratory Power': 'reminder_lab_power_enabled',
             'Produce': 'reminder_produce_enabled',
             'Prune': 'reminder_prune_enabled',
             'Pruner Research': 'reminder_research_enabled',
@@ -449,6 +451,7 @@ class SettingsRemindersView(discord.ui.DesignerView):
 
         self.add_item(discord.ui.ActionRow(components.ToggleUserSettingsSelect(self, toggled_settings_commands, 'Toggle reminders',
                                                           'toggle_command_reminders')))
+        self.add_item(discord.ui.ActionRow(components.ManageLabPowerReminderModeSelect(self)))
         self.add_item(discord.ui.ActionRow(components.SwitchSettingsSelect(self, commands_settings)))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:

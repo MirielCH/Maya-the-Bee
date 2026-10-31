@@ -512,8 +512,9 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
         f'{emojis.BP} **Halloween: Afterlife**: {await functions.bool_to_text(user_settings.ready_show_hal_afterlife)}\n'
     )
     other = (
-        f'{emojis.BP} **Ready to rebirth**: {await functions.bool_to_text(user_settings.ready_show_rebirth)}\n'
         f'{emojis.BP} **No item brewing**: {await functions.bool_to_text(user_settings.ready_show_produce)}\n'
+        f'{emojis.BP} **Laboratory power**: {await functions.bool_to_text(user_settings.ready_show_lab_power)}\n'
+        f'{emojis.BP} **Ready to rebirth**: {await functions.bool_to_text(user_settings.ready_show_rebirth)}\n'
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
@@ -530,7 +531,7 @@ async def embed_settings_ready_list(bot: discord.Bot, ctx: discord.ApplicationCo
 async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationContext,
                                    user_settings: users.User) -> discord.Embed:
     """Reminder settings embed"""
-    command_reminders = (
+    field_reminders_1 = (
         f'{emojis.BP} **Boosts**: {await functions.bool_to_text(user_settings.reminder_boosts.enabled)}\n'
         f'{emojis.BP} **Calendar**: {await functions.bool_to_text(user_settings.reminder_calendar.enabled)}\n'
         f'{emojis.BP} **Chests**: {await functions.bool_to_text(user_settings.reminder_chests.enabled)}\n'
@@ -540,9 +541,10 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
         f'{emojis.BP} **Fusion**: {await functions.bool_to_text(user_settings.reminder_fusion.enabled)}\n'
         f'{emojis.BP} **Hive Energy**: {await functions.bool_to_text(user_settings.reminder_hive_energy.enabled)}\n'
         f'{emojis.BP} **Incubator Upgrade**: {await functions.bool_to_text(user_settings.reminder_incubator_upgrade.enabled)}\n'
-    )
-    command_reminders2 = (
         f'{emojis.BP} **Island Travel**: {await functions.bool_to_text(user_settings.reminder_island_travel.enabled)}\n'
+    )
+    field_reminders_2 = (
+        f'{emojis.BP} **Laboratory Power**: {await functions.bool_to_text(user_settings.reminder_lab_power.enabled)}\n'
         f'{emojis.BP} **Larva Growing**: {await functions.bool_to_text(user_settings.reminder_larva.enabled)}\n'
         f'{emojis.BP} **Produce**: {await functions.bool_to_text(user_settings.reminder_produce.enabled)}\n'
         f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.reminder_prune.enabled)}\n'
@@ -551,16 +553,20 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
         f'{emojis.BP} **Quests**: {await functions.bool_to_text(user_settings.reminder_quests.enabled)}\n'
         f'{emojis.BP} **Vote**: {await functions.bool_to_text(user_settings.reminder_vote.enabled)}\n'
     )
-    command_event_reminders = (
+    field_event_reminders = (
         f'{emojis.BP} **Halloween: Afterlife**: {await functions.bool_to_text(user_settings.reminder_hal_afterlife.enabled)}\n'
+    )
+    field_settings = (
+        f'{emojis.BP} **Laboratory power reminder mode**: `{user_settings.reminder_lab_power_mode.label}`\n'
     )
     embed = discord.Embed(
         color = settings.EMBED_COLOR,
         title = f'{ctx.author.global_name}\'s reminder settings',
     )
-    embed.add_field(name='Reminders (I)', value=command_reminders, inline=False)
-    embed.add_field(name='Reminders (II)', value=command_reminders2, inline=False)
-    embed.add_field(name='Event Reminders', value=command_event_reminders, inline=False)
+    embed.add_field(name='Reminders (I)', value=field_reminders_1, inline=False)
+    embed.add_field(name='Reminders (II)', value=field_reminders_2, inline=False)
+    embed.add_field(name='Event Reminders', value=field_event_reminders, inline=False)
+    embed.add_field(name='Settings', value=field_settings, inline=False)
     return embed
 
 
