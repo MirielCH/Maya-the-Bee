@@ -27,7 +27,7 @@ async def process_message(message: discord.Message, embed_data: Dict, text_displ
 
 
 async def create_reminders_from_stats(message: discord.Message, embed_data: Dict, text_displays: list, interaction_user: Optional[discord.User],
-                                   user_settings: Optional[users.User]) -> bool:
+                                      user_settings: Optional[users.User]) -> bool:
     """Creates research and upgrade reminders from "tree stats" and "tree profile"
 
     Returns
@@ -105,6 +105,7 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
                 message
             )
         await user_settings.update(level=level, rebirth=rebirth, xp=xp, xp_target=xp_target)
+        if user_settings.reactions_enabled: add_reaction = True
 
         # Research & Upgrade cooldowns
         text_display_tool_status = ''

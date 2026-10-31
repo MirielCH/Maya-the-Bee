@@ -137,7 +137,7 @@ async def _dict_to_reminder(record: dict, user_id: int | None = None) -> Reminde
             task_name = f"{user_id}-{record['activity']}"
         reminder = Reminder(
             activity = record['activity'],
-            channel_id = record['channel_id'],
+            channel_id = int(functions.decrypt(record['channel_id_token'])),
             clan_name = record.get('clan_name', None),
             custom_id = record.get('custom_id', None),
             end_time = datetime.fromisoformat(record['end_time'], ),
@@ -422,6 +422,9 @@ async def _update_reminder(reminder: Reminder, **kwargs) -> None:
     if 'user_id' in kwargs:
         kwargs['user_id_hash'] = functions.create_hash(kwargs['user_id'])
         del kwargs['user_id']
+    if 'channel_id' in kwargs:
+        kwargs['channel_id_token'] = functions.encrypt(kwargs['channel_id'])
+        del kwargs['channel_id']
     try:
         cur = settings.DATABASE.cursor()
         sql = f'UPDATE {table} SET'
@@ -512,11 +515,11 @@ async def insert_reminder(user_id: int, activity: str, time_left: timedelta,
             await reminder.update(end_time=end_time, channel_id=channel_id)
     else:
         sql = (
-            f'INSERT INTO {table} (user_id_hash, activity, end_time, channel_id, message, custom_id, triggered) '
+            f'INSERT INTO {table} (user_id_hash, activity, end_time, channel_id_token, message, custom_id, triggered) '
             f'VALUES (?, ?, ?, ?, ?, ?, ?)'
         )
         try:
-            cur.execute(sql, (functions.create_hash(user_id), activity, end_time, channel_id, message, custom_id, triggered))
+            cur.execute(sql, (functions.create_hash(user_id), activity, end_time, functions.encrypt(channel_id), message, custom_id, triggered))
         except sqlite3.Error as error:
             await errors.log_error(
                 strings.INTERNAL_ERROR_SQLITE3.format(error=error, table=table, function=function_name, sql=sql)

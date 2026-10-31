@@ -274,6 +274,8 @@ class DevCog(commands.Cog):
 
         def quotes(name: str) -> str:
             return '"' + name.replace('"', '""') + '"'
+        
+        await ctx.defer()
 
         settings.DATABASE.create_function("uid_hash", 1, lambda value: functions.create_hash(value))
         settings.DATABASE.create_function("uid_token", 1, lambda value: functions.encrypt(value))
@@ -351,10 +353,14 @@ class DevCog(commands.Cog):
                                                             new_sql_reminders, flags=re.IGNORECASE)
             if number_of_replacements != 1:
                 raise Exception("Column user_id not found in table 'reminders', check db_create_reminders_sql")
+            new_sql_reminders, number_of_replacements = re.subn(r'\bchannel_id\b\s+\bINTEGER\b', 'channel_id_token BLOB',
+                                                            new_sql_reminders, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column user_id not found in table 'reminders', check db_create_reminders_sql")
             settings.DATABASE.execute(new_sql_reminders)
 
-            insert_columns = "user_id_hash, activity, channel_id, end_time, message, triggered, custom_id"
-            select_columns = "uid_hash(user_id), activity, channel_id, end_time, message, triggered, custom_id"
+            insert_columns = "user_id_hash, activity, channel_id_token, end_time, message, triggered, custom_id"
+            select_columns = "uid_hash(user_id), activity, uid_token(channel_id), end_time, message, triggered, custom_id"
             settings.DATABASE.execute(f"INSERT INTO reminders_new ({insert_columns}) SELECT {select_columns} FROM reminders")
 
             reminders_count_old = settings.DATABASE.execute("SELECT COUNT(*) FROM reminders").fetchone()[0]
@@ -422,7 +428,7 @@ class DevCog(commands.Cog):
                 
             # Migrate table "errors"
             new_sql_errors = re.sub(r'^CREATE TABLE\s+\S+', 'CREATE TABLE errors_new', db_create_errors_sql, flags=re.IGNORECASE)
-            new_sql_errors, number_of_replacements = re.subn(r'\bjump_url\b\s+TEXT\b', 'jump_url BLOB',
+            new_sql_errors, number_of_replacements = re.subn(r'\bjump_url\b\s+TEXT\b', 'jump_url_token BLOB',
                                                                     new_sql_errors, flags=re.IGNORECASE)
             if number_of_replacements != 1:
                 raise Exception("Column jump_url not found in table 'errors', check db_create_errors_sql")
@@ -430,9 +436,13 @@ class DevCog(commands.Cog):
                                                                     new_sql_errors, flags=re.IGNORECASE)
             if number_of_replacements != 1:
                 raise Exception("Column user_settings not found in table 'errors', check db_create_errors_sql")
+            new_sql_errors, number_of_replacements = re.subn(r'\bmessage_content\b\s+TEXT\b,', '',
+                                                                    new_sql_errors, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column message_content not found in table 'errors', check db_create_errors_sql")
             settings.DATABASE.execute(new_sql_errors)
 
-            insert_columns = "date_time, error, jump_url"
+            insert_columns = "date_time, error, jump_url_token"
             select_columns = "date_time, error, uid_token(jump_url)"
             settings.DATABASE.execute(f"INSERT INTO errors_new ({insert_columns}) SELECT {select_columns} FROM errors")
 
@@ -503,6 +513,7 @@ class DevCog(commands.Cog):
             await ctx.respond(MSG_NOT_DEV, ephemeral=True)
             return
 
+        await ctx.defer()
         try:
             if amount > 0:
                 sql = f'SELECT * FROM (SELECT * FROM errors ORDER BY date_time DESC LIMIT {amount}) AS newest ORDER BY date_time ASC' 
@@ -518,7 +529,11 @@ class DevCog(commands.Cog):
         all_records_as_dict = []
         for record in records:
             record_as_dict = dict(record)
-            record_as_dict['jump_url'] = functions.decrypt(record_as_dict['jump_url'])
+            if record_as_dict['jump_url_token'] is not None:
+                record_as_dict['jump_url'] = functions.decrypt(record_as_dict['jump_url_token'])
+            else:
+                record_as_dict['jump_url'] = 'N/A'
+            del record_as_dict['jump_url_token']
             all_records_as_dict.append(record_as_dict)
 
         csv_file_path = 'error_log.csv'

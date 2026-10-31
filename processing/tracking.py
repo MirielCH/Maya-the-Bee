@@ -40,6 +40,7 @@ async def track_captcha(message: discord.Message, embed_data: Dict, user: Option
     ]
     if any(search_string in embed_data['title'].lower() for search_string in search_strings_title):
         captcha_solved = False
+        if not message.components: return False
         for component in message.components[0].children:
             if component.style == discord.ButtonStyle.success:
                 captcha_solved = True
@@ -52,6 +53,7 @@ async def track_captcha(message: discord.Message, embed_data: Dict, user: Option
                 user_name_match = re.search(r'hey \*\*(.+?)\*\*!', embed_data['description'].lower())
                 user_name = user_name_match.group(1)
                 guild_members = await functions.get_guild_member_by_name(message.guild, user_name)
+                if not guild_members: return False
                 user = guild_members[0]
         if user_settings is None:
             try:

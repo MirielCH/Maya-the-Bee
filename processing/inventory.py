@@ -66,6 +66,7 @@ async def call_rebirth_guide(message: discord.Message, embed_data: Dict, text_di
                     await messages.find_message(message.channel.id, regex.COMMAND_INVENTORY,
                                                 user_name=user_name_match.group(1))
                 )
+                if not user_command_message: return add_reaction
                 if not embed_users:
                     embed_users.append(user_command_message.author)
             else:
