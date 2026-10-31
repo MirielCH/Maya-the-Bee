@@ -9,7 +9,7 @@ import discord
 from discord import utils
 from discord.ext import commands
 
-from resources import exceptions, logs, settings, strings
+from resources import exceptions, functions, logs, settings, strings
 
 
 async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.Context, discord.Message]] = None) -> None:
@@ -27,7 +27,7 @@ async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.C
     """
     table = 'errors'
     function_name = 'log_error'
-    sql = f'INSERT INTO {table} (date_time, error, user_settings, jump_url) VALUES (?, ?, ?, ?)'
+    sql = f'INSERT INTO {table} (date_time, error, jump_url) VALUES (?, ?, ?)'
     if hasattr(error, 'message'):
         error_message = f'Error: {error.message}'
     else:
@@ -58,9 +58,8 @@ async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.C
     elif isinstance(ctx, discord.Message):
         message = ctx
     if message is not None:
-        user_settings = 'N/A'
         date_time = message.edited_at if message.edited_at else message.created_at
-        jump_url = message.jump_url
+        jump_url = functions.encrypt(message.jump_url)
         if not message.author.bot:
             try:
                 from database import users
@@ -70,12 +69,11 @@ async def log_error(error: Union[Exception, str], ctx: Optional[Union[commands.C
                 pass
     else:
         date_time = utils.utcnow()
-        jump_url = 'N/A'
-        user_settings = 'N/A'
+        jump_url = None
     try:
         cur = settings.DATABASE.cursor()
-        cur.execute(sql, (date_time, error_message, user_settings, jump_url))
-        logs.logger.error(f'\n{error_message}\n>> Jump URL: {jump_url}')
+        cur.execute(sql, (date_time, error_message, jump_url))
+        logs.logger.error(f'\n{error_message}')
     except sqlite3.Error as error:
         if ctx is not None:
             logs.logger.error(

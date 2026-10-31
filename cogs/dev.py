@@ -1,7 +1,9 @@
 # dev.py
 """Internal dev commands"""
 
+import csv
 import importlib
+import os
 import re
 import sys
 from typing import List
@@ -10,7 +12,7 @@ import discord
 from discord.commands import SlashCommandGroup, Option
 from discord.ext import commands
 
-from database import cooldowns
+from database import cooldowns, users
 from resources import emojis, exceptions, functions, logs, settings, views
 
 
@@ -259,7 +261,7 @@ class DevCog(commands.Cog):
             f'Hash of `{value}`:\n```{functions.create_hash(value)}```'
         )
 
-    @dev.command(name='migrate-users')
+    @dev.command(name='migrate-database')
     async def dev_migrate_users(
         self,
         ctx: discord.ApplicationContext,
@@ -279,6 +281,7 @@ class DevCog(commands.Cog):
         db_create_reminders_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='reminders'").fetchone()[0]
         db_create_bunnies_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='bunnies'").fetchone()[0]
         db_create_tracking_log_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='tracking_log'").fetchone()[0]
+        db_create_errors_sql = settings.DATABASE.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='errors'").fetchone()[0]
         db_extras_users = [
             record[0] for record in settings.DATABASE.execute(
                 "SELECT sql FROM sqlite_master WHERE tbl_name='users' "
@@ -300,6 +303,12 @@ class DevCog(commands.Cog):
         db_extras_tracking_log = [
             record[0] for record in settings.DATABASE.execute(
                 "SELECT sql FROM sqlite_master WHERE tbl_name='tracking_log' "
+                "AND type IN ('index','trigger') AND sql IS NOT NULL"
+            )
+        ]
+        db_extras_errors = [
+            record[0] for record in settings.DATABASE.execute(
+                "SELECT sql FROM sqlite_master WHERE tbl_name='errors' "
                 "AND type IN ('index','trigger') AND sql IS NOT NULL"
             )
         ]
@@ -410,6 +419,33 @@ class DevCog(commands.Cog):
 
             for sql in db_extras_tracking_log:
                 settings.DATABASE.execute(sql.replace('user_id', 'user_id_hash'))
+                
+            # Migrate table "errors"
+            new_sql_errors = re.sub(r'^CREATE TABLE\s+\S+', 'CREATE TABLE errors_new', db_create_errors_sql, flags=re.IGNORECASE)
+            new_sql_errors, number_of_replacements = re.subn(r'\bjump_url\b\s+TEXT\b', 'jump_url BLOB',
+                                                                    new_sql_errors, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column jump_url not found in table 'errors', check db_create_errors_sql")
+            new_sql_errors, number_of_replacements = re.subn(r'\buser_settings\b\s+TEXT\b,', '',
+                                                                    new_sql_errors, flags=re.IGNORECASE)
+            if number_of_replacements != 1:
+                raise Exception("Column user_settings not found in table 'errors', check db_create_errors_sql")
+            settings.DATABASE.execute(new_sql_errors)
+
+            insert_columns = "date_time, error, jump_url"
+            select_columns = "date_time, error, uid_token(jump_url)"
+            settings.DATABASE.execute(f"INSERT INTO errors_new ({insert_columns}) SELECT {select_columns} FROM errors")
+
+            errors_count_old = settings.DATABASE.execute("SELECT COUNT(*) FROM errors").fetchone()[0]
+            errors_count_new = settings.DATABASE.execute("SELECT COUNT(*) FROM errors_new").fetchone()[0]
+            if errors_count_old != errors_count_new:
+                raise Exception(f"Row count mismatch: Found {errors_count_old} old error records, but only migrated {errors_count_new} error records.")
+
+            settings.DATABASE.execute("DROP TABLE errors")
+            settings.DATABASE.execute("ALTER TABLE errors_new RENAME TO errors")
+
+            for sql in db_extras_errors:
+                settings.DATABASE.execute(sql)
 
 
             # Commit
@@ -421,6 +457,79 @@ class DevCog(commands.Cog):
             answer = f'Migration failed:\n```{str(error)}```'
 
         await ctx.respond(answer)
+
+    @dev.command(name='user-settings')
+    @commands.bot_has_permissions(send_messages=True, attach_files=True)
+    async def dev_user_settings(self, ctx: discord.ApplicationContext, user_id: str) -> None:
+        """Lists user settings of a given user"""
+        if ctx.author.id not in settings.DEV_IDS:
+            await ctx.respond(MSG_NOT_DEV, ephemeral=True)
+            return
+
+        try:
+            user_id_int: int = int(user_id)
+        except:
+            await ctx.respond('Invalid user ID.')
+            return
+
+        try:
+            user_settings: users.User = await users.get_user(user_id_int)
+        except exceptions.FirstTimeUserError:
+            await ctx.respond(f'This user is not registered with Maya.')
+            return
+
+        line: str
+        file_content: str = ''
+        text_file_path: str = 'dev_user_settings.py'
+        for line in str(user_settings).split(')'):
+            file_content = f'{file_content.strip()}\n{line.strip(', \n')})'
+        text_file = open(text_file_path, 'w')
+        text_file.write(file_content.strip(') '))
+        text_file.close()
+        
+        await ctx.respond(content=f'**User settings for `{user_id}`**', file=discord.File(text_file_path))
+
+        os.remove(text_file_path)
+        
+    @dev.command(name='dump-error-log')
+    @commands.bot_has_permissions(send_messages=True, attach_files=True)
+    async def dev_user_settings(
+        self,
+        ctx: discord.ApplicationContext,
+        amount: Option(int, 'Amount of records, newest first', default=0),
+    ) -> None:
+        """Dumps the error log as a CSV file"""
+        if ctx.author.id not in settings.DEV_IDS:
+            await ctx.respond(MSG_NOT_DEV, ephemeral=True)
+            return
+
+        try:
+            if amount > 0:
+                sql = f'SELECT * FROM (SELECT * FROM errors ORDER BY date_time DESC LIMIT {amount}) AS newest ORDER BY date_time ASC' 
+            else:
+                sql = 'SELECT * FROM errors ORDER BY date_time ASC'
+            cur = settings.DATABASE.cursor()
+            cur.execute(sql)
+            records = cur.fetchall()
+            
+        except Exception as error:
+            await ctx.respond(content=f'Error retrieving data:\n```{error}```')
+
+        all_records_as_dict = []
+        for record in records:
+            record_as_dict = dict(record)
+            record_as_dict['jump_url'] = functions.decrypt(record_as_dict['jump_url'])
+            all_records_as_dict.append(record_as_dict)
+
+        csv_file_path = 'error_log.csv'
+
+        with open("error_log.csv", "w", encoding="utf-8-sig", newline="") as file:
+            writer = csv.DictWriter(file, fieldnames=list(all_records_as_dict[0].keys()), delimiter=";", quoting=csv.QUOTE_ALL)
+            writer.writeheader()
+            writer.writerows(all_records_as_dict)
+
+        await ctx.respond(content=f'Error log as CSV:', file=discord.File(csv_file_path))
+        os.remove(csv_file_path)
 
 
 def setup(bot):

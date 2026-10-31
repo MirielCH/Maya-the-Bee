@@ -196,6 +196,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
     if reminders_lab_list:
         field_lab_reminders = ''
         for reminder in reminders_lab_list:
+            if reminder.activity.startswith('lab-power') and not user_settings.reminder_lab_power.enabled: continue
             if show_timestamps:
                 flag = 'T' if reminder.end_time.day == current_time.day else 'f'
                 reminder_time = utils.format_dt(reminder.end_time, style=flag)
