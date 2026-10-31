@@ -11,7 +11,7 @@ from discord.ext import commands
 
 from database import users
 from processing import bonuses, calendar, easter, chests, clean, cooldowns, daily, fusion, halloween, hive, incubator, inventory
-from processing import laboratory, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
+from processing import islands, laboratory, patreon, profile, prune, quests, raid, rebirth, shop, tool, tracking, use, vote
 from resources import exceptions, functions, logs, regex, settings
 
 seen_messages = {}  
@@ -36,8 +36,9 @@ class DetectionCog(commands.Cog):
             await self.on_message(message_after)
             return
         if message_before.components and not message_after.components: return
-        if await check_message_for_active_components(message_after):
-            await self.on_message(message_after)
+        if message_after.embeds:
+            if not await check_message_for_active_components(message_after): return
+        await self.on_message(message_after)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -140,6 +141,10 @@ class DetectionCog(commands.Cog):
         
         # Inventory
         add_reaction = await inventory.process_message(message, embed_data, text_displays, interaction_user, user_settings)
+        return_values.append(add_reaction)
+        
+        # Islands
+        add_reaction = await islands.process_message(message, embed_data, text_displays, interaction_user, user_settings)
         return_values.append(add_reaction)
             
         # Prune
@@ -320,13 +325,6 @@ async def check_edited_message_always_allowed(message_before: discord.Message,
         '** used rebirth!', #English
     ]
     if any(search_string in embed_data['description'].lower() for search_string in search_strings):
-        return True
-    search_strings = [
-        'contributing on defeating the spooky biome hives!', #English
-        '**afterlife**', #English
-        'soldiers! never mind', #English
-    ]
-    if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
         return True
     return False
 

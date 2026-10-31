@@ -138,11 +138,13 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
         if not user_settings.bot_enabled: return add_reaction
         
         if user_settings.reminder_produce.enabled or user_settings.ready_show_produce:
-            queue_text_display = ''
+            queue_text_display = booster_text_display = ''
             for text_display in text_displays:
                 if 'queue' in text_display.lower():
                     queue_text_display = text_display
-                    break
+
+                if 'active boosters' in text_display.lower():
+                    booster_text_display = text_display
 
             if 'nothing brewing' in queue_text_display:
                 try:
@@ -151,8 +153,8 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                     if user_settings.reactions_enabled: add_reaction = True
                 except exceptions.NoDataFoundError:
                     pass
-                return add_reaction
-            
+
+            # Producing
             end_time_match = re.search(r'<t:(\d+?):r>', queue_text_display.lower())
             if end_time_match:
                 end_time = datetime.fromtimestamp(int(end_time_match.group(1)), timezone.utc).replace(microsecond=0)
@@ -163,6 +165,8 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                 produce_name_match = re.search(r'\*\*(.+?)\*\*', queue_text_display.lower())
                 if produce_name_match:
                     produce_name = produce_name_match.group(1)
+                    if produce_name in strings.PRODUCE_FULL_NAMES:
+                        produce_name = strings.PRODUCE_FULL_NAMES[produce_name]
                     produce_emoji = strings.PRODUCE_EMOJIS.get(produce_name, '')
                     
                 user_command = await functions.get_game_command(user_settings, 'laboratory')
@@ -177,6 +181,33 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                                                     message.channel.id, reminder_message)
                 )
                 if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
+
+            # Active boosters
+            for line in booster_text_display.lower().split('\n'):    
+                end_time_match = re.search(r'<t:(\d+?):r>', line)
+                if end_time_match:
+                    end_time = datetime.fromtimestamp(int(end_time_match.group(1)), timezone.utc).replace(microsecond=0)
+                    current_time = utils.utcnow().replace(microsecond=0)
+                    time_left = end_time - current_time
+                    if time_left <= timedelta(seconds=1): continue
+                    
+                    boost_name = boost_emoji = category_name = category_tier = ''
+                    category_name_match = re.search(r'cat_(\w+):', line)
+                    category_tier_match = re.search(r'tier_(\d):', line)
+                    if not category_name_match or not category_tier_match: continue
+                    boost_name = strings.PRODUCE_CATEGORIES_ITEMS[f'{category_name_match.group(1)}{category_tier_match.group(1)}']
+                    boost_emoji = strings.PRODUCE_EMOJIS.get(boost_name, '')
+                        
+                    reminder_message = (
+                        user_settings.reminder_boosts.message
+                        .replace('{boost_name}', boost_name)
+                        .replace('{boost_emoji}', boost_emoji)
+                    ).strip()
+                    reminder: reminders.Reminder = (
+                        await reminders.insert_reminder(interaction_user.id, boost_name.replace(' ','-'), time_left,
+                                                        message.channel.id, reminder_message)
+                    )
+                    if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True
                 
     return add_reaction
 

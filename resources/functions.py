@@ -740,7 +740,7 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
     reminders_chests = []
     quests_ready = list(strings.ACTIVITIES_QUEST)
     reminders_larvae = []
-    pruner_ready = list(strings.ACTIVITIES_TOOL)
+    pruner_ready = list(strings.ACTIVITIES_LABORATORY)
 
     try:
         active_reminders = list(await reminders.get_active_reminders(user.id))

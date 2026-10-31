@@ -28,6 +28,7 @@ async def process_message(message: discord.Message, embed_data: Dict, text_displ
     return_values.append(await create_reminder_on_energy_drink_cooldown(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_on_easter_candy(message, embed_data, user, user_settings))
     return_values.append(await update_rebirth_on_easter_eggs(message, embed_data, user, user_settings))
+    return_values.append(await create_reminder_on_lab_boost(message, embed_data, user, user_settings))
     return_values.append(await update_xp_on_water_bottle(message, embed_data, user, user_settings))
     return any(return_values)
 
@@ -155,6 +156,7 @@ async def create_reminder_on_energy_drink_cooldown(message: discord.Message, emb
 
 async def create_reminder_on_easter_candy(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
                                          user_settings: Optional[users.User]) -> bool:
+
     """Create a reminder when an easter candy is used.
 
     Returns
@@ -248,6 +250,68 @@ async def update_rebirth_on_easter_eggs(message: discord.Message, embed_data: Di
             await user_settings.update(rebirth=user_settings.rebirth + rebirth_amount)
             add_reaction = True
             
+    return add_reaction
+
+
+async def create_reminder_on_lab_boost(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                       user_settings: Optional[users.User]) -> bool:
+    """Create a reminder when a lab boost is used.
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings = [
+        'brew more boosters', #English
+    ]
+    if (any(search_string in embed_data['footer']['text'].lower() for search_string in search_strings)):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_name = embed_data['author']['name']
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_USE, user_name=user_name)
+                )
+                user = user_command_message.author
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
+        ready_embed = message_content = None
+        if not user_settings.reminder_boosts.enabled: return add_reaction
+
+        end_time_match = re.search(r'<t:(\d+?):r>', embed_data['description'].lower())
+        if not end_time_match: return add_reaction
+        current_time = utils.utcnow()
+        end_time = datetime.fromtimestamp(int(end_time_match.group(1)), timezone.utc).replace(microsecond=0)
+        time_left = end_time - current_time
+
+        boost_name = boost_emoji = ''
+        boost_name_match = re.search(r'>\s+\*\*(.+?)\*\*.', embed_data['description'].lower())
+        if not boost_name_match: return add_reaction
+        boost_name = boost_name_match.group(1)
+        if boost_name in strings.PRODUCE_FULL_NAMES:
+            boost_name = strings.PRODUCE_FULL_NAMES[boost_name]
+        boost_emoji = strings.PRODUCE_EMOJIS.get(boost_name, '')
+
+        reminder_message = (
+            user_settings.reminder_boosts.message
+            .replace('{boost_name}', boost_name)
+            .replace('{boost_emoji}', boost_emoji)
+        ).strip()
+        reminder: reminders.Reminder = (
+            await reminders.insert_reminder(user.id, boost_name.replace(' ','-'), time_left,
+                                            message.channel.id, reminder_message)
+        )
+        if user_settings.reactions_enabled and reminder.record_exists:
+            add_reaction = True
+                    
     return add_reaction
 
 

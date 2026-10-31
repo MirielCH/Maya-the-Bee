@@ -102,10 +102,11 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
                 reminder_time = f'**`{timestring}`**'
+            activity_emoji = emojis.SAILBOAT if reminder.activity == 'island-travel' else emojis.COOLDOWN
             activity = reminder.activity.replace('-',' ').title()
             field_command_reminders = (
                 f'{field_command_reminders}\n'
-                f'{emojis.COOLDOWN} **{activity}** • {reminder_time}'
+                f'{activity_emoji} **{activity}** • {reminder_time}'
             )
         embed.add_field(name='Commands', value=field_command_reminders.strip(), inline=False)
     if reminders_quests_list:

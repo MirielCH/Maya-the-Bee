@@ -437,6 +437,7 @@ class SettingsRemindersView(discord.ui.DesignerView):
             'Hive Energy': 'reminder_hive_energy_enabled',
             'Larva Growing': 'reminder_larva_enabled',
             'Incubator Upgrade': 'reminder_incubator_upgrade_enabled',
+            'Island Travel': 'reminder_island_travel_enabled',
             'Produce': 'reminder_produce_enabled',
             'Prune': 'reminder_prune_enabled',
             'Pruner Research': 'reminder_research_enabled',

@@ -539,9 +539,10 @@ async def embed_settings_reminders(bot: discord.Bot, ctx: discord.ApplicationCon
         f'{emojis.BP} **Energy Drink**: {await functions.bool_to_text(user_settings.reminder_energy_drink.enabled)}\n'
         f'{emojis.BP} **Fusion**: {await functions.bool_to_text(user_settings.reminder_fusion.enabled)}\n'
         f'{emojis.BP} **Hive Energy**: {await functions.bool_to_text(user_settings.reminder_hive_energy.enabled)}\n'
+        f'{emojis.BP} **Incubator Upgrade**: {await functions.bool_to_text(user_settings.reminder_incubator_upgrade.enabled)}\n'
     )
     command_reminders2 = (
-        f'{emojis.BP} **Incubator Upgrade**: {await functions.bool_to_text(user_settings.reminder_incubator_upgrade.enabled)}\n'
+        f'{emojis.BP} **Island Travel**: {await functions.bool_to_text(user_settings.reminder_island_travel.enabled)}\n'
         f'{emojis.BP} **Larva Growing**: {await functions.bool_to_text(user_settings.reminder_larva.enabled)}\n'
         f'{emojis.BP} **Produce**: {await functions.bool_to_text(user_settings.reminder_produce.enabled)}\n'
         f'{emojis.BP} **Prune**: {await functions.bool_to_text(user_settings.reminder_prune.enabled)}\n'
