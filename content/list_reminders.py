@@ -218,7 +218,7 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                     activity_emoji = f'<:{produce_emoji_match.group(1)}>'
                     produce_name_match = re.search(r'<:(.+?):', activity_emoji)
                     if produce_name_match:
-                        activity = f'Producing {" ".join(word.capitalize() for word in produce_name_match.group(1).replace('_', '').split())}'
+                        activity = f'Producing {" ".join(word.capitalize() for word in produce_name_match.group(1).replace('_', ' ').split())}'
             elif reminder.activity.startswith('lab-power'):
                 activity_emoji = emojis.LAB_POWER
                 activity = f'{reminder.activity.replace('lab-power-','')} power'.title()

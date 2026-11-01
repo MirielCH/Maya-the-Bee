@@ -12,6 +12,7 @@ from datetime import timedelta
 from cache import messages
 from database import reminders, users
 from resources import emojis, exceptions, functions, regex, strings
+from resources.enums import LabPowerReminderMode
 
 
 async def process_message(message: discord.Message, embed_data: Dict, text_displays: list, interaction_user: Optional[discord.User],
@@ -273,6 +274,42 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 cooldowns.append(['produce', timestring_match.group(1).lower(), reminder_message])
             else:
                 ready_commands.append('produce')
+        if user_settings.reminder_lab_power.enabled or user_settings.ready_show_lab_power:
+            timestring_match = re.search(r"power\*\* • \*\*`(.+?)`\*\* \((\d+)\/(\d+)\)", embed_field_tool.lower())
+            if timestring_match:
+                timestring = timestring_match.group(1).lower()
+                power_current = int(timestring_match.group(2))
+                power_total = int(timestring_match.group(3))
+                if power_current != power_total:
+                    time_until_next_power = await functions.parse_timestring_to_timedelta(timestring)
+                    power_missing = power_total - power_current
+                    power_until_next_25 = (25 - power_current % 25)
+                    time_left_until_full = timedelta(minutes=(14 * (power_missing - 1)) + (time_until_next_power.total_seconds() / 60))
+                    user_command = await functions.get_game_command(user_settings, 'laboratory production')
+                    reminder_message = (
+                        user_settings.reminder_lab_power.message
+                        .replace('{command}', user_command)
+                        .replace('{power_amount}', 'full')
+                        .replace('{power_emoji}', emojis.LAB_POWER)
+                    ).strip()
+                    cooldowns.append(['lab-power-full', await functions.parse_timedelta_to_timestring(time_left_until_full), reminder_message])
+
+                    power_next_25 = power_until_next_25 + power_current
+                    if (power_next_25 < power_total
+                        and user_settings.reminder_lab_power.enabled
+                        and user_settings.reminder_lab_power_mode == LabPowerReminderMode.EVERY_TICK):
+                        power_ticks = list(range(power_next_25, power_total, 25))
+                        for power_tick in power_ticks:
+                            time_left_until_power_tick = timedelta(minutes=(14 * (power_tick - power_current - 1)) + (time_until_next_power.total_seconds() / 60))
+                            reminder_message = (
+                                user_settings.reminder_lab_power.message
+                                .replace('{command}', user_command)
+                                .replace('{power_amount}', str(power_tick))
+                                .replace('{power_emoji}', emojis.LAB_POWER)
+                            ).strip()
+
+                            cooldowns.append([f'lab-power-{power_tick}', await functions.parse_timedelta_to_timestring(time_left_until_power_tick), reminder_message])
+
         if user_settings.reminder_island_travel.enabled:
             timestring_match = re.search(r"\*\*(.+island)\*\* • \*\*`(.+?)`\*\*", embed_field_island.lower())
             if timestring_match:

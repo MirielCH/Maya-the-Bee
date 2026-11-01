@@ -157,7 +157,11 @@ async def call_context_helper_on_empty_energy(message: discord.Message, embed_da
         try:
             await reminders.get_reminder(user.id, 'energy-drink')
         except exceptions.NoDataFoundError:
-            answer = f"{answer}\n➜ {strings.SLASH_COMMANDS['use']} `energy drink`"
+            answer = (
+                f"{answer}\n"
+                f"➜ {strings.SLASH_COMMANDS['craft']} `energy drink`\n"
+                f"➜ {strings.SLASH_COMMANDS['use']} `energy drink`"
+            )
         if answer:
             await message.reply(answer.strip())
             

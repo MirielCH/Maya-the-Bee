@@ -58,9 +58,9 @@ async def create_travel_reminder(message: discord.Message, embed_data: Dict, tex
             except exceptions.FirstTimeUserError:
                 return add_reaction
         if not user_settings.bot_enabled: return add_reaction
-        if not user_settings.reminder_island_travel.enabled and not user_settings.ready_show_location: return add_reaction
+        if (not user_settings.reminder_island_travel.enabled and not user_settings.ready_show_location
+            and not user_settings.helper_context_enabled): return add_reaction
 
-        
         island_name = island_emoji = ''
         time_left = timedelta(seconds=0)
         for text_display in text_displays:
@@ -85,6 +85,8 @@ async def create_travel_reminder(message: discord.Message, embed_data: Dict, tex
                             island_name = island_name_match.group(1)
                             await user_settings.update(current_location=island_name)
                             if user_settings.reactions_enabled: add_reaction = True
+            if 'you have **0**' in text_display.lower() and user_settings.helper_context_enabled:
+                await message.reply(f"➜ {strings.SLASH_COMMANDS['craft']} `energy drink`")
 
         if time_left <= timedelta(seconds=1): return add_reaction
         if user_settings.reminder_island_travel.enabled:
