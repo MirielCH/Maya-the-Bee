@@ -4,8 +4,7 @@ This policy is effective as of 10 March 2023 and was last updated on 27 October 
 
 ## User information the bot collects
 
-Maya uses user IDs to store settings and tracked data. All user IDs are encrypted before they are stored in the database.  
-Maya does neither collect nor store any other personal user data.  
+Maya uses user IDs, channel IDs and message jump URLs to store settings, tracked data and errors. All data is hashed and/or encrypted before it is stored in the database.  
 
 ## Command tracking
 
