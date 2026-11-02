@@ -740,7 +740,7 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
     reminders_chests = []
     quests_ready = list(strings.ACTIVITIES_QUEST)
     reminders_larvae = []
-    pruner_ready = list(strings.ACTIVITIES_LABORATORY)
+    pruner_ready = ['pruner-research','pruner-upgrade']
 
     try:
         active_reminders = list(await reminders.get_active_reminders(user.id))
@@ -789,13 +789,14 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             if user_settings.pruner_level < 10:
                 ready_list = f'{ready_list}\n{pruner_emoji} {strings.SLASH_COMMANDS["tool"]} upgrade'
             else:
-                ready_list = f'{ready_list}\n{pruner_emoji} {strings.SLASH_COMMANDS["laboratory"]} research'
+                ready_list = f'{ready_list}\n{pruner_emoji} {strings.SLASH_COMMANDS["laboratory pruner"]} research'
                 
+    ready_list_laboratory = ready_list_rebirth = ready_list_incubator = ready_list_location = ready_list_chests = ''
     if len(reminders_chests) < 3 and user_settings.ready_show_chests:
         if user_settings.chests_slots_ready > 0:
-            ready_list = f'{ready_list}\n{emojis.CHEST_WOODEN} {strings.SLASH_COMMANDS['chests']}: {user_settings.chests_slots_ready} chest(s) ready to open'
+            ready_list_chests = f'{ready_list_chests}\n{emojis.CHESTS} {user_settings.chests_slots_ready} {strings.SLASH_COMMANDS['chests']} ready to open'
         if user_settings.chests_slots_empty > 0 and user_settings.chests_in_queue > 0:
-            ready_list = f'{ready_list}\n{emojis.CHEST_WOODEN} {min(user_settings.chests_slots_empty, user_settings.chests_in_queue)} {strings.SLASH_COMMANDS['chests']} ready to start'
+            ready_list_chests = f'{ready_list_chests}\n{emojis.CHESTS} {min(user_settings.chests_slots_empty, user_settings.chests_in_queue)} {strings.SLASH_COMMANDS['chests']} ready to start'
 
     if quests_ready and user_settings.ready_show_quests:
         quest_types = ''
@@ -803,7 +804,6 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
             quest_types = f'{quest_types}, {quest.replace("quest-", "").replace("-", " ")}'
         ready_list = f'{ready_list}\n{emojis.READY} {strings.SLASH_COMMANDS["quests"]}: {quest_types.strip(", ").capitalize()}'
         
-    ready_list_laboratory = ready_list_rebirth = ready_list_incubator = ready_list_location = ''
     if len(reminders_larvae) < user_settings.incubator_slots_total and user_settings.ready_show_incubator:
         if any([user_settings.incubator_slots_ready > 0, user_settings.incubator_slots_hungry > 0, user_settings.incubator_slots_empty > 0]):
             if user_settings.incubator_slots_ready > 0:
@@ -851,6 +851,8 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
         )
         if ready_list:
             embed.add_field(name='Commands', value=ready_list, inline=False)
+        if ready_list_chests:
+            embed.add_field(name='Chests', value=ready_list_chests, inline=False)
         if ready_list_incubator:
             embed.add_field(name='Incubator', value=ready_list_incubator, inline=False)
         if ready_list_laboratory:

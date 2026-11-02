@@ -163,6 +163,30 @@ class DevCog(commands.Cog):
             await self.bot.close()
         else:
             await functions.edit_interaction(interaction, content='Shutdown aborted.', view=None)
+            
+    @dev.command(name='delete-error-log')
+    async def delete_error_log(self, ctx: discord.ApplicationContext):
+        """Erases the data of the table "errors"""""
+        if ctx.author.id not in settings.DEV_IDS:
+            await ctx.respond(MSG_NOT_DEV, ephemeral=True)
+            return
+        view = views.ConfirmCancelView(ctx, styles=[discord.ButtonStyle.red, discord.ButtonStyle.grey])
+        interaction = await ctx.respond(f'**{ctx.author.global_name}**, are you **SURE**?', view=view)
+        view.interaction_message = interaction
+        await view.wait()
+        if view.value is None:
+            await functions.edit_interaction(interaction, content=f'**{ctx.author.global_name}**, you didn\'t answer in time.',
+                                             view=None)
+        elif view.value == 'confirm':
+            await functions.edit_interaction(interaction, content='Erasing data...', view=None)
+            try:
+                cur = settings.DATABASE.cursor()
+                cur.execute('DELETE FROM errors')
+                await functions.edit_interaction(interaction, content='Done.', view=None)    
+            except Exception as error:
+                await functions.edit_interaction(interaction, content=f'Got an error:```{error}```', view=None)    
+        else:
+            await functions.edit_interaction(interaction, content='Aborted.', view=None)
 
     @dev.command()
     async def cache(self, ctx: discord.ApplicationContext):
@@ -535,6 +559,10 @@ class DevCog(commands.Cog):
                 record_as_dict['jump_url'] = 'N/A'
             del record_as_dict['jump_url_token']
             all_records_as_dict.append(record_as_dict)
+
+        if not all_records_as_dict:
+            await ctx.respond(content='The error log is empty.')    
+            return
 
         csv_file_path = 'error_log.csv'
 

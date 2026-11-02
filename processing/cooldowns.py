@@ -271,7 +271,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                     .replace('{produce_name}', produce_name)
                     .replace('{produce_emoji}', produce_emoji)
                 )
-                cooldowns.append(['produce', timestring_match.group(1).lower(), reminder_message])
+                cooldowns.append(['produce', timestring_match.group(2).lower(), reminder_message])
             else:
                 ready_commands.append('produce')
         if user_settings.reminder_lab_power.enabled or user_settings.ready_show_lab_power:
@@ -322,7 +322,7 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                     .replace('{island_name}', island_name)
                     .replace('{island_emoji}', island_emoji)
                 )
-                cooldowns.append(['island-travel', timestring_match.group(1).lower(), reminder_message])
+                cooldowns.append(['island-travel', timestring_match.group(2).lower(), reminder_message])
                 await user_settings.update(current_location=island_name)
             else:
                 ready_commands.append('island-travel')

@@ -361,7 +361,6 @@ ACTIVITIES_SLASH_COMMANDS = {
 ACTIVITIES_COLUMNS = {
     'afterlife': 'reminder_hal_afterlife',
     'boosts': 'reminder_boosts',
-    'bulbs-potion': 'reminder_boosts',
     'calendar': 'reminder_calendar',
     'chest-1': 'reminder_chests',
     'chest-2': 'reminder_chests',
@@ -369,8 +368,6 @@ ACTIVITIES_COLUMNS = {
     'chests': 'reminder_chests',
     'clean': 'reminder_clean',
     'daily': 'reminder_daily',
-    'drop-chance-boost': 'reminder_boosts',
-    'easter-candy': 'reminder_boosts',
     'energy-drink': 'reminder_energy_drink',
     'fusion': 'reminder_fusion',
     'hive-energy': 'reminder_hive_energy',
@@ -382,18 +379,13 @@ ACTIVITIES_COLUMNS = {
     'prune': 'reminder_prune',
     'pruner-research': 'reminder_research',
     'pruner-upgrade': 'reminder_upgrade',
-    'queen-bee-boost': 'reminder_boosts',
     'quest-daily': 'reminder_quests',
     'quest-monthly': 'reminder_quests',
     'quest-weekly': 'reminder_quests',
     'quests': 'reminder_quests',
-    'radioactive-potion': 'reminder_boosts',
-    'raid-shield': 'reminder_boosts',
-    'skull-potion': 'reminder_boosts',
-    'spooky-boost': 'reminder_boosts',
     'vote': 'reminder_vote',
-    'xp-boost': 'reminder_boosts',
 }
+ACTIVITIES_COLUMNS |= {activity: 'reminder_boosts' for activity in ACTIVITIES_BOOSTS}
 
 ACTIVITIES_NAME_BOOSTS = {
     'bulbs potion': 'bulbs-potion',
