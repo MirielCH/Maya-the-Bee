@@ -85,6 +85,10 @@ To reload files in subfolders, use `folder.file` (e.g. `resources.settings`). Co
 
 Exports the contents of the table `error_log` as a CSV file.  
 
+### `/dev delete-error-log`
+
+Deletes all records in the table `error_log`.  
+
 ### `/dev create-hash`
 
 Creates a hash of a value using the secret key in your .env file.  

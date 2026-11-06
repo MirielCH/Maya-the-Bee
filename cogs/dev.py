@@ -549,6 +549,7 @@ class DevCog(commands.Cog):
             
         except Exception as error:
             await ctx.respond(content=f'Error retrieving data:\n```{error}```')
+            return
 
         all_records_as_dict = []
         for record in records:

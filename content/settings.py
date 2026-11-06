@@ -162,13 +162,13 @@ async def command_purge_data(bot: discord.Bot, ctx: discord.ApplicationContext) 
                 interaction, content='Purging user settings...',
                 view=None
             )
-            cur.execute('DELETE FROM users WHERE user_id=?', (ctx.author.id,))
+            cur.execute('DELETE FROM users WHERE user_id_hash=?', (functions.create_hash(ctx.author.id),))
             await asyncio.sleep(1)
             await functions.edit_interaction(
                 interaction, content='Purging reminders...',
                 view=None
             )
-            cur.execute('DELETE FROM reminders WHERE user_id=?', (ctx.author.id,))
+            cur.execute('DELETE FROM reminders WHERE user_id_hash=?', (functions.create_hash(ctx.author.id),))
             await asyncio.sleep(1)
             await functions.edit_interaction(
                 interaction, content='Purging tracking data... (this can take a while)',

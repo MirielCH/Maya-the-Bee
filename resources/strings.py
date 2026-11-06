@@ -302,6 +302,19 @@ ACTIVITIES_BOOSTS = (
     'xp-boost',
 )
 
+ACTIVITIES_NAME_BOOSTS = {
+    'bulbs potion': 'bulbs-potion',
+    'drop chance boost': 'drop-chance-boost',
+    'easter candy': 'easter-candy',
+    'drop chance': 'drop-chance-boost',
+    'queen bee hp': 'queen-bee-boost',
+    'raid shield': 'raid-shield',
+    'radioactive potion': 'radioactive-potion',
+    'skull potion': 'skull-potion',
+    'spooky boost': 'spooky-boost',
+    'xp boost': 'xp-boost',
+}   
+
 ACTIVITIES_QUEST = (
     'quest-daily',
     'quest-weekly',
@@ -386,19 +399,6 @@ ACTIVITIES_COLUMNS = {
     'vote': 'reminder_vote',
 }
 ACTIVITIES_COLUMNS |= {activity: 'reminder_boosts' for activity in ACTIVITIES_BOOSTS}
-
-ACTIVITIES_NAME_BOOSTS = {
-    'bulbs potion': 'bulbs-potion',
-    'drop chance boost': 'drop-chance-boost',
-    'easter candy': 'easter-candy',
-    'drop chance': 'drop-chance-boost',
-    'queen bee hp': 'queen-bee-boost',
-    'raid shield': 'raid-shield',
-    'radioactive potion': 'radioactive-potion',
-    'skull potion': 'skull-potion',
-    'spooky boost': 'spooky-boost',
-    'xp boost': 'xp-boost',
-}
 
 SLASH_COMMANDS = {
     'bees': '</bees:976919525415071825>',
@@ -495,8 +495,12 @@ PRUNER_TYPES = {
 }
 
 PRODUCE_FULL_NAMES = {
-    'ashw. draught': 'ashwaganda draught',
-    'nectar conc.': 'nectar concentrate',
+    'ashw. draught': 'Ashwaganda Draught',
+    'nectar conc.': 'Cectar Concentrate',
+}
+
+PRODUCE_NONSTANDARD_NAMES = {
+    'npk bio': 'NPK Bio',
 }
 
 PRODUCE_EMOJIS = {
@@ -543,6 +547,7 @@ PRODUCE_EMOJIS = {
     'metamorph elixir': emojis.PRODUCE_METAMORPH_ELIXIR,
     'chrysalis catalyst': emojis.PRODUCE_CHRYSALIS_CATALYST,
 }
+
 
 ISLAND_EMOJIS = {
     'farmer\'s island': emojis.ISLAND_FARMER,

@@ -265,6 +265,10 @@ async def update_reminders_in_cooldown_list(message: discord.Message, embed_data
                 user_command = await functions.get_game_command(user_settings, 'laboratory production')
                 produce_name = timestring_match.group(1)
                 produce_emoji = strings.PRODUCE_EMOJIS.get(produce_name, '')
+                if produce_name in strings.PRODUCE_NONSTANDARD_NAMES:
+                    produce_name = strings.PRODUCE_NONSTANDARD_NAMES[produce_name]
+                else:
+                    produce_name = " ".join(word.capitalize() for word in produce_name.replace('_', ' ').split())
                 reminder_message = (
                     user_settings.reminder_produce.message
                     .replace('{command}', user_command)

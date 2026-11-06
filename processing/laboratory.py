@@ -173,6 +173,10 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                     if produce_name in strings.PRODUCE_FULL_NAMES:
                         produce_name = strings.PRODUCE_FULL_NAMES[produce_name]
                     produce_emoji = strings.PRODUCE_EMOJIS.get(produce_name, '')
+                    if produce_name in strings.PRODUCE_NONSTANDARD_NAMES:
+                        produce_name = strings.PRODUCE_NONSTANDARD_NAMES[produce_name]
+                    else:
+                        produce_name = " ".join(word.capitalize() for word in produce_name.split())
 
                 user_command = await functions.get_game_command(user_settings, 'laboratory production')
                 reminder_message = (
@@ -203,6 +207,10 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                         if not category_name_match or not category_tier_match: continue
                         boost_name = strings.PRODUCE_CATEGORIES_ITEMS[f'{category_name_match.group(1)}{category_tier_match.group(1)}']
                         boost_emoji = strings.PRODUCE_EMOJIS.get(boost_name, '')
+                        if boost_name in strings.PRODUCE_NONSTANDARD_NAMES:
+                            boost_name = strings.PRODUCE_NONSTANDARD_NAMES[boost_name]
+                        else:
+                            boost_name = " ".join(word.capitalize() for word in boost_name.split())
 
                         reminder_message = (
                             user_settings.reminder_boosts.message
@@ -210,7 +218,7 @@ async def create_reminders_on_produce_page(message: discord.Message, embed_data:
                             .replace('{boost_emoji}', boost_emoji)
                         ).strip()
                         reminder: reminders.Reminder = (
-                            await reminders.insert_reminder(interaction_user.id, boost_name.replace(' ','-'), time_left,
+                            await reminders.insert_reminder(interaction_user.id, boost_name.lower().replace(' ','-'), time_left,
                                                             message.channel.id, reminder_message)
                         )
                         if user_settings.reactions_enabled and reminder.record_exists: add_reaction = True

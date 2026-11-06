@@ -24,6 +24,14 @@ Maya reads Elder Arborium messages and also reads the commands you issue to trig
 
 The bot caches all messages sent by users that either mention the Elder Arborium bot or start with `tree `. They are used to reduce API calls and increase performance. These messages are discarded after 10 minutes and **not** stored permanently.  
 
+## Purging user data
+
+You can use the `/purge data` command to delete everything Maya knows about you.  
+This includes the following:  
+• Your reminders  
+• Your complete command tracking history  
+• And finally, your user settings  
+
 ## Limits of this policy
 
 Please be aware that I have no control over the code and policies of forks and other projects that use Maya’s source code and cannot accept responsibility or liability for their respective privacy practices.  

@@ -218,7 +218,12 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                     activity_emoji = f'<:{produce_emoji_match.group(1)}>'
                     produce_name_match = re.search(r'<:(.+?):', activity_emoji)
                     if produce_name_match:
-                        activity = f'Producing {" ".join(word.capitalize() for word in produce_name_match.group(1).replace('_', ' ').split())}'
+                        produce_name = produce_name_match.group(1).replace('_',' ')
+                        if produce_name in strings.PRODUCE_NONSTANDARD_NAMES:
+                            produce_name = strings.PRODUCE_NONSTANDARD_NAMES[produce_name]
+                        else:
+                            produce_name = " ".join(word.capitalize() for word in produce_name_match.group(1).replace('_', ' ').split())
+                        activity = f'Producing {produce_name}'
             elif reminder.activity.startswith('lab-power'):
                 activity_emoji = emojis.LAB_POWER
                 activity = f'{reminder.activity.replace('lab-power-','')} power'.title()
@@ -250,11 +255,15 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
                 reminder_time = f'**`{timestring}`**'
-            activity = reminder.activity.replace('-',' ').title()
             if reminder.activity in strings.ACTIVITIES_BOOSTS_EMOJIS:
                 emoji = strings.ACTIVITIES_BOOSTS_EMOJIS[reminder.activity]
             else:
                 emoji = emojis.BP
+            activity = reminder.activity.replace('-',' ')
+            if activity in strings.PRODUCE_NONSTANDARD_NAMES:
+                activity = strings.PRODUCE_NONSTANDARD_NAMES[activity]
+            else:
+                activity = " ".join(word.capitalize() for word in activity.replace('-', ' ').split())
             field_boosts_reminders = (
                 f'{field_boosts_reminders}\n'
                 f'{emoji} **{activity}** • {reminder_time}'

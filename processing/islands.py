@@ -85,7 +85,7 @@ async def create_travel_reminder(message: discord.Message, embed_data: Dict, tex
                             island_name = island_name_match.group(1)
                             await user_settings.update(current_location=island_name)
                             if user_settings.reactions_enabled: add_reaction = True
-            if 'you have **0**' in text_display.lower() and user_settings.helper_context_enabled:
+            if 'for this trip' in text_display.lower() and user_settings.helper_context_enabled:
                 await message.reply(f"➜ {strings.SLASH_COMMANDS['craft']} `energy drink`")
 
         if time_left <= timedelta(seconds=1): return add_reaction

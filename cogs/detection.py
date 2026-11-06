@@ -339,4 +339,9 @@ async def check_edited_message_never_allowed(message_before: discord.Message,
     - False if not affected by this check
     """
     if message_before.pinned != message_after.pinned: return True
+    search_strings = [
+        'for this trip', #English
+    ]
+    if any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings):
+        return True
     return False

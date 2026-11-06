@@ -299,6 +299,10 @@ async def create_reminder_on_lab_boost(message: discord.Message, embed_data: Dic
         if boost_name in strings.PRODUCE_FULL_NAMES:
             boost_name = strings.PRODUCE_FULL_NAMES[boost_name]
         boost_emoji = strings.PRODUCE_EMOJIS.get(boost_name, '')
+        if boost_name in strings.PRODUCE_NONSTANDARD_NAMES:
+            boost_name = strings.PRODUCE_NONSTANDARD_NAMES[boost_name]
+        else:
+            boost_name = " ".join(word.capitalize() for word in boost_name.split())
 
         reminder_message = (
             user_settings.reminder_boosts.message
@@ -306,7 +310,7 @@ async def create_reminder_on_lab_boost(message: discord.Message, embed_data: Dic
             .replace('{boost_emoji}', boost_emoji)
         ).strip()
         reminder: reminders.Reminder = (
-            await reminders.insert_reminder(user.id, boost_name.replace(' ','-'), time_left,
+            await reminders.insert_reminder(user.id, boost_name.replace(' ','-').lower(), time_left,
                                             message.channel.id, reminder_message)
         )
         if user_settings.reactions_enabled and reminder.record_exists:
