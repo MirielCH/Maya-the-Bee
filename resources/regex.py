@@ -40,6 +40,7 @@ COMMAND_INVENTORY_CALCULATOR = re.compile(r"(?:\binventory\b|\binv\b|\bi\b)\s+(?
 COMMAND_SHOP = re.compile(r"\bshop\b")
 COMMAND_TOOL = re.compile(r"\btool\b")
 COMMAND_USE = re.compile(r"\buse\b")
+COMMAND_USE_AUXIN_SERUM = re.compile(r"\buse\b\s+\bauxin\b\s+\bserum\b")
 COMMAND_USE_CANDY = re.compile(r"\buse\b\s+\bcandy\b")
 COMMAND_USE_EASTER_EGG = re.compile(r"\buse\b\s+(?:\beaster\b\s+)?\begg\b")
 COMMAND_USE_ENERGY_DRINK = re.compile(r"\buse\b\s+(?:\benergy\b\s+\bdrink\b|\bedrink\b)")

@@ -241,15 +241,6 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await message.reply(content=message_content.strip(), embeds=embeds)
 
             if rebirth_target:
-                if user_settings.alert_rebirth_dm:
-                    asyncio.ensure_future(user.send(
-                        f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!\n'
-                        f'➜ {message.jump_url}'
-                    ))
-                else:
-                    await asyncio.sleep(1)
-                    await message.reply(
-                        f'{user.mention}\n'
-                        f'Bzzt! You reached level **{next_level:,}** and are now ready for rebirth!'
-                    )
+                await functions.trigger_rebirth_alert(user_settings, user, message, next_level)
+                
     return add_reaction

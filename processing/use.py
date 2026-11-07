@@ -29,6 +29,7 @@ async def process_message(message: discord.Message, embed_data: Dict, text_displ
     return_values.append(await create_reminder_on_easter_candy(message, embed_data, user, user_settings))
     return_values.append(await update_rebirth_on_easter_eggs(message, embed_data, user, user_settings))
     return_values.append(await create_reminder_on_lab_boost(message, embed_data, user, user_settings))
+    return_values.append(await update_level_on_auxin_serum(message, embed_data, user, user_settings))
     return_values.append(await update_xp_on_water_bottle(message, embed_data, user, user_settings))
     return any(return_values)
 
@@ -319,6 +320,48 @@ async def create_reminder_on_lab_boost(message: discord.Message, embed_data: Dic
     return add_reaction
 
 
+async def update_level_on_auxin_serum(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
+                                      user_settings: Optional[users.User]) -> bool:
+    """Update XP when an auxin serum is used.
+
+    Returns
+    -------
+    - True if a logo reaction should be added to the message
+    - False otherwise
+    """
+    add_reaction = False
+    search_strings = [
+        'your tree shot up!', #English
+    ]
+    if any(search_string in embed_data['title'].lower() for search_string in search_strings):
+        if user is None:
+            if embed_data['embed_user'] is not None:
+                user = embed_data['embed_user']
+                user_settings = embed_data['embed_user_settings']
+            else:
+                user_command_message = (
+                    await messages.find_message(message.channel.id, regex.COMMAND_USE_AUXIN_SERUM,
+                                                user_name=embed_data['author']['name'])
+                )
+                user = user_command_message.author
+        if user_settings is None:
+            try:
+                user_settings: users.User = await users.get_user(user.id)
+            except exceptions.FirstTimeUserError:
+                return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
+        new_level_match = re.search(r'now level \*\*(.+?)\*\*\/', embed_data['description'].lower())
+        new_level = int(re.sub(r'\D', '', new_level_match.group(1)))
+        xp_target = (new_level ** 3) * 150
+        await user_settings.update(xp=0, level=new_level, xp_target=xp_target,
+                                   xp_gain_average=0)
+        if user_settings.reactions_enabled: add_reaction = True
+        if user_settings.alert_rebirth_enabled:
+            await functions.trigger_rebirth_alert(user_settings, user, message, new_level)
+
+    return add_reaction
+
+
 async def update_xp_on_water_bottle(message: discord.Message, embed_data: Dict, user: Optional[discord.User],
                                     user_settings: Optional[users.User]) -> bool:
     """Update XP when a water bottle is used.
@@ -348,7 +391,7 @@ async def update_xp_on_water_bottle(message: discord.Message, embed_data: Dict, 
                 user_settings: users.User = await users.get_user(user.id)
             except exceptions.FirstTimeUserError:
                 return add_reaction
-        if not user_settings.bot_enabled or not user_settings.helper_prune_enabled: return add_reaction
+        if not user_settings.bot_enabled: return add_reaction
         xp_gain_end_match = re.search(r'gained \*\*(.+?)\*\* exp', embed_data['description'].lower())
         xp_gain = int(re.sub(r'\D', '', xp_gain_end_match.group(1)))
         if user_settings.xp_target == 0 or user_settings.level == 0: return add_reaction
@@ -369,7 +412,11 @@ async def update_xp_on_water_bottle(message: discord.Message, embed_data: Dict, 
                 else:
                     levels_gained += 1
         xp_gain_average = 0 if levels_gained > 0 else user_settings.xp_gain_average
-        await user_settings.update(xp=new_xp, level=(user_settings.level + levels_gained), xp_target=xp_target,
+        new_level = user_settings.level + levels_gained
+        await user_settings.update(xp=new_xp, level=new_level, xp_target=xp_target,
                                    xp_gain_average=xp_gain_average)
+        if user_settings.reactions_enabled: add_reaction = True
+        if user_settings.alert_rebirth_enabled:
+            await functions.trigger_rebirth_alert(user_settings, user, message, new_level)
 
     return add_reaction

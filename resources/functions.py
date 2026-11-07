@@ -868,5 +868,25 @@ async def design_embed_ready_list(user: discord.User, user_settings: users.User)
         )
         if user_settings.ready_show_when_empty:
             embed.description = f'{emojis.ENABLED} All done!'
-        
+
     return embed
+
+
+async def trigger_rebirth_alert(user_settings: users.User, user: discord.User, message: discord.Message, level: int) -> None:
+    """Checks if the provided level is over the rebirth level target. If yes, sends the rebirth alert."""
+    if user_settings.rebirth <= 10:
+        level_target = 5 + user_settings.rebirth
+    else:
+        level_target = 15 + ((user_settings.rebirth - 10) // 2)
+    if level >= level_target:
+        if user_settings.alert_rebirth_dm:
+            asyncio.ensure_future(user.send(
+                f'Bzzt! You reached level **{level:,}** and are now ready for rebirth!\n'
+                f'➜ {message.jump_url}'
+            ))
+        else:
+            await asyncio.sleep(1)
+            await message.reply(
+                f'{user.mention}\n'
+                f'Bzzt! You reached level **{level:,}** and are now ready for rebirth!'
+            )
