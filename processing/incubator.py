@@ -170,7 +170,7 @@ async def create_larva_reminders_from_overview(message: discord.Message, embed_d
             if 'larva' in field.name.lower():
                 incubator_slots_total += 1
                 if 'loading' in field.value.lower() and (user_settings.reminder_larva.enabled or user_settings.ready_show_incubator):
-                    slot_match = re.search(r"`slot\s(\d+?)`", field.name.lower())
+                    slot_match = re.search(r"`(\d+?)`", field.name.lower())
                     timestring_match = re.search(r"`(.+?)`", field.value.lower())
                     
                     if 'queen' in field.value.lower():

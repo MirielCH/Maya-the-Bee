@@ -478,6 +478,7 @@ NUGGETS = {
     'Silver': emojis.NUGGET_SILVER,
     'Golden': emojis.NUGGET_GOLDEN,
     'Diamond': emojis.NUGGET_DIAMOND,
+    'Amber': emojis.NUGGET_AMBER,
 }
 
 LARVAE_EMOJIS = {
@@ -492,6 +493,7 @@ PRUNER_TYPES = {
     'silver': 3,
     'golden': 4,
     'diamond': 5,
+    'amber': 6,
 }
 
 PRODUCE_FULL_NAMES = {

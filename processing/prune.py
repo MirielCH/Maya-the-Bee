@@ -80,6 +80,7 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         nugget_silver_match = re.search(r'silver_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_golden_match = re.search(r'golden_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         nugget_diamond_match = re.search(r'diamond_nugget_2:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
+        nugget_amber_match = re.search(r'amber_nugget:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         bee_bread_match = re.search(r'beebread:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         royal_jelly_match = re.search(r'royaljelly:\d+>\s*\*\*(.+?)\*\*', message.content.lower())
         if nugget_wooden_match:
@@ -112,6 +113,12 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
                 await tracking.insert_log_entry(user.id, 'diamond-nugget', current_time,
                                                 nugget_diamond_amount)
             dropped_nuggets['Diamond'] = nugget_diamond_amount
+        if nugget_amber_match:
+            nugget_amber_amount = get_amount(nugget_amber_match.group(1))
+            if user_settings.tracking_enabled:
+                await tracking.insert_log_entry(user.id, 'amber-nugget', current_time,
+                                                nugget_amber_amount)
+            dropped_nuggets['Amber'] = nugget_amber_amount
         if bee_bread_match:
             bee_bread_amount = get_amount(bee_bread_match.group(1))
             if user_settings.tracking_enabled:
@@ -122,9 +129,9 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             if user_settings.tracking_enabled:
                 await tracking.insert_log_entry(user.id, 'royal-jelly', current_time,
                                                 royal_jelly_amount)
-        if user_settings.reminder_prune.enabled or user_settings.ready_show_prune:
+        if user_settings.reminder_prune.enabled or user_settings.ready_show_prune and not '**quick sap**' in message.content.lower():
             user_command = await functions.get_game_command(user_settings, 'prune')
-            pruner_type_match = re.search(r'> \*\*(.+?) pruner', message.content, re.IGNORECASE)
+            pruner_type_match = re.search(r'\s\*\*(.+?) pruner', message.content, re.IGNORECASE)
             await user_settings.update(pruner_type=pruner_type_match.group(1).lower())
             time_left = await functions.calculate_time_left_from_cooldown(message, user_settings, 'prune')
             if time_left < timedelta(0): return add_reaction
@@ -141,7 +148,12 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
             )
             if reminder.record_exists and user_settings.reactions_enabled: add_reaction = True
         if user_settings.reactions_enabled:
-            if 'goldennugget' in message.content.lower() or 'diamondnugget' in message.content.lower():
+            nugget_strings = [
+                'golden_nugget',
+                'diamond_nugget',
+                'amber_nugget',
+            ]
+            if any(nugget_string in message.content.lower() for nugget_string in nugget_strings):
                 await message.add_reaction(emojis.PAN_WOOHOO)
         message_content = ''
         embeds = []

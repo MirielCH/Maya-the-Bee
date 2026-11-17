@@ -208,8 +208,11 @@ async def embed_reminders_list(bot: discord.Bot, user: discord.User, user_settin
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
                 reminder_time = f'**`{timestring}`**'
             activity_emoji = ''
-            if reminder.activity.startswith('pruner') and user_settings.pruner_type is not None:
+            if reminder.activity.startswith('pruner-upgrade') and user_settings.pruner_type is not None:
                 activity_emoji = getattr(emojis, f'PRUNER_{user_settings.pruner_type.upper()}', '')
+                activity = reminder.activity.replace('-',' ').title()
+            elif reminder.activity.startswith('pruner-research'):
+                activity_emoji = emojis.LAB_RESEARCH
                 activity = reminder.activity.replace('-',' ').title()
             elif reminder.activity.startswith('produce'):
                 produce_emoji_match = re.search(r'<:(.+?)>', reminder.message)

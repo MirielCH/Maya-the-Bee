@@ -286,7 +286,7 @@ async def create_reminders_on_pruner_page(message: discord.Message, embed_data: 
     """
     add_reaction = False
     search_strings = [
-        'laboratory', #English
+        '\'s laboratory', #English
         'pruner', #English
     ]
     if all(any(search_string in text_display.lower() for text_display in text_displays) for search_string in search_strings):
@@ -314,8 +314,7 @@ async def create_reminders_on_pruner_page(message: discord.Message, embed_data: 
                 if 'researching:' in text_display.lower():
                     timestring_text_display = text_display
                     break
-
-            if not timestring_text_display:
+            if not timestring_text_display or 'inactive' in timestring_text_display.lower():
                 try:
                     reminder: reminders.Reminder = await reminders.get_reminder(interaction_user.id, 'pruner-research')
                     await reminder.delete()

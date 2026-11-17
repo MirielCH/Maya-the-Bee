@@ -76,6 +76,7 @@ async def track_rebirth_and_show_summary(message: discord.Message, embed_data: D
                 f'{emojis.DETAIL2} {emojis.NUGGET_SILVER} {report.nugget_silver_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.NUGGET_GOLDEN} {report.nugget_golden_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.NUGGET_DIAMOND} {report.nugget_diamond_amount:,}\n'
+                f'{emojis.DETAIL2} {emojis.NUGGET_AMBER} {report.nugget_amber_amount:,}\n'
                 f'{emojis.DETAIL2} {emojis.ROYAL_JELLY} {report.royal_jelly_amount:,}\n'
                 f'{emojis.DETAIL} {emojis.BEE_BREAD} {report.bee_bread_amount:,}\n'
                 f'{emojis.BP} `clean`: {report.clean_amount:,}\n'

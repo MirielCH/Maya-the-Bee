@@ -50,18 +50,8 @@ class DetectionCog(commands.Cog):
         
         # Duplicate message handling
         if (message.id, message.content, str(embed_data), str(message.components)) in seen_messages:
-            if 'a bunny is approaching!' in embed_data['title'].lower():
-                logs.logger.info(
-                    f'\nDuplicate message detected and ignored.\n'
-                    f'Message ID: {message.id}\n'
-                    f'Message created at: {message.created_at}\n'
-                    f'Message edited at: {message.edited_at}\n'
-                    f'Message content: {message.content}\n'
-                    f'Message embed: {str(embed_data)}\n'
-                    f'Message components: {str(message.components)}\n'
-                    f'Message nonce: {message.nonce}\n'
-                )
-            return
+            if not await check_duplicate_message_allowed(message, embed_data, text_displays):
+                return
         expired_message_keys = [seen_key for seen_key, seen_time in seen_messages.items() if utils.utcnow() - seen_time > timedelta(minutes=1)]
         for seen_key in expired_message_keys:
             del seen_messages[seen_key]
@@ -325,6 +315,22 @@ async def check_edited_message_always_allowed(message_before: discord.Message,
         '** used rebirth!', #English
     ]
     if any(search_string in embed_data['description'].lower() for search_string in search_strings):
+        return True
+    return False
+
+async def check_duplicate_message_allowed(message: discord.Message, embed_data: Dict, text_displays: list) -> Union[bool, None]:
+    """Check if the message should be allowed to process even if it's a duplicate.
+    
+    Returns
+    -------
+    - True if allowed
+    - False if not affected by this check
+    """
+    search_strings = [
+        '\'s laboratory', #English
+        '\'s pruner', #English
+    ]
+    if any(search_string in text_display.lower() for search_string in search_strings for text_display in text_displays):
         return True
     return False
 
