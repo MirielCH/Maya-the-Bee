@@ -307,7 +307,7 @@ ACTIVITIES_NAME_BOOSTS = {
     'drop chance boost': 'drop-chance-boost',
     'easter candy': 'easter-candy',
     'drop chance': 'drop-chance-boost',
-    'queen bee hp': 'queen-bee-boost',
+    'queen bee hp boost': 'queen-bee-boost',
     'raid shield': 'raid-shield',
     'radioactive potion': 'radioactive-potion',
     'skull potion': 'skull-potion',

@@ -158,101 +158,102 @@ async def create_reminder(message: discord.Message, embed_data: Dict, user: Opti
         message_content = ''
         embeds = []
         rebirth_target = False
-        if user_settings.level > 0 and user_settings.xp_target > 0:
-            xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
-            xp_gain = int(re.sub(r'\D', '', xp_gain_match.group(1)))
-            if user_settings.xp_gain_average > 0:
-                xp_gain_average = (
-                    (user_settings.xp_prune_count * user_settings.xp_gain_average + xp_gain)
-                    / (user_settings.xp_prune_count + 1)
+        if user_settings.level == 0:
+            await user_settings.update(level=1, xp_target=150) # The default value in the DB is wrong (0, 0), so this is to fix new users' values.
+        xp_gain_match = re.search(r'got \*\*(.+?)\*\* <', message.content.lower())
+        xp_gain = int(re.sub(r'\D', '', xp_gain_match.group(1)))
+        if user_settings.xp_gain_average > 0:
+            xp_gain_average = (
+                (user_settings.xp_prune_count * user_settings.xp_gain_average + xp_gain)
+                / (user_settings.xp_prune_count + 1)
+            )
+        else:
+            xp_gain_average = xp_gain
+        xp_left = user_settings.xp_target - user_settings.xp - xp_gain
+        if user_settings.rebirth <= 10:
+            level_target = 5 + user_settings.rebirth
+        else:
+            level_target = 15 + ((user_settings.rebirth - 10) // 2)
+        if xp_left < 0:
+            next_level = user_settings.level
+            while True:
+                next_level += 1
+                new_xp_target = (next_level ** 3) * 150
+                if new_xp_target <= (xp_left * -1):
+                    xp_left = xp_left + new_xp_target
+                else:
+                    break
+            current_level = user_settings.level
+            await user_settings.update(xp_gain_average=0, xp=xp_left * -1, xp_prune_count=0, xp_target=new_xp_target,
+                                        level=next_level)
+            if user_settings.alert_rebirth_enabled and current_level < level_target and next_level >= level_target:
+                rebirth_target = True
+        else:
+            await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
+                                        xp_prune_count=(user_settings.xp_prune_count + 1))
+        if user_settings.helper_prune_enabled:
+            xp_percentage = user_settings.xp / user_settings.xp_target * 100
+            progress_bar = await functions.get_progress_bar(xp_percentage, 
+                                                            user_settings.helper_prune_progress_bar_color)
+            xp_left = user_settings.xp_target - user_settings.xp
+            xp_gain_average = floor(user_settings.xp_gain_average) if user_settings.xp_gain_average > 0 else xp_gain
+            try:
+                prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
+            except ZeroDivisionError:
+                prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
+            embed = discord.Embed(
+                color = settings.EMBED_COLOR,
+                title = progress_bar,
+                description = (
+                    f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1:,}**\n'
+                    f'➜ **{prunes_until_level_up}** prunes at **{xp_gain_average:,}** '
+                    f'{emojis.XP} average\n'
                 )
-            else:
-                xp_gain_average = xp_gain
-            xp_left = user_settings.xp_target - user_settings.xp - xp_gain
-            if user_settings.rebirth <= 10:
-                level_target = 5 + user_settings.rebirth
-            else:
-                level_target = 15 + ((user_settings.rebirth - 10) // 2)
-            if xp_left < 0:
-                next_level = user_settings.level
-                while True:
-                    next_level += 1
-                    new_xp_target = (next_level ** 3) * 150
-                    if new_xp_target <= (xp_left * -1):
-                        xp_left = xp_left + new_xp_target
-                    else:
-                        break
-                current_level = user_settings.level
-                await user_settings.update(xp_gain_average=0, xp=xp_left * -1, xp_prune_count=0, xp_target=new_xp_target,
-                                           level=next_level)
-                if user_settings.alert_rebirth_enabled and current_level < level_target and next_level >= level_target:
-                    rebirth_target = True
-            else:
-                await user_settings.update(xp_gain_average=round(xp_gain_average, 5), xp=(user_settings.xp + xp_gain),
-                                           xp_prune_count=(user_settings.xp_prune_count + 1))
-            if user_settings.helper_prune_enabled:
-                xp_percentage = user_settings.xp / user_settings.xp_target * 100
-                progress_bar = await functions.get_progress_bar(xp_percentage, 
-                                                                user_settings.helper_prune_progress_bar_color)
-                xp_left = user_settings.xp_target - user_settings.xp
-                xp_gain_average = floor(user_settings.xp_gain_average) if user_settings.xp_gain_average > 0 else xp_gain
-                try:
-                    prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
-                except ZeroDivisionError:
-                    prunes_until_level_up = f'{ceil(xp_left / xp_gain_average):,}'
-                embed = discord.Embed(
-                    color = settings.EMBED_COLOR,
-                    title = progress_bar,
-                    description = (
-                        f'**{xp_left:,}** {emojis.STAT_XP}until level **{user_settings.level + 1:,}**\n'
-                        f'➜ **{prunes_until_level_up}** prunes at **{xp_gain_average:,}** '
-                        f'{emojis.XP} average\n'
+            )
+            footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level:,}/{level_target:,}'
+            if user_settings.level >= level_target:
+                footer = f'{footer} • Ready for rebirth'
+            embed.set_footer(text = footer)
+            embeds.append(embed)
+        nugget_alert = False
+        if user_settings.alert_nugget_enabled and dropped_nuggets:
+            nugget_names = list(strings.NUGGETS.keys())
+            threshold_index = nugget_names.index(user_settings.alert_nugget_threshold)
+            nuggets_found = ''
+            for name, amount in dropped_nuggets.items():
+                if nugget_names.index(name) >= threshold_index:
+                    nuggets_found = (
+                        f'{nuggets_found}\n'
+                        f'**{amount:,}** {strings.NUGGETS[name]} {name} nuggets'
                     )
-                )
-                footer = f'Rebirth {user_settings.rebirth} • Level {user_settings.level:,}/{level_target:,}'
-                if user_settings.level >= level_target:
-                    footer = f'{footer} • Ready for rebirth'
-                embed.set_footer(text = footer)
-                embeds.append(embed)
-            nugget_alert = False
-            if user_settings.alert_nugget_enabled and dropped_nuggets:
-                nugget_names = list(strings.NUGGETS.keys())
-                threshold_index = nugget_names.index(user_settings.alert_nugget_threshold)
-                nuggets_found = ''
-                for name, amount in dropped_nuggets.items():
-                    if nugget_names.index(name) >= threshold_index:
-                        nuggets_found = (
-                            f'{nuggets_found}\n'
-                            f'**{amount:,}** {strings.NUGGETS[name]} {name} nuggets'
-                        )
-                if nuggets_found:
-                    if user_settings.alert_nugget_dm:
-                        asyncio.ensure_future(user.send(
-                            f'Bzzt! **Nuggets** found!\n'
-                            f'{nuggets_found.strip()}\n'
-                            f'➜ {message.jump_url}'
-                        ))
-                    else:
-                        embed = discord.Embed(
-                            color = settings.EMBED_COLOR,
-                            title = 'Nuggets found!',
-                            description = nuggets_found,
-                        ) 
-                        embed.set_footer(text='Use "/settings alerts" to change this')
-                        embeds.append(embed)
-                    nugget_alert = True
+            if nuggets_found:
+                if user_settings.alert_nugget_dm:
+                    asyncio.ensure_future(user.send(
+                        f'Bzzt! **Nuggets** found!\n'
+                        f'{nuggets_found.strip()}\n'
+                        f'➜ {message.jump_url}'
+                    ))
+                else:
+                    embed = discord.Embed(
+                        color = settings.EMBED_COLOR,
+                        title = 'Nuggets found!',
+                        description = nuggets_found,
+                    ) 
+                    embed.set_footer(text='Use "/settings alerts" to change this')
+                    embeds.append(embed)
+                nugget_alert = True
 
-            if user_settings.ready_popup_mode > ReadyPopupMode.MANUAL:
-                ready_embed = await functions.design_embed_ready_list(user, user_settings)
-                if ready_embed:
-                    embeds.append(ready_embed)
-            
-            if embeds or message_content:
-                if nugget_alert and not user_settings.alert_nugget_dm:
-                    message_content = f'{user.mention}\n{message_content}'
-                await message.reply(content=message_content.strip(), embeds=embeds)
+        if user_settings.ready_popup_mode > ReadyPopupMode.MANUAL:
+            ready_embed = await functions.design_embed_ready_list(user, user_settings)
+            if ready_embed:
+                embeds.append(ready_embed)
+        
+        if embeds or message_content:
+            if nugget_alert and not user_settings.alert_nugget_dm:
+                message_content = f'{user.mention}\n{message_content}'
+            await message.reply(content=message_content.strip(), embeds=embeds)
 
-            if rebirth_target:
-                await functions.trigger_rebirth_alert(user_settings, user, message, next_level)
+        if rebirth_target:
+            await functions.trigger_rebirth_alert(user_settings, user, message, next_level)
                 
     return add_reaction

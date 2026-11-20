@@ -42,8 +42,14 @@ async def create_reminders_from_stats(message: discord.Message, embed_data: Dict
         '\'s tree', #English
         '\'s profile', #English
     ]
-    if (any(search_string in embed_data['author']['name'].lower() for search_string in search_strings)
-        or any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings)):
+    search_strings_excluded = [
+        'tree skin', #English
+        'profile theme', #English
+    ]
+    if ((any(search_string in embed_data['author']['name'].lower() for search_string in search_strings)
+        or any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings))
+        and not any(search_string in embed_data['author']['name'].lower() for search_string in search_strings_excluded)
+        and not any(search_string in text_display.lower() for text_display in text_displays for search_string in search_strings_excluded)):
         if interaction_user is None:
             user_command_message = (
                 await messages.find_message(message.channel.id, regex.COMMAND_PROFILE_STATS)
